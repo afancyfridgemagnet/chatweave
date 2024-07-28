@@ -525,6 +525,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				if (content.length === 0 || content.length > MAX_MESSAGE_LENGTH) return;
 
 				const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
+				if (!currentChannel) return;
 
 				const commitValue = () => {
 					const MAX_COMMAND_HISTORY = 10;
