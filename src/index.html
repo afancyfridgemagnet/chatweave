@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+	<meta name="robots" content="noindex, noimageindex, nofollow, noarchive, nosnippet, notranslate">
+	<meta name="referrer" content="no-referrer">
+	<meta http-equiv="Content-Security-Policy" content="
+		default-src 'none';
+		style-src 'self' 'unsafe-inline';
+		connect-src 'self' https://*.twitch.tv wss://*.twitch.tv https://emotes.adamcy.pl;
+		img-src 'self' https://static-cdn.jtvnw.net https://d3aqoihi2n8ty8.cloudfront.net https://cdn.7tv.app https://cdn.betterttv.net https://cdn.frankerfacez.com;
+		script-src 'self';
+		font-src 'self';">
+	<meta name="theme-color" content="#bf94ff">
+	<meta name="description" content="Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined feed.">
+	<meta property="og:image" content="https://afancyfridgemagnet.github.io/chatweave/favicon.png">
+    <title>ChatWeave</title>
+	<link rel="icon" href="favicon.ico">
+    <link rel="icon" href="favicon.png">
+	<link rel="stylesheet" href="main.css">
+</head>
+<body>
+	<div id="chatOutput">
+		<div id="chatTracker" class="invisible"></div>
+	</div>
+	<div id="chatEdit" class="hide">
+		<ul id="chatRooms"></ul>
+		<div id="chatBar">
+			<datalist id="chatCommands"></datalist>
+			<input type="text" id="chatInput" list="chatCommands" minlength="1" maxlength="500" spellcheck="true" placeholder="Send a message" readonly disabled>
+		</div>
+	</div>
+	<template id="chatMessage">
+		<div class="mess">
+			<div class="user"></div>
+			<div class="body"></div>
+			<div class="time"></div>
+			<div class="room"></div>
+		</div>
+	</template>
+	<script src="twitchapi.js" defer></script>
+	<script src="chatweave.js" defer></script>
+</body>
+</html>
