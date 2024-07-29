@@ -702,7 +702,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 							if (arg) {
 								const userNames = arg.split(/[ ,]+/).map(cleanName).filter(isValidTwitchAccount);
 
-								userNames.forEach(user => ignoredUsers.add(user));
+								userNames.forEach(user => {
+									ignoredUsers.add(user);
+									// remove previous messages
+									// NOTE: we don't store username directly and don't map a username to a user id, so this is a round about way...
+									const selector = `.mess .user a[href="https://twitch.tv/${user}"]`;
+									chatOutput.querySelectorAll(selector).forEach(el => {
+										el.closest('.mess').remove();
+									});
+								});
 								updateUrl();
 							}
 
