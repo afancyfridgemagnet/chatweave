@@ -1,15 +1,16 @@
 # chatweave
 Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined message feed.
 
-Great for streamers who play together while interacting with each other's communities!
-Also extremely useful for streamers who want a clean and light-weight chat experience, as the default Twitch chat experience can be very bloated and spammy.
+Great for streamers who often play together while interacting with each other's communities!  
+
+Also extremely useful for streamers who may want a clean and light-weight chat experience, as the default Twitch chat experience can be very bloated and spammy.
 
 # Usage
 
-Authorization will be needed through your Twitch.tv account to send and receive messages.
+Authorization will be needed through your Twitch.tv account to send and receive messages.  
 By default it will automatically join your Twitch Account's chat channel, but you may /join and /leave channels at your discretion.
 
-Configuration changes will update the page's URL, which can then be bookmarked for future use, or shared with other people.
+Configuration changes will update the page's current URL, which can then be bookmarked for future use, or shared with other people.
 
 ## Potential Future Features
 - [ ] Support highlighted messages / message effects?
