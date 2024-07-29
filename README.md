@@ -1,5 +1,15 @@
 # chatweave
-Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined feed.
+Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined message feed.
+
+Great for streamers who play together while interacting with each other's communities!
+Also extremely useful for streamers who want a clean and light-weight chat experience, as the default Twitch chat experience can be very bloated and spammy.
+
+# Usage
+
+Authorization will be needed through your Twitch.tv account to send and receive messages.
+By default it will automatically join your Twitch Account's chat channel, but you may /join and /leave channels at your discretion.
+
+Configuration changes will update the page's URL, which can then be bookmarked for future use, or shared with other people.
 
 ## Potential Future Features
 - [ ] Support highlighted messages / message effects?
@@ -8,6 +18,7 @@ Connect to multiple Twitch.tv chats at the same time and consume them as a singu
 - [ ] Support for auto-completion of @names for users that have sent a message
 - [ ] Respect Twitch API request limits
 - [ ] Allow user choice of permissions (read only, read/send, read/send/mod commands)
+
 
 ## Basic Commands
 
@@ -47,9 +58,10 @@ Clears messages from specified channel(s). If no parameters specified, clears me
 Clears all messages from the screen.  
 
 `/ignore <user names>`  
-Add users to ignore list, preventing messages from being shown.  
+Add users to ignore list, preventing messages from being shown. Useful for ignoring known bots.  
+Commonly used bot accounts: nightbot pokemoncommunitygame sery_bot soundalerts streamelements streamlabs  
 
-`/ignore <user names>`  
+`/unignore <user names>`  
 Remove users from ignore list, allowing future messages to be shown.  
 
 `/logout`  
@@ -83,3 +95,8 @@ Sends a message to active channel as an action. This mimics Twitch's built-in /m
 
 `/shrug <message>`  
 Sends a message to active channel with a shrug suffix. This mimics Twitch's built-in /shrug command.
+
+
+## Using as a Stream Overlay
+
+TODO: OBS setup and customization
