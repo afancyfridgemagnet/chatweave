@@ -18,6 +18,7 @@ Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,di
 - [x] Proper link parsing, and all links will open in a new browser tab
 - [x] Scrolling up will preserve message history, allowing you to slowly read through past messages
 - [x] Completely client-side!
+- [x] Configurable!
 - [x] Usable in Stream Overlays!
 
 
@@ -114,7 +115,6 @@ When set to false, messages presumed to be bot commands (generally messages pref
 
 `/thirdpartyemotes <true|false>`  
 When set to true, parses and displays third-party GLOBAL and CHANNEL emotes from 7TV, BTTV, FFZ.  
-Uses adiq's tEmotes API: https://github.com/adiq/temotes  
  
 `/history <# messages>`  
 Sets the maximum number of messages to keep on screen. Messages over this limit will be removed. Set to 0 to disable this functionality.  
@@ -140,3 +140,12 @@ Sends a message to active channel with a shrug suffix. This mimics Twitch's buil
 ## Using as a Stream Overlay
 
 TODO: OBS setup and customization
+
+
+## Credits / Contributors
+
+Thanks to all my friends who used, tested, and provided feedback to make this project what it is today.  
+(If you're one of them and would like your name and/or Twitch link included here let me know!)  
+
+adiq's tEmotes API (Used to grab Third-Party Emotes)  
+https://github.com/adiq/temotes 
