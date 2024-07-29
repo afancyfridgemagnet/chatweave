@@ -1,4 +1,4 @@
-# chatweave
+# ChatWeave
 Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined message feed.
 
 Great for streamers who often play together while interacting with each other's communities!  
@@ -54,7 +54,13 @@ Clears text box / deselects text box.
 Cycles through message history of previously entered commands/chat messages.
 
 
-## Basic Commands
+## Basic Commands  
+Some commands may allow multiple parameters. These can be separated by a space ( ) or a comma (,).  
+
+Some commands allow partial channel names as a shortcut. In these instances, only the FIRST channel name that contains the entered text will be affected.  
+
+If allowed, a combinations of channel indexes and channel names may be used.  
+Example: `/leave 1 dark 5 6 ross`  will leave channels #1, #5, #6, and the first matching channel names that contain "dark" or "ross".  
 
 `/join <channel names>`  
 Joins one or more channels.  
