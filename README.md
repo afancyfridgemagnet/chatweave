@@ -10,14 +10,15 @@ Also extremely useful for streamers who may want a clean and light-weight chat e
 Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,disguisedtoast,exbc,gamesdonequick,petedorr,skinnedteen,surefour,twitch&ignore=nightbot,pokemoncommunitygame,sery_bot,soundalerts,streamelements,streamlabs&botcommands=false&thirdpartyemotes=true&history=100&prune=0&fresh=60&readonly=false
 
 ## Features
-- [X] Clean, minimalistic design (gets rid of most chat badges)
-- [X] Improved chat readability with large font size and improved color contrast of usernames!
-- [X] Sending/Receiving basic chat messages (including support for third-party emote providers!)
-- [X] Ability to ignore messages from specific bots or users
-- [X] Temporarily muting of channels
-- [X] Proper link parsing, and all links will open in a new browser tab
-- [X] Scrolling up will preserve message history, allowing you to slowly read through past messages
-- [X] Usable in Stream Overlays!
+- [x] Clean, minimalistic design (gets rid of most chat badges)
+- [x] Improved chat readability with large font size and improved color contrast of usernames!
+- [x] Sending/Receiving basic chat messages (including support for third-party emote providers!)
+- [x] Ability to ignore messages from specific bots or users
+- [x] Temporarily muting of channels
+- [x] Proper link parsing, and all links will open in a new browser tab
+- [x] Scrolling up will preserve message history, allowing you to slowly read through past messages
+- [x] Completely client-side!
+- [x] Usable in Stream Overlays!
 
 
 ## Potential Future Features
