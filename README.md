@@ -5,20 +5,37 @@ Great for streamers who often play together while interacting with each other's 
 
 Also extremely useful for streamers who may want a clean and light-weight chat experience, as the default Twitch chat experience can be very bloated and spammy.
 
+![chatweave-example](https://github.com/user-attachments/assets/1f310c6c-f3aa-4ff8-9ae1-2b351a0819a1)
+
+Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,disguisedtoast,exbc,gamesdonequick,petedorr,skinnedteen,surefour,twitch&ignore=nightbot,pokemoncommunitygame,sery_bot,soundalerts,streamelements,streamlabs&botcommands=false&thirdpartyemotes=true&history=100&prune=0&fresh=60&readonly=false
+
+## Features
+- [X] Clean, minimalistic design (gets rid of most chat badges)
+- [X] Improved chat readability with large font size and improved color contrast of usernames!
+- [X] Sending/Receiving basic chat messages (including support for third-party emote providers!)
+- [X] Ability to ignore messages from specific bots or users
+- [X] Temporarily muting of channels
+- [X] Proper link parsing, and all links will open in a new browser tab
+- [X] Scrolling up will preserve message history, allowing you to slowly read through past messages
+- [X] Usable in Stream Overlays!
+
+
+## Potential Future Features
+- [ ] Support highlighted messages / message effects?
+- [ ] Support message replies?
+- [ ] Support for broadcaster online/offline/raid messages
+- [ ] Support for basic moderator commands (timeout, ban, etc)
+- [ ] Support for auto-completion of @names for users that have sent a message
+- [ ] Respect Twitch API request limits
+- [ ] Allow user choice of permissions (read only, read/send, read/send/mod commands)
+
+
 # Usage
 
 Authorization will be needed through your Twitch.tv account to send and receive messages.  
 By default it will automatically join your Twitch Account's chat channel, but you may /join and /leave channels at your discretion.
 
 Configuration changes will update the page's current URL, which can then be bookmarked for future use, or shared with other people.
-
-## Potential Future Features
-- [ ] Support highlighted messages / message effects?
-- [ ] Support for broadcaster online/offline/raid messages
-- [ ] Support for basic moderator commands (timeout, ban, etc)
-- [ ] Support for auto-completion of @names for users that have sent a message
-- [ ] Respect Twitch API request limits
-- [ ] Allow user choice of permissions (read only, read/send, read/send/mod commands)
 
 
 ## Basic Commands
