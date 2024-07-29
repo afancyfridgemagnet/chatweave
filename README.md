@@ -39,6 +39,21 @@ By default it will automatically join your Twitch Account's chat channel, but yo
 Configuration changes will update the page's current URL, which can then be bookmarked for future use, or shared with other people.
 
 
+## Keyboard Shortcuts
+
+`# keys`  
+Sets active chat channel by channel index.
+
+`Tab` or `Shift + Tab`  
+Focuses text box / sets active chat channel by cycling forward (or backwards) through channel list.
+
+`Escape`  
+Clears text box / deselects text box.
+
+`Up Arrow` or `Down Arrow`  
+Cycles through message history of previously entered commands/chat messages.
+
+
 ## Basic Commands
 
 `/join <channel names>`  
