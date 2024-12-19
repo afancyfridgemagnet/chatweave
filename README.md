@@ -147,5 +147,8 @@ TODO: OBS setup and customization
 Thanks to all my friends who used, tested, and provided feedback to make this project what it is today.  
 (If you're one of them and would like your name and/or Twitch link included here let me know!)  
 
-adiq's tEmotes API (Used to grab Third-Party Emotes)  
+CrippledByte's emotes-api (for Third-Party Emotes)  
+https://github.com/CrippledByte/emotes-api 
+
+(OLD) adiq's tEmotes API (for Third-Party Emotes)  
 https://github.com/adiq/temotes 
