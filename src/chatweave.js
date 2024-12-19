@@ -358,11 +358,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 		}).join('');
 
-		// TODO: temporary so we can discover types
-		if (msg.message_type !== 'text' && msg.message_type !== 'channel_points_highlighted') {
-			console.warn('unknown message_type', msg.message_type, msg);
+		// handle message types
+		switch (msg.message_type) {
+			case 'text':
+			// nothing special
+			break;
+			
+			// known unimplemented special types
+			case 'user_intro':
+			case 'channel_points_highlighted':
+			case 'channel_points_sub_only':
+			case 'power_ups_message_effect':
+			case 'power_ups_gigantified_emote':
+				// may implement the following:
+				// msg.channel_points_custom_reward_id
+				// msg.channel_points_animation_id
+			break;
+			
+			// discover more types
+			default:
+				console.warn('unknown message_type', msg.message_type, msg);
+			break;
 		}
 
+		// forward message
 		appendMessage({
 			// channel
 			roomid: msg.broadcaster_user_id,
@@ -912,8 +931,13 @@ async function loadTwitchCheermotes() {
 // TODO: max 60 requests/minute
 async function loadThirdPartyGlobalEmotes() {
 	// https://adiq.stoplight.io/docs/temotes/YXBpOjMyNjU2ODIx-t-emotes-api
+	// const apiUrl = 'https://emotes.adamcy.pl/v1/global/emotes/7tv.bttv.ffz';
+
+	// https://github.com/CrippledByte/emotes-api
+	const apiUrl = 'https://emotes.crippled.dev/v1/global/all';
+
 	try {
-		const res = await fetch('https://emotes.adamcy.pl/v1/global/emotes/7tv.bttv.ffz', {
+		const res = await fetch(apiUrl, {
 			'headers': {
 				'Accept': 'application/json',
 			},
@@ -933,7 +957,8 @@ async function loadThirdPartyGlobalEmotes() {
 					const url = emote.urls.find(o => o.size === '2x')?.url;
 					if (url) {
 						emoteCache.set(emote.code, {
-							set: emote.provider === 1 ? '7TV'
+							set: emote.provider === 0 ? 'TTV'
+								: emote.provider === 1 ? '7TV'
 								: emote.provider === 2 ? 'BTTV'
 								: emote.provider === 3 ? 'FFZ'
 								: undefined,
@@ -954,8 +979,13 @@ async function loadThirdPartyGlobalEmotes() {
 
 async function loadThirdPartyChannelEmotes(room_state) {
 	// https://adiq.stoplight.io/docs/temotes/YXBpOjMyNjU2ODIx-t-emotes-api
+	// const apiUrl = `https://emotes.adamcy.pl/v1/channel/${room_state.login}/emotes/7tv.bttv.ffz`;
+
+	// https://github.com/CrippledByte/emotes-api
+	const apiUrl = `https://emotes.crippled.dev/v1/channel/${room_state.login}/all`;
+
 	try {
-		const res = await fetch(`https://emotes.adamcy.pl/v1/channel/${room_state.login}/emotes/7tv.bttv.ffz`, {
+		const res = await fetch(apiUrl, {
 			'headers': {
 				'Accept': 'application/json',
 			},
@@ -975,7 +1005,8 @@ async function loadThirdPartyChannelEmotes(room_state) {
 					const url = emote.urls.find(o => o.size === '2x')?.url;
 					if (url) {
 						room_state.emoteCache.set(emote.code, {
-							set: emote.provider === 1 ? '7TV'
+							set: emote.provider === 0 ? 'TTV'
+								: emote.provider === 1 ? '7TV'
 								: emote.provider === 2 ? 'BTTV'
 								: emote.provider === 3 ? 'FFZ'
 								: undefined,
