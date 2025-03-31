@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			setConfig('access_token', access_token);
 
 			// save user state
-			userState.expires_in = result['expires_in'];
+			userState.expires_in = result['expires_in']; // seconds
 			userState.id = result['user_id'];
 			userState.login = result['login'];
 			userState.scopes = result['scopes'];
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 
 			// check again in an hour
-			const nextCheck = Math.min(userState.expires_in, 3_600_000);
+			const nextCheck = Math.min(userState.expires_in * 1_000, 3_600_000);
 			window.validationTimer = setTimeout(validateToken, nextCheck);
 		} else {
 			// validation failure
