@@ -979,10 +979,11 @@ async function loadThirdPartyGlobalEmotes() {
 
 async function loadThirdPartyChannelEmotes(room_state) {
 	// https://adiq.stoplight.io/docs/temotes/YXBpOjMyNjU2ODIx-t-emotes-api
-	// const apiUrl = `https://emotes.adamcy.pl/v1/channel/${room_state.login}/emotes/7tv.bttv.ffz`;
+	const apiUrl = `https://emotes.adamcy.pl/v1/channel/${room_state.login}/emotes/7tv.bttv.ffz`;
 
+	// BACKUP (slower)
 	// https://github.com/CrippledByte/emotes-api
-	const apiUrl = `https://emotes.crippled.dev/v1/channel/${room_state.login}/all`;
+	// const apiUrl = `https://emotes.crippled.dev/v1/channel/${room_state.login}/all`;
 
 	try {
 		const res = await fetch(apiUrl, {
