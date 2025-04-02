@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// ensure token is only saved in one location
 		deleteConfig('access_token');
 
-		if (result && result.client_id === client_id) {
+		if (result && result.client_id === client_id && result.expires_in > 0) {
 			console.info('access_token expiration', result.expires_in);
 			setConfig('access_token', access_token);
 
