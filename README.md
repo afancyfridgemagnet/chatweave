@@ -1,9 +1,9 @@
-# ChatWeave
-Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined message feed.
+# ChatWeave (for twitch.tv)
+Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined message feed. 
 
 Great for streamers who often play together while interacting with each other's communities!  
 
-Also extremely useful for streamers who may want a clean and light-weight chat experience, as the default Twitch chat experience can be very bloated and spammy.
+Also for users who may want a clean and light-weight chat experience, as the default Twitch chat experience can be very bloated and spammy.
 
 ![chatweave-example](https://github.com/user-attachments/assets/1f310c6c-f3aa-4ff8-9ae1-2b351a0819a1)
 
@@ -34,11 +34,12 @@ Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,di
 
 # Usage
 
+ChatWeave URL: https://afancyfridgemagnet.github.io/chatweave/  
+
 Authorization will be needed through your Twitch.tv account to send and receive messages.  
 By default it will automatically join your Twitch Account's chat channel, but you may /join and /leave channels at your discretion.
 
-Configuration changes will update the page's current URL, which can then be bookmarked for future use, or shared with other people.
-
+Configuration changes will update the page's current URL, which can then be bookmarked for future use, or shared with other people.  
 
 ## Keyboard Shortcuts
 
