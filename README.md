@@ -184,7 +184,7 @@ html {
 
 /* hide elements */
 /* optionally add .room to the list */
-#chatEdit, .badge, .time {
+#chatTracker, #chatEdit, .badge, .time {
 	display: none !important;
 }
 ```
