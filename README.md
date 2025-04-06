@@ -142,7 +142,7 @@ Sends a message to active channel as an action. This mimics Twitch's built-in /m
 Sends a message to active channel with a shrug suffix. This mimics Twitch's built-in /shrug command.
 
 
-## Using as an OBS Stream Overlay
+# Using as an OBS Stream Overlay
 
 Add a new "Browser" source to your scene. Open the properties window for this source.
 
@@ -189,14 +189,14 @@ html {
 }
 ```
 
-## Removing ChatWeave
+# Removing ChatWeave
 In order to completely disconnect ChatWeave from your Twitch Account you should visit your Settings -> Connections page on Twitch and scroll down to "Other Connections".  
 Shortcut: [Twitch Connections](https://www.twitch.tv/settings/connections)  
 
 Find "ChatWeave" and click the Disconnect button.  
 ![twitch-connections](https://github.com/user-attachments/assets/bcd6f844-ae78-41cc-82fb-58044b1e2169)
 
-## Credits / Contributors
+# Credits / Contributors
 
 Thanks to all my friends who used, tested, and provided feedback to make this project what it is today.  
 (If you're one of them and would like your name and/or Twitch link included here let me know!)  
