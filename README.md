@@ -69,7 +69,7 @@ Alias: /j
 
 `/leave <partial channel names or numbers>`  
 Leaves one or more channels.  
-Empty arguments leaves currently active channel.  
+If no parameters specified, leaves the currently active channel.  
 Alias: /l, /part
 
 `/channel <partial channel name or number>`  
@@ -82,22 +82,23 @@ See more information about hex-color transparency here: https://gist.github.com/
 Alias: /bg  
 
 `/solo <partial channel names or numbers>`  
-Unmutes one specific channel while muting all other channels.  
-Empty arguments solos currently active channel.  
+Unmutes specific channels while muting all other channels.  
+If no parameters specified, solos the currently active channel.  
 
 `/mute <partial channel names or numbers>`  
 Mutes one or more channels, hiding and preventing messages from showing.  
-Empty arguments mutes currently active channel.  
+If no parameters specified, mutes the currently active channel.  
 
 `/unmute <partial channel names or numbers>`  
 Unmutes one or more channels, allowing future messages to show.  
-Empty arguments unmutes currently active channel.  
+If no parameters specified, unmutes the currently active channel.  
 
 `/unmuteall`  
 Unmutes all channels, allowing all future messages to be shown.  
 
 `/clear <optional partial channel name(s) or number(s)`  
-Clears messages from specified channel(s). If no parameters specified, clears messages from the current active channel.  
+Clears messages from specified channel(s).  
+If no parameters specified, clears messages from the currently active channel.  
 
 `/clearall`  
 Clears all messages from the screen.  
@@ -141,10 +142,59 @@ Sends a message to active channel as an action. This mimics Twitch's built-in /m
 Sends a message to active channel with a shrug suffix. This mimics Twitch's built-in /shrug command.
 
 
-## Using as a Stream Overlay
+## Using as an OBS Stream Overlay
 
-TODO: OBS setup and customization
+Add a new "Browser" source to your scene. Open the properties window for this source.
 
+| Command | Description |
+| --- | --- |
+| URL | Set to your customized chatweave URL.  Configuration is based on this URL and session changes will not be persisted. |
+| Width / Height | The dimensions of the source.  You should modify the size here instead of scaling it in the preview window to prevent distorted and blurry text! |
+| Custom CSS | Used to customize/override the styling of messages.  There is a template below you can use and modify. |
+| Shutdown source when not visible | Keep unchecked to stay connected and preserve message history. |
+| Refresh browser when scene becomes active | Keep unchecked. |
+
+After adjusting properties click OK to close the window.  
+You may have to login to Twitch and/or authorize ChatWeave to your account.  
+In order to do this you can right-click your Browser source and select Interact. This will allow you to use your mouse and keyboard to interact with the page directly.   
+After logging in/authorizing ChatWeave it should begin working.  
+
+### Custom CSS template
+```CSS
+body { 
+	margin: 0px auto; 
+	/* transparent background */
+	background-color: rgba(0, 0, 0, 0); 
+	/* hide scrollbar */
+	overflow: hidden;  
+}
+
+html {
+	/* text size - increase number to make larger */
+	font-size: 16px;
+	/* make text thicker and more legible */
+	font-weight: bold;
+}
+
+.user {
+	/* user name width */
+	/* 10rem = 160px (rem scales with font-size) */
+	flex-basis: 10rem;
+}
+
+/* hide elements */
+/* optionally add .room to the list */
+#chatEdit, .badge, .time {
+	display: none !important;
+}
+```
+
+## Removing ChatWeave
+In order to completely disconnect ChatWeave from your Twitch Account you should visit your Settings -> Connections page on Twitch and scroll down to "Other Connections".  
+Shortcut: [Twitch Connections](https://www.twitch.tv/settings/connections)  
+
+Find "ChatWeave" and click the Disconnect button.  
+![twitch-connections](https://github.com/user-attachments/assets/bcd6f844-ae78-41cc-82fb-58044b1e2169)
 
 ## Credits / Contributors
 
