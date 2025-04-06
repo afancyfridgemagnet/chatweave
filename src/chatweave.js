@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			case 'text':
 			// nothing special
 			break;
-			
+
 			// known unimplemented special types
 			case 'user_intro':
 			case 'channel_points_highlighted':
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				// msg.channel_points_custom_reward_id
 				// msg.channel_points_animation_id
 			break;
-			
+
 			// discover more types
 			default:
 				console.warn('unknown message_type', msg.message_type, msg);
@@ -498,26 +498,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 			return;
 
 		const commands = [
-			{ name: '/background',			desc: '/background <channel name or number> <hex color>'},
+			{ name: '/background',			desc: '/background <channel name/number> <hex color>'},
 			{ name: '/botcommands',			desc: '/botcommands <true|false>'},
-			{ name: '/channel',				desc: '/channel <channel name or number>'},
-			{ name: '/clear',				desc: '/clear <optional channel name(s) or number(s)>'},
+			{ name: '/channel',				desc: '/channel <channel name/number>'},
+			{ name: '/clear',				desc: '/clear <channel names/numbers>'},
 			{ name: '/clearall',			desc: '/clearall'},
 			{ name: '/fresh',				desc: '/fresh <# seconds>'},
-			{ name: '/ignore',				desc: '/ignore <user>'},
+			{ name: '/ignore',				desc: '/ignore <user names>'},
 			{ name: '/history',				desc: '/history <# messages>'},
-			{ name: '/join',				desc: '/join <channels>'},
-			{ name: '/leave',				desc: '/leave <channel name(s) or number(s)>'},
+			{ name: '/join',				desc: '/join <channel names>'},
+			{ name: '/leave',				desc: '/leave <channel names/numbers>'},
 			{ name: '/logout',				desc: '/logout'},
 			{ name: '/lurk',				desc: '/lurk'},
 			{ name: '/me',					desc: '/me <action>'},
-			{ name: '/mute',				desc: '/mute <channel name(s) or number(s)>'},
+			{ name: '/mute',				desc: '/mute <channel names/numbers>'},
 			{ name: '/prune',				desc: '/prune <# seconds>'},
 			{ name: '/shrug',				desc: '/shrug <message>'},
-			{ name: '/solo',				desc: '/solo <channel name or number>'},
+			{ name: '/solo',				desc: '/solo <channel names/numbers>'},
 			{ name: '/thirdpartyemotes',	desc: '/thirdpartyemotes <true|false>'},
 			{ name: '/unignore',			desc: '/unignore <user>'},
-			{ name: '/unmute',				desc: '/unmute <channel name(s) or number(s)>'},
+			{ name: '/unmute',				desc: '/unmute <channel names/numbers>'},
 			{ name: '/unmuteall',			desc: '/unmuteall'},
 		];
 
@@ -690,14 +690,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 						} return;
 
 						case 'SOLO': {
-							const channelName = arg.length === 0
-								? currentChannel
-								: channelFromArg(arg);
+							const channelNames = arg.length === 0
+								? [currentChannel]
+								: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
 
-							const room_state = roomState.get(channelName);
-							if (!room_state || !room_state.joined) return;
+							if (channelNames.length === 0) return;
 
-							[...roomState.keys()].forEach(name => toggleMute(name, name !== room_state.login));
+							[...roomState.keys()].forEach(name => {
+								const muteState = !channelNames.includes(name);
+								toggleMute(name, muteState)
+							});
 							commitValue();
 						} return;
 

@@ -69,6 +69,7 @@ Alias: /j
 
 `/leave <partial channel names or numbers>`  
 Leaves one or more channels.  
+Empty arguments leaves currently active channel.  
 Alias: /l, /part
 
 `/channel <partial channel name or number>`  
@@ -80,14 +81,17 @@ Sets a background hex-color for messages received from specified channel. An 8-d
 See more information about hex-color transparency here: https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4  
 Alias: /bg  
 
-`/solo <partial channel name or number>`  
+`/solo <partial channel names or numbers>`  
 Unmutes one specific channel while muting all other channels.  
+Empty arguments solos currently active channel.  
 
 `/mute <partial channel names or numbers>`  
 Mutes one or more channels, hiding and preventing messages from showing.  
+Empty arguments mutes currently active channel.  
 
 `/unmute <partial channel names or numbers>`  
 Unmutes one or more channels, allowing future messages to show.  
+Empty arguments unmutes currently active channel.  
 
 `/unmuteall`  
 Unmutes all channels, allowing all future messages to be shown.  
