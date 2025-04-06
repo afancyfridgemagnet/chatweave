@@ -7,7 +7,7 @@ Also for users who may want a clean and light-weight chat experience, as the def
 
 ![chatweave-example](https://github.com/user-attachments/assets/1f310c6c-f3aa-4ff8-9ae1-2b351a0819a1)
 
-Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,disguisedtoast,exbc,gamesdonequick,petedorr,skinnedteen,surefour,twitch&ignore=nightbot,pokemoncommunitygame,sery_bot,soundalerts,streamelements,streamlabs&botcommands=false&thirdpartyemotes=true&history=100&prune=0&fresh=60&readonly=false
+Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,disguisedtoast,exbc,gamesdonequick,petedorr,skinnedteen,surefour,twitch&ignore=nightbot,pokemoncommunitygame,sery_bot,soundalerts,streamelements,streamlabs&botcommands=true&thirdpartyemotes=true&history=150&prune=0&fresh=60
 
 ## Features
 - [x] Clean, minimalistic design (gets rid of most chat badges)
