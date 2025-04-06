@@ -37,9 +37,9 @@ const ignoredUsers = new Set(
 	pageUrl.searchParams.get('ignore')?.split(',').map(cleanName).filter(isValidTwitchAccount)
 );
 
-let botCommands = pageUrl.searchParams.get('botcommands') === 'true';
-let thirdPartyEmotes = pageUrl.searchParams.get('thirdpartyemotes') === 'true';
-let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 100);
+let botCommands = (pageUrl.searchParams.get('botcommands') ?? 'true') === 'true';
+let thirdPartyEmotes = (pageUrl.searchParams.get('thirdpartyemotes') ?? 'false') === 'true';
+let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 150);
 let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; // ms
 let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 60) * 1000; // ms
 
