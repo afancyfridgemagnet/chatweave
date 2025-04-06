@@ -7,7 +7,7 @@ Also for users who may want a clean and light-weight chat experience, as the def
 
 ![chatweave-example](https://github.com/user-attachments/assets/1f310c6c-f3aa-4ff8-9ae1-2b351a0819a1)
 
-Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,disguisedtoast,exbc,gamesdonequick,petedorr,skinnedteen,surefour,twitch&ignore=nightbot,pokemoncommunitygame,sery_bot,soundalerts,streamelements,streamlabs&botcommands=true&thirdpartyemotes=true&history=150&prune=0&fresh=60
+Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,disguisedtoast,exbc,gamesdonequick,petedorr,skinnedteen,surefour,twitch&ignore=nightbot,pokemoncommunitygame,sery_bot,soundalerts,streamelements,streamlabs,tangiabot&botcommands=true&thirdpartyemotes=true&history=150&prune=0&fresh=60
 
 ## Features
 - [x] Clean, minimalistic design (gets rid of most chat badges)
@@ -106,7 +106,7 @@ Clears all messages from the screen.
 
 `/ignore <user names>`  
 Add users to ignore list, preventing messages from being shown. Useful for ignoring known bots.  
-Commonly used bot accounts: nightbot pokemoncommunitygame sery_bot soundalerts streamelements streamlabs  
+Commonly used bot accounts: nightbot pokemoncommunitygame sery_bot soundalerts streamelements streamlabs tangiabot  
 
 `/unignore <user names>`  
 Remove users from ignore list, allowing future messages to be shown.  
@@ -160,7 +160,10 @@ You may have to login to Twitch and/or authorize ChatWeave to your account.
 In order to do this you can right-click your Browser source and select Interact. This will allow you to use your mouse and keyboard to interact with the page directly.   
 After logging in/authorizing ChatWeave it should begin working.  
 
-### Custom CSS template
+> [!NOTE]
+> Twitch access tokens are only good for so many days. If you see the error "access_token failed validation" you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
+
+## Custom CSS template
 ```CSS
 body { 
 	margin: 0px auto; 
