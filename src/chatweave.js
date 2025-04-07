@@ -11,7 +11,7 @@ const access_token = twitchAccessToken();
 const chatTemplate = document.querySelector('#chatMessage');
 const chatOutput = document.querySelector('#chatOutput');
 const chatTracker = document.querySelector('#chatTracker');
-const chatEdit = document.querySelector('#chatEdit');
+const chatPanel = document.querySelector('#chatPanel');
 const chatRooms = document.querySelector('#chatRooms');
 const chatInput = document.querySelector('#chatInput');
 const chatCommands = document.querySelector('#chatCommands');
@@ -32,6 +32,8 @@ const colorCache = new Map();		// hex -> adjusted hsl
 const cheermoteCache = new Map();	// prefix id -> { tier, color, url }
 const emoteCache = new Map();		// id -> url
 const commandHistory = [];
+const MAX_COMMAND_HISTORY = 25;
+const MAX_MESSAGE_LENGTH = 500;		// twitch limit
 
 const ignoredUsers = new Set(
 	pageUrl.searchParams.get('ignore')?.split(',').map(cleanName).filter(isValidTwitchAccount)
@@ -94,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	// token verified
 	const pingRegEx = new RegExp('\\b'+userState.login+'\\b', 'i');
 	chatInput.placeholder += ` as ${userState.login}`;
-	chatEdit.classList.toggle('hide',
+	chatPanel.classList.toggle('hide',
 		!userState.scopes.includes('user:write:chat') || pageUrl.searchParams.get('readonly') === 'true'
 	);
 
@@ -447,6 +449,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				if (chatInput.readOnly) return;
 
 				if (chatInput.value.length > 0)
+					chatInput.dataset.historyIndex = commandHistory.length;
 					chatInput.value = '';
 				else
 					chatInput.blur();
@@ -501,8 +504,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 			{ name: '/background',			desc: '/background <channel name/number> <hex color>'},
 			{ name: '/botcommands',			desc: '/botcommands <true|false>'},
 			{ name: '/channel',				desc: '/channel <channel name/number>'},
-			{ name: '/clear',				desc: '/clear <channel names/numbers>'},
-			{ name: '/clearall',			desc: '/clearall'},
 			{ name: '/fresh',				desc: '/fresh <# seconds>'},
 			{ name: '/ignore',				desc: '/ignore <user names>'},
 			{ name: '/history',				desc: '/history <# messages>'},
@@ -513,6 +514,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 			{ name: '/me',					desc: '/me <action>'},
 			{ name: '/mute',				desc: '/mute <channel names/numbers>'},
 			{ name: '/prune',				desc: '/prune <# seconds>'},
+			{ name: '/purge',				desc: '/purge <channel names/numbers>'},
+			{ name: '/purgeall',			desc: '/purgeall'},
 			{ name: '/shrug',				desc: '/shrug <message>'},
 			{ name: '/solo',				desc: '/solo <channel names/numbers>'},
 			{ name: '/thirdpartyemotes',	desc: '/thirdpartyemotes <true|false>'},
@@ -540,14 +543,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 					.replace(/\s\s+/g, ' ') // remove excess whitespace
 					.trim();
 
-				const MAX_MESSAGE_LENGTH = 500; // twitch limit
 				if (content.length === 0 || content.length > MAX_MESSAGE_LENGTH) return;
 
 				const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
 				if (!currentChannel) return;
 
 				const commitValue = () => {
-					const MAX_COMMAND_HISTORY = 10;
 					commandHistory.push(chatInput.value);
 					if (commandHistory.length > MAX_COMMAND_HISTORY)
 						commandHistory.shift();
@@ -607,7 +608,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							commitValue();
 						} return;
 
-						case 'CLEAR': {
+						case 'PURGE': {
 							// remove messages from one or more channels
 							const channelNames = arg.length === 0
 								? [currentChannel]
@@ -622,7 +623,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							commitValue();
 						} return;
 
-						case 'CLEARALL': {
+						case 'PURGEALL': {
 							// clear all messages
 							chatOutput.querySelectorAll('.mess').forEach(el => el.remove());
 							commitValue();
@@ -759,6 +760,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 						case 'THIRDPARTYEMOTES': {
 							thirdPartyEmotes = arg === 'true';
+							if (thirdPartyEmotes) {
+								loadThirdPartyGlobalEmotes();
+								[...roomState.values()].forEach(room_state => loadThirdPartyChannelEmotes(room_state));
+							}
 							updateUrl();
 							commitValue();
 						} return;
@@ -855,6 +860,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 		if (freshMessageTime > 0 && chatTracker) {
 			const freshTime = now - freshMessageTime;
 
+			// move up (would only happen if user adjusts freshTime)
+			while (chatTracker.previousElementSibling?.dataset.time > freshTime) {
+				chatTracker.previousElementSibling.before(chatTracker);
+			}
+
+			// move down
 			while (chatTracker.nextElementSibling?.dataset.time < freshTime) {
 				chatTracker.nextElementSibling.after(chatTracker);
 			}
@@ -932,6 +943,8 @@ async function loadTwitchCheermotes() {
 
 // TODO: max 60 requests/minute
 async function loadThirdPartyGlobalEmotes() {
+	if (!thirdPartyEmotes || emoteCache.size > 0) return;
+
 	// https://adiq.stoplight.io/docs/temotes/YXBpOjMyNjU2ODIx-t-emotes-api
 	// const apiUrl = 'https://emotes.adamcy.pl/v1/global/emotes/7tv.bttv.ffz';
 
@@ -980,6 +993,8 @@ async function loadThirdPartyGlobalEmotes() {
 }
 
 async function loadThirdPartyChannelEmotes(room_state) {
+	if (!thirdPartyEmotes || room_state.emoteCache.size > 0) return;
+
 	// https://adiq.stoplight.io/docs/temotes/YXBpOjMyNjU2ODIx-t-emotes-api
 	const apiUrl = `https://emotes.adamcy.pl/v1/channel/${room_state.login}/emotes/7tv.bttv.ffz`;
 
@@ -1442,7 +1457,7 @@ function updateUrl() {
 	params.set('history', messageHistory);
 	params.set('prune', pruneMessageTime / 1000);
 	params.set('fresh', freshMessageTime / 1000);
-	params.set('readonly', chatEdit.classList.contains('hide'));
+	params.set('readonly', chatPanel.classList.contains('hide'));
 
 	// update page
 	chatTracker?.classList.toggle('invisible', freshMessageTime <= 0);
