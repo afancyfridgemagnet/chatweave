@@ -16,8 +16,8 @@ const chatRooms = document.querySelector('#chatRooms');
 const chatInput = document.querySelector('#chatInput');
 const chatCommands = document.querySelector('#chatCommands');
 
-const cleanName = (s) => s?.replace('#','').trim().toLowerCase();
-const cleanHex = (s) => s?.replace('#','').trim().toLowerCase();
+const cleanName = (s) => s?.trim().replace(/^(@|#)/,'').toLowerCase();
+const cleanHex = (s) => s?.trim().replace(/^#/,'').toLowerCase();
 const isValidTwitchAccount = (s) => s && /^[a-zA-Z0-9_]{4,25}$/.test(s);
 const isValidHexColor = (s) => s && /^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(s);
 const isValidUrl = (s) => s && /^((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)$/.test(s);
