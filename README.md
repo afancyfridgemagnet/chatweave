@@ -106,7 +106,8 @@ Removes all messages from all channels.
 
 `/ignore <user names>`  
 Add users to ignore list, preventing messages from being shown. Useful for ignoring known bots.  
-Commonly used bot accounts: `nightbot pokemoncommunitygame sery_bot soundalerts streamelements streamlabs tangiabot`  
+If no parameters specified, lists currently ignored users.  
+Common bots: `nightbot pokemoncommunitygame sery_bot soundalerts streamelements streamlabs tangiabot`  
 
 `/unignore <user names>`  
 Remove users from ignore list, allowing future messages to be shown.  
