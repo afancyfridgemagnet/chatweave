@@ -448,11 +448,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				if (chatInput.readOnly) return;
 
-				if (chatInput.value.length > 0)
+				if (chatInput.value.length > 0) {
 					chatInput.dataset.historyIndex = commandHistory.length;
 					chatInput.value = '';
-				else
+				} else {
 					chatInput.blur();
+				}
 			} break;
 
 			case 'Tab': {
