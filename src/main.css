@@ -30,6 +30,8 @@ html {
 	font-size: 16px;
 	line-height: 1.5;
 	text-rendering: optimizeSpeed;
+	/* disable pull to refresh on mobile */
+	overscroll-behavior: none;
 }
 
 body {
