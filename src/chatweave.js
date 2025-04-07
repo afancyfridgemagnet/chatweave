@@ -300,12 +300,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 						// third-party emotes
 						if (thirdPartyEmotes) {
 							// channel emotes
-							const chanEmote = room_state.emoteCache.get(text);
+							const chanEmote = room_state.emoteCache?.get(text);
 							if (chanEmote)
 								return `<img class="emote" src="${chanEmote.url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
 
 							// global emotes
-							const gblEmote = emoteCache.get(text);
+							const gblEmote = emoteCache?.get(text);
 							if (gblEmote)
 								return `<img class="emote" src="${gblEmote.url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
 						}
@@ -986,6 +986,7 @@ async function loadThirdPartyGlobalEmotes() {
 
 			console.log('loaded', emoteCache.size, 'third-party global emotes');
 		} else {
+			emoteCache.set(null, null); // fake entry to avoid future load attempts
 			console.warn('failed loading third-party global emotes');
 		}
 	} catch (err) {
@@ -1037,6 +1038,7 @@ async function loadThirdPartyChannelEmotes(room_state) {
 
 			console.log('loaded', room_state.emoteCache.size, 'third-party emotes', room_state.login);
 		} else {
+			room_state.emoteCache.set(null, null); // fake entry to avoid future load attempts
 			console.warn('failed loading third-party emotes', room_state.login);
 		}
 	} catch (err) {
