@@ -208,7 +208,7 @@ html {
 
 /* hide elements */
 /* optionally add .room to the list to hide channel avatar */
-#chatPanel, .badge, .time {
+#chatPanel, .system, .badge, .time {
 	display: none !important;
 }
 ```
