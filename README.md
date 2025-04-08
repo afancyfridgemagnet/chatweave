@@ -23,6 +23,8 @@ Also for users who may want a clean and light-weight chat experience, as the def
 
 Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,foreverfancy:eba5d325,gamesdonequick,insym,mst3k,twitch&ignore=moobot,nightbot,pokemoncommunitygame,sery_boy,soundalerts,streamelements,streamlabs,tangiabot&botcommands=false&thirdpartyemotes=true&history=150&prune=0&fresh=60&readonly=false
 
+Default experience: https://afancyfridgemagnet.github.io/chatweave/  
+
 ## Features
 - [x] Clean, minimalistic and performant design (hides excess chat badges)
 - [x] Improved chat readability with large font size and improved color contrast of usernames!
@@ -48,8 +50,6 @@ Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,fo
 
 
 # Usage
-
-ChatWeave URL: https://afancyfridgemagnet.github.io/chatweave/  
 
 Authorization will be needed through your Twitch.tv account to send and receive messages.  
 By default it will automatically join your Twitch Account's chat channel, but you may /join and /leave channels at your discretion.
