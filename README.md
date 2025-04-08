@@ -1,4 +1,6 @@
 # ChatWeave (for twitch.tv)
+Get Started: https://afancyfridgemagnet.github.io/chatweave/  
+
 Connect to multiple Twitch.tv chats at the same time and consume them as a singular streamlined message feed. 
 
 Great for streamers who often play together while interacting with each other's communities!  
@@ -19,7 +21,6 @@ Also for users who may want a clean and light-weight chat experience, as the def
 
 ![narrow](https://github.com/user-attachments/assets/0355ebe3-17b7-4159-8cd9-73daa1d9c673)
 </details>
-
 
 Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,foreverfancy:eba5d325,gamesdonequick,insym,mst3k,twitch&ignore=moobot,nightbot,pokemoncommunitygame,sery_boy,soundalerts,streamelements,streamlabs,tangiabot&botcommands=false&thirdpartyemotes=true&history=150&prune=0&fresh=60&readonly=false
 
@@ -48,8 +49,6 @@ Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,fo
 
 
 # Usage
-
-ChatWeave URL: https://afancyfridgemagnet.github.io/chatweave/  
 
 Authorization will be needed through your Twitch.tv account to send and receive messages.  
 By default it will automatically join your Twitch Account's chat channel, but you may /join and /leave channels at your discretion.
@@ -208,7 +207,7 @@ html {
 }
 
 /* hide elements */
-/* optionally add .room to the list */
+/* optionally add .room to the list to hide channel avatar */
 #chatPanel, .badge, .time {
 	display: none !important;
 }
