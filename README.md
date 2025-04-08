@@ -5,21 +5,36 @@ Great for streamers who often play together while interacting with each other's 
 
 Also for users who may want a clean and light-weight chat experience, as the default Twitch chat experience can be very bloated and spammy.
 
-![chatweave-example](https://github.com/user-attachments/assets/1f310c6c-f3aa-4ff8-9ae1-2b351a0819a1)
+![wide](https://github.com/user-attachments/assets/84fa1893-8ade-4659-9d22-cf5cc4ccddd4)
 
-Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,disguisedtoast,exbc,gamesdonequick,petedorr,skinnedteen,surefour,twitch&ignore=nightbot,pokemoncommunitygame,sery_bot,soundalerts,streamelements,streamlabs,tangiabot&botcommands=true&thirdpartyemotes=true&history=150&prune=0&fresh=60
+<details>
+<summary>Visual explanation of features</summary>
+
+![features](https://github.com/user-attachments/assets/4cb7aa1f-039b-4aec-b9c6-513d26187bce)
+![chatbar](https://github.com/user-attachments/assets/6e251a2a-61d1-4e57-ac4c-ab0ce5664b7e)
+</details>
+
+<details>
+<summary>Alternative layout for mobile devices / narrow resolutions!</summary>
+
+![narrow](https://github.com/user-attachments/assets/0355ebe3-17b7-4159-8cd9-73daa1d9c673)
+</details>
+
+
+Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,foreverfancy:eba5d325,gamesdonequick,insym,mst3k,twitch&ignore=moobot,nightbot,pokemoncommunitygame,sery_boy,soundalerts,streamelements,streamlabs,tangiabot&botcommands=false&thirdpartyemotes=true&history=150&prune=0&fresh=60&readonly=false
 
 ## Features
-- [x] Clean, minimalistic design (ignores most chat badges)
+- [x] Clean, minimalistic and performant design (hides excess chat badges)
 - [x] Improved chat readability with large font size and improved color contrast of usernames!
-- [x] Sending/Receiving basic chat messages (including support for third-party emote providers!)
-- [x] Ability to ignore messages from specific accounts
+- [x] Sending/Receiving basic chat messages (supports third-party emotes!)
+- [x] Ability to ignore messages from specific accounts (such as bots)
 - [x] Temporarily muting of channels
 - [x] Proper link parsing, and all links open in a new browser tab
-- [x] Scrolling up will preserve message history, allowing you to slowly read through past messages
-- [x] Completely client-side!
-- [x] Configurable!
-- [x] Usable in Stream Overlays!
+- [x] Scrolling up preserves message history, allowing you to slowly read through past messages without losing them
+- [x] Completely client-side
+- [x] Mobile Support
+- [x] Usable as OBS overlay
+- [x] Shareable configuration!
 
 
 ## Potential Future Features
@@ -107,7 +122,7 @@ Removes all messages from all channels.
 `/ignore <user names>`  
 Add users to ignore list, preventing messages from being shown. Useful for ignoring known bots.  
 If no parameters specified, lists currently ignored users.  
-Common bots: `nightbot pokemoncommunitygame sery_bot soundalerts streamelements streamlabs tangiabot`  
+Common bots: `moobot nightbot pokemoncommunitygame sery_bot soundalerts streamelements streamlabs tangiabot`  
 
 `/unignore <user names>`  
 Remove users from ignore list, allowing future messages to be shown.  
@@ -151,7 +166,7 @@ Add a new "Browser" source to your scene. Open the properties window for this so
 
 | Command | Description |
 | --- | --- |
-| URL | Set to your customized chatweave URL.  Configuration is based on this URL and session changes will not be persisted. |
+| URL | Set to your customized chatweave URL.  Configuration is based on this URL and session changes will not be persisted. Recommended to add `&readonly=true` to the URL to disable bottom chat panel |
 | Width / Height | The dimensions of the source.  You should modify the size here instead of scaling it in the preview window to prevent distorted and blurry text! |
 | Custom CSS | Used to customize/override the styling of messages.  There is a template below you can use and modify. |
 | Shutdown source when not visible | Keep unchecked to stay connected and preserve message history. |
@@ -162,10 +177,14 @@ You may have to login to Twitch and/or authorize ChatWeave to your account.
 In order to do this you can right-click your Browser source and select Interact. This will allow you to use your mouse and keyboard to interact with the page directly.   
 After logging in/authorizing ChatWeave it should begin working.  
 
+> [!IMPORTANT]  
+> It's recommended to set the FRESH parameter in the URL to 0 to disable the tracker bar instead of hiding it visually with CSS to avoid some strange behaviors.
+
 > [!NOTE]
-> Twitch access tokens are only good for so many days. If you see the error "access_token failed validation" you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
+> Twitch access tokens are only good for ~45-60 days. If you see the error "access_token failed validation" you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
 
 ## Custom CSS template
+![overlay](https://github.com/user-attachments/assets/545ca7c2-ead2-41d8-b2a3-92a4df940235)
 ```CSS
 body { 
 	margin: 0px auto; 
@@ -190,7 +209,7 @@ html {
 
 /* hide elements */
 /* optionally add .room to the list */
-#chatTracker, #chatPanel, .badge, .time {
+#chatPanel, .badge, .time {
 	display: none !important;
 }
 ```
