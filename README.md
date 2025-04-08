@@ -203,7 +203,7 @@ html {
 .user {
 	/* user name width */
 	/* 10rem = 160px (rem scales with font-size) */
-	flex-basis: 10rem;
+	flex-basis: 10rem !important;
 }
 
 /* hide elements */
