@@ -275,7 +275,19 @@ a:active {
 
 /* unique message styles */
 
-.mess .body.ping {
+.mess.system .body {
+
+}
+
+.mess.event .body {
+	font-weight: bold;
+}
+
+.mess.action .body {
+	font-style: italic;
+}
+
+.mess.ping .body {
 	/* adjust for added border */
 	margin-left: -0.1875rem;
 	padding-left: 0.3125rem;
@@ -283,15 +295,7 @@ a:active {
 	border-left: 0.25rem dotted white;
 }
 
-.mess .body.action {
-	font-style: italic;
-}
-
-.mess .body.event {
-	font-weight: bold;
-}
-
-.mess .mention {
+.mess .body .mention {
 	color: var(--accent-color);
 }
 
@@ -379,7 +383,7 @@ a:active {
 		order: 4;
 	}
 
-	.mess .body.ping {
+	.mess.ping .body {
 		margin-left: 0.5rem;
 		margin-right: 0.5rem;
 		padding-left: 0.25rem;

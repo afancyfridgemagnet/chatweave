@@ -1290,6 +1290,18 @@ function createMessageFragment(info) {
 
 		if (info.shade)
 			msg.style.backgroundColor = info.shade;
+
+		if (info.system)
+			msg.classList.add('system');
+
+		if (info.event)
+			msg.classList.add('event');
+
+		if (info.action)
+			msg.classList.add('action');
+
+		if (info.ping)
+			msg.classList.add('ping');
 	}
 
 	const time = clone.querySelector('.time');
@@ -1357,15 +1369,6 @@ function createMessageFragment(info) {
 	if (body) {
 		// NOTE: innerHTML MUST BE SANITIZED!!
 		body.innerHTML = info.text;
-
-		if (info.action)
-			body.classList.add('action');
-
-		if (info.event)
-			body.classList.add('event');
-
-		if (info.ping)
-			body.classList.add('ping');
 	}
 
 	const room = clone.querySelector('.room');
