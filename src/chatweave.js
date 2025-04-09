@@ -1044,7 +1044,7 @@ async function joinChannels(...channels) {
 	if (!channels || channels.length === 0) return;
 
 	// verify remaining channels and return details
-	const data = await twitch.getUsers(channels.map(chan => chan.name));
+	const data = await twitch.getUsers(...channels.map(chan => chan.name));
 
 	// data contains channels that actually exist
 	for (const user of data) {
