@@ -1035,17 +1035,19 @@ async function loadThirdPartyChannelEmotes(room_state) {
 }
 
 async function joinChannels(...channels) {
+	console.log(channels);
 	// ignore already loaded channels
 	channels = channels?.filter(chan => !roomState.has(chan.name));
 	// enforce channel limit
 	const joinLimit = MAX_CHANNEL_LIMIT - roomState.size;
 	channels = channels?.slice(0, joinLimit);
+	console.log(channels);
 	// abort if nothing left
 	if (!channels || channels.length === 0) return;
 
 	// verify remaining channels and return details
 	const data = await twitch.getUsers(...channels.map(chan => chan.name));
-
+console.log(data);
 	// data contains channels that actually exist
 	for (const user of data) {
 		const room_state = {
