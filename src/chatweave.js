@@ -23,10 +23,9 @@ const isValidHexColor = (s) => s && /^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-
 const isValidUrl = (s) => s && /^((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)$/.test(s);
 const isBotCommand = (s) => s && /^!{1}[a-zA-Z0-9]+/.test(s);
 
-const userState = {};		// state properties
-const roomState = new Map(	// name -> state properties
-	parseChannelString(pageUrl.searchParams.get('channels'))?.map(chan => [ chan.name, { color: chan.color } ])
-);
+const userState = {};			// state properties
+const roomState = new Map();	// name -> state properties
+const MAX_CHANNEL_LIMIT = 100;		// twitch limit
 
 const colorCache = new Map();		// hex -> adjusted hsl
 const cheermoteCache = new Map();	// prefix id -> { tier, color, url }
@@ -100,11 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		!userState.scopes.includes('user:write:chat') || pageUrl.searchParams.get('readonly') === 'true'
 	);
 
-	// add self as default channel
-	if (roomState.size === 0) {
-		roomState.set(userState.login, {});
-	}
-
 	// initalized
 	twitch.connect();
 
@@ -141,7 +135,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 		loadThirdPartyGlobalEmotes();
 
 		// TODO: prioritize live channels with twitch.getStreams(users)
-		joinChannels(...roomState.keys());
+
+		// parse channel list from URL
+		// if empty, default to self
+		const channels = parseChannelString(pageUrl.searchParams.get('channels')) ?? [{ name: userState.login, color: undefined }];
+		joinChannels(channels);
 	});
 
 	twitch.addEventListener('revocation', async ({ detail: msg }) => {
@@ -637,17 +635,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 							if (channels.length === 0) return;
 
-							for (const chan of channels) {
-								let room_state = roomState.get(chan.name);
-								if (!room_state) {
-									room_state = {};
-									roomState.set(chan.name, room_state);
-								}
-								room_state.color = chan.color;
-							}
-
-							// join channels
-							joinChannels(...channels.map(c => c.name));
+							joinChannels(channels);
 							commitValue();
 						} return;
 
@@ -1046,41 +1034,35 @@ async function loadThirdPartyChannelEmotes(room_state) {
 	}
 }
 
-async function loadRoomStates(users) {
-	// filter out already loaded
-	users = users?.filter(name => !roomState.has(name) || !roomState.get(name).id);
-	if (!users || users.length === 0) return;
-
-	const data = await twitch.getUsers(...users);
-
-	for (const user of data) {
-		let room_state = roomState.get(user.login);
-		if (!room_state) {
-			room_state = {};
-			roomState.set(user.login, room_state);
-		}
-
-		// load state
-		room_state.id = user.id;
-		room_state.login = user.login;
-		room_state.name = user.display_name;
-		room_state.avatar = user.profile_image_url;
-		room_state.subscriptions ??= new Map();
-		room_state.emoteCache ??= new Map();
-
-		loadThirdPartyChannelEmotes(room_state);
-	}
-}
-
 async function joinChannels(...channels) {
-	await loadRoomStates(channels);
+	// ignore already loaded channels
+	channels = channels?.filter(chan => !roomState.has(chan.name));
+	// enforce channel limit
+	const joinLimit = MAX_CHANNEL_LIMIT - roomState.size;
+	channels = channels?.slice(0, joinLimit);
+	// abort if nothing left
+	if (!channels || channels.length === 0) return;
 
-	for (const channel of channels) {
+	// verify remaining channels and return details
+	const data = await twitch.getUsers(channels.map(chan => chan.name));
 
-		const room_state = roomState.get(channel);
-		if (!room_state || room_state.joined) continue;
+	// data contains channels that actually exist
+	for (const user of data) {
+		const room_state = {
+			// twitch info
+			id: user.id,
+			login: user.login,
+			name: user.display_name,
+			avatar: user.profile_image_url,
 
-		room_state.muted = true;
+			// app info
+			joined: false,
+			muted: true,
+			subscriptions: new Map(),
+			emoteCache: new Map(),
+			color: channels.find(chan => chan.name === user.login)?.color,
+		};
+		roomState.set(user.login, room_state);
 
 		// update ui
 		const el = document.createElement('li');
@@ -1201,6 +1183,8 @@ async function joinChannels(...channels) {
 
 		room_state.joined = true;
 		toggleMute(room_state.login, false);
+
+		loadThirdPartyChannelEmotes(room_state);
 	}
 
 	updateUrl();
@@ -1428,7 +1412,7 @@ function errorMessage(text, format) {
 
 function parseChannelString(data) {
 	// name1:color1,name2:color2
-	return data?.split(/[ ,]+/, 100) // channel limit
+	return data?.split(/[ ,]+/, MAX_CHANNEL_LIMIT) // channel limit
 		// name:color
 		.map(s => {
 			const [name, color] = s.split(':', 2);

@@ -80,6 +80,7 @@ Example: `/leave 1 dark 5 6 ross`  will leave channels #1, #5, #6, and the first
 
 `/join <channel names>`  
 Joins one or more channels.  
+Background hex color may be specified using syntax: `channel1:color1 channel2:color2`.  
 Alias: /j
 
 `/leave <partial channel names/numbers>`  
