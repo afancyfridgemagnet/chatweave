@@ -1192,9 +1192,8 @@ async function joinChannels(...channels) {
 
 async function partChannels(...channels) {
 	for (const channel of channels) {
-
 		const room_state = roomState.get(channel);
-		if (!room_state) continue;
+		if (!room_state || !room_state.joined) continue;
 
 		toggleMute(room_state.login, true);
 
@@ -1231,7 +1230,6 @@ async function partChannels(...channels) {
 
 		room_state.joined = false;
 		roomState.delete(channel);
-		
 	}
 
 	updateUrl();
