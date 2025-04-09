@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// parse channel list from URL
 		// if empty, default to self
 		const channels = parseChannelString(pageUrl.searchParams.get('channels')) ?? [{ name: userState.login, color: undefined }];
-		joinChannels(channels);
+		joinChannels(...channels);
 	});
 
 	twitch.addEventListener('revocation', async ({ detail: msg }) => {
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 							if (channels.length === 0) return;
 
-							joinChannels(channels);
+							joinChannels(...channels);
 							commitValue();
 						} return;
 
@@ -1414,7 +1414,7 @@ function errorMessage(text, format) {
 
 function parseChannelString(data) {
 	// name1:color1,name2:color2
-	return data?.split(/[ ,]+/, MAX_CHANNEL_LIMIT) // channel limit
+	return data?.split(/[ ,]+/, MAX_CHANNEL_LIMIT)
 		// name:color
 		.map(s => {
 			const [name, color] = s.split(':', 2);
