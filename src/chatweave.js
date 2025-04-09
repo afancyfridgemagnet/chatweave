@@ -1230,6 +1230,8 @@ async function partChannels(...channels) {
 		}
 
 		room_state.joined = false;
+		roomState.delete(channel);
+		
 	}
 
 	updateUrl();
