@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		// parse channel list from URL
 		// if empty, default to self
-		const channels = parseChannelString(pageUrl.searchParams.get('channels')) ?? { name: userState.login, color: undefined };
+		const channels = parseChannelString(pageUrl.searchParams.get('channels')) ?? [{ name: userState.login, color: undefined }];
 		joinChannels(...channels);
 	});
 
