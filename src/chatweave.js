@@ -300,13 +300,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 						if (thirdPartyEmotes) {
 							// channel emotes
 							const chanEmote = room_state.emoteCache?.get(text);
-							if (chanEmote)
-								return `<img class="emote" src="${chanEmote.url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
+							if (chanEmote) {
+								const url = staticEmotes ? chanEmote.url_static : chanEmote.url;
+								if (url) {
+									return `<img class="emote" src="${url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
+								}
+							}
 
 							// global emotes
 							const gblEmote = emoteCache?.get(text);
-							if (gblEmote)
-								return `<img class="emote" src="${gblEmote.url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
+							if (gblEmote) {
+								const url = staticEmotes ? gblEmote.url_static : gblEmote.url;
+								if (url) {
+									return `<img class="emote" src="${url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
+								}
+							}
 						}
 
 						// sanitize remaining characters
@@ -528,6 +536,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			{ name: '/unmuteall',			desc: '/unmuteall'},
 		];
 
+		// TODO: issue in chrome where you can't hit enter if a command is the same as one displayed in datalist
 		commands
 			.filter(cmd => cmd.name.substring(0, chatInput.value.length).localeCompare(chatInput.value, undefined, { sensitivity: 'base' }) === 0)
 			.forEach(cmd => {
@@ -536,11 +545,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				el.value = cmd.name;
 				chatCommands.appendChild(el);
 			});
-	});
-
-	chatCommands.addEventListener('keyup', (e) => {
-		// TESTING
-		console.log('chatCommands', 'keyup', chatCommands.value, e);
 	});
 
 	chatInput.addEventListener('keyup', async (e) => {
@@ -974,21 +978,11 @@ async function loadThirdPartyGlobalEmotes() {
 			const data = await res.json();
 
 			for (const emote of data) {
-				// ignore TTV emotes
-				if (emote.provider === 0) continue;
-
 				// for conflicts, prioritize the first source
 				if (!emoteCache.has(emote.code)) {
-					const url = emote.urls.find(o => o.size === '2x')?.url;
-					if (url) {
-						emoteCache.set(emote.code, {
-							set: emote.provider === 0 ? 'TTV'
-								: emote.provider === 1 ? '7TV'
-								: emote.provider === 2 ? 'BTTV'
-								: emote.provider === 3 ? 'FFZ'
-								: undefined,
-							url: url,
-						});
+					const parsedEmote = parseThirdPartyEmote(emote);
+					if (parsedEmote) {
+						room_state.emoteCache.set(emote.code, parsedEmote);
 					}
 				}
 			}
@@ -1029,21 +1023,11 @@ async function loadThirdPartyChannelEmotes(room_state) {
 			const data = await res.json();
 
 			for (const emote of data) {
-				// ignore TTV emotes
-				if (emote.provider === 0) continue;
-
 				// for conflicts, prioritize the first source
 				if (!room_state.emoteCache.has(emote.code)) {
-					const url = emote.urls.find(o => o.size === '2x')?.url;
-					if (url) {
-						room_state.emoteCache.set(emote.code, {
-							set: emote.provider === 0 ? 'TTV'
-								: emote.provider === 1 ? '7TV'
-								: emote.provider === 2 ? 'BTTV'
-								: emote.provider === 3 ? 'FFZ'
-								: undefined,
-							url: url,
-						});
+					const parsedEmote = parseThirdPartyEmote(emote);
+					if (parsedEmote) {
+						room_state.emoteCache.set(emote.code, parsedEmote);
 					}
 				}
 			}
@@ -1056,6 +1040,30 @@ async function loadThirdPartyChannelEmotes(room_state) {
 	} catch (err) {
 		console.error('failed loading third-party emotes', room_state.login, err.message);
 	}
+}
+
+function parseThirdPartyEmote(emote) {
+	// ignore TTV emotes since they're provided by twitch
+	if (emote.provider === 0) return;
+
+	// NOTE: always grab 2x size because it scales better
+	const url = emote.urls.find(o => o.size === '2x')?.url;
+	if (!url) return;
+
+	return {
+		set: emote.provider === 0 ? 'TTV'
+			: emote.provider === 1 ? '7TV'
+			: emote.provider === 2 ? 'BTTV'
+			: emote.provider === 3 ? 'FFZ'
+			: 'UNKNOWN',
+		url: url,
+		// HACK: manipulate url to grab static version
+		url_static: emote.provider === 0 ? url.replace('/default/','/static/')
+			: emote.provider === 1 ? url.replace('/2x.','/2x_static.')
+			: emote.provider === 2 ? url.replace('/2x.','/static/2x.')
+			: emote.provider === 3 ? url.replace('/animated/','/')
+			: undefined,
+	};
 }
 
 async function joinChannels(...channels) {
