@@ -1059,8 +1059,8 @@ function parseThirdPartyEmote(emote) {
 		url: url,
 		// HACK: manipulate url to grab static version
 		url_static: emote.provider === 0 ? url.replace('/default/','/static/')
-			: emote.provider === 1 ? url.replace('/2x.','/2x_static.')
-			: emote.provider === 2 ? url.replace('/2x.','/static/2x.')
+			: emote.provider === 1 ? url.replace(/\/emote\/(.*)\/2x/,'/emote/$1/2x_static')
+			: emote.provider === 2 ? url.replace(/\/emote\/(.*)\/2x/,'/emote/$1/static/2x')
 			: emote.provider === 3 ? url.replace('/animated/','/')
 			: undefined,
 	};
