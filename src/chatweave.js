@@ -299,21 +299,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 						// third-party emotes
 						if (thirdPartyEmotes) {
 							// channel emotes
-							const chanEmote = room_state.emoteCache?.get(text);
+							const chanEmote = room_state.emoteCache.get(text);
 							if (chanEmote) {
-								const url = staticEmotes ? chanEmote.url_static : chanEmote.url;
-								if (url) {
-									return `<img class="emote" src="${url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
-								}
+								if (staticEmotes && chanEmote.url_static)
+									return `<img class="emote" src="${chanEmote.url_static}" title="${chanEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,'${room_state.login}')">`;
+								else
+									return `<img class="emote" src="${chanEmote.url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
 							}
 
 							// global emotes
-							const gblEmote = emoteCache?.get(text);
+							const gblEmote = emoteCache.get(text);
 							if (gblEmote) {
-								const url = staticEmotes ? gblEmote.url_static : gblEmote.url;
-								if (url) {
-									return `<img class="emote" src="${url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
-								}
+								if (staticEmotes && gblEmote.url_static)
+									return `<img class="emote" src="${gblEmote.url_static}" title="${gblEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,null)">`;
+								else
+									return `<img class="emote" src="${gblEmote.url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
 							}
 						}
 
@@ -1057,13 +1057,26 @@ function parseThirdPartyEmote(emote) {
 			: emote.provider === 3 ? 'FFZ'
 			: 'UNKNOWN',
 		url: url,
-		// HACK: manipulate url to grab static version
+		// HACK: manipulate url to attempt to find static version
+		// not guaranteed to exist. if img.onerror, will replace the static url with regular url
 		url_static: emote.provider === 0 ? url.replace('/default/','/static/')
 			: emote.provider === 1 ? url.replace(/\/emote\/(.*)\/2x/,'/emote/$1/2x_static')
 			: emote.provider === 2 ? url.replace(/\/emote\/(.*)\/2x/,'/emote/$1/static/2x')
 			: emote.provider === 3 ? url.replace('/animated/','/')
 			: undefined,
 	};
+}
+
+function staticEmoteLoadError(img, chan) {
+	// static url failed to load on img
+	img.onerror = null;
+	// get channel (or global) emote from cache
+	const emoteCache = chan ? roomState.get(chan).emoteCache : emoteCache;
+	const emote = emoteCache.get(img.alt);
+	// remove referenced url so it won't get used again
+	emote.url_static = null;
+	// replace img src with original url (could be animated /shrug)
+	img.src = emote.url;
 }
 
 async function joinChannels(...channels) {

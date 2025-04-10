@@ -137,7 +137,7 @@ When set to false, messages presumed to be bot commands will not be shown. May b
 Bot commands are messages prefixed with "!" such as !giveaway, !pokecheck, !discord, etc.  
 
 `/staticemotes <true|false>`  
-When set to true, future messages containing emotes/cheermotes will load non-animated versions. This can have performance improvements.  
+When set to true, future messages containing emotes/cheermotes will load non-animated versions if available. This can have performance improvements.  
  
 `/thirdpartyemotes <true|false>`  
 When set to true, parses and displays third-party GLOBAL and CHANNEL emotes from 7TV, BTTV, FFZ.  
