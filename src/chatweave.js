@@ -982,7 +982,7 @@ async function loadThirdPartyGlobalEmotes() {
 				if (!emoteCache.has(emote.code)) {
 					const parsedEmote = parseThirdPartyEmote(emote);
 					if (parsedEmote) {
-						room_state.emoteCache.set(emote.code, parsedEmote);
+						emoteCache.set(emote.code, parsedEmote);
 					}
 				}
 			}
