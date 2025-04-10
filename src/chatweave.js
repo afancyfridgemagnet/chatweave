@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							const chanEmote = room_state.emoteCache.get(text);
 							if (chanEmote) {
 								if (staticEmotes && chanEmote.url_static)
-									return `<img class="emote" src="${chanEmote.url_static}" title="${chanEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,'${room_state.login}')">`;
+									return `<img class="emote" src="${chanEmote.url_static}" title="${chanEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,'${room_state.login}');">`;
 								else
 									return `<img class="emote" src="${chanEmote.url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
 							}
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							const gblEmote = emoteCache.get(text);
 							if (gblEmote) {
 								if (staticEmotes && gblEmote.url_static)
-									return `<img class="emote" src="${gblEmote.url_static}" title="${gblEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,null)">`;
+									return `<img class="emote" src="${gblEmote.url_static}" title="${gblEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,null);">`;
 								else
 									return `<img class="emote" src="${gblEmote.url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
 							}
@@ -1068,11 +1068,12 @@ function parseThirdPartyEmote(emote) {
 }
 
 function staticEmoteLoadError(img, chan) {
+	console.warn('staticEmoteLoadError', chan, img.alt);
 	// static url failed to load on img
 	img.onerror = null;
 	// get channel (or global) emote from cache
-	const emoteCache = chan ? roomState.get(chan).emoteCache : emoteCache;
-	const emote = emoteCache.get(img.alt);
+	const cache = chan ? roomState.get(chan).emoteCache : emoteCache;
+	const emote = cache.get(img.alt);
 	// remove referenced url so it won't get used again
 	emote.url_static = null;
 	// replace img src with original url (could be animated /shrug)
