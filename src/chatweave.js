@@ -336,10 +336,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 				case 'mention': // @username
 					return `<span class="mention">${frag.text}</span>`;
 
-				case 'emote':
+				case 'emote': {
 					const type = staticEmotes ? 'static' : 'default';
 					// NOTE: always grab 2x size
 					return `<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${frag.emote.id}/${type}/dark/2.0" title="TTV: ${frag.text}" alt="${frag.text}">`;
+				}
 
 				case 'cheermote': {
 					// get specific cheermote from cache
@@ -1099,7 +1100,7 @@ async function joinChannels(...channels) {
 			id: user.id,
 			login: user.login,
 			name: user.display_name,
-			avatar: user.profile_image_url,
+			avatar: user.profile_image_url.replace('profile_image-300x300','profile_image-50x50'),
 
 			// app info
 			joined: false,
