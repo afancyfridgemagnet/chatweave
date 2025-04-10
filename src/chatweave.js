@@ -23,8 +23,8 @@ const isValidHexColor = (s) => s && /^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-
 const isValidUrl = (s) => s && /^((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)$/.test(s);
 const isBotCommand = (s) => s && /^!{1}[a-zA-Z0-9]+/.test(s);
 
-const userState = {};			// state properties
-const roomState = new Map();	// name -> state properties
+const userState = {};				// state properties
+const roomState = new Map();		// name -> state properties
 const MAX_CHANNEL_LIMIT = 100;		// twitch limit
 
 const colorCache = new Map();		// hex -> adjusted hsl
@@ -39,6 +39,7 @@ const ignoredUsers = new Set(
 );
 
 let botCommands = (pageUrl.searchParams.get('botcommands') ?? 'true') === 'true';
+let staticEmotes = (pageUrl.searchParams.get('staticemotes') ?? 'false') === 'true';
 let thirdPartyEmotes = (pageUrl.searchParams.get('thirdpartyemotes') ?? 'false') === 'true';
 let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 150);
 let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; // ms
@@ -328,12 +329,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 					return `<span class="mention">${frag.text}</span>`;
 
 				case 'emote':
-					return `<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${frag.emote.id}/default/dark/2.0" title="TTV: ${frag.text}" alt="${frag.text}">`;
+					const type = staticEmotes ? 'static' : 'default';
+					// NOTE: always grab 2x size
+					return `<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${frag.emote.id}/${type}/dark/2.0" title="TTV: ${frag.text}" alt="${frag.text}">`;
 
 				case 'cheermote': {
 					// get specific cheermote from cache
 					const cheermote = cheermoteCache.get(frag.cheermote.prefix)?.find(c => c.tier === frag.cheermote.tier);
-					let url = cheermote?.url;
+					let url = staticEmotes ? cheermote?.url_static : cheermote?.url;
 					let color = cheermote?.color;
 
 					// fallback to generic
@@ -346,7 +349,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 							case 100:	tier = 'purple';	color = '#9c3ee8'; break;
 							default:	tier = 'gray';		color = '#979797'; break;
 						}
-						url = `https://static-cdn.jtvnw.net/bits/dark/animated/${tier}/2`;
+						const type = staticEmotes ? 'animated' : 'static';
+						url = `https://static-cdn.jtvnw.net/bits/dark/${type}/${tier}/2`;
 					}
 
 					return `<span class="cheermote" title="${frag.text}" style="color: ${color}"><img class="emote" src="${url}" alt="Cheer-"><sup>${frag.cheermote.bits}</sup></span>`;
@@ -504,8 +508,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 			{ name: '/botcommands',			desc: '/botcommands <true|false>'},
 			{ name: '/channel',				desc: '/channel <channel name/number>'},
 			{ name: '/fresh',				desc: '/fresh <# seconds>'},
-			{ name: '/ignore',				desc: '/ignore <user names>'},
 			{ name: '/history',				desc: '/history <# messages>'},
+			{ name: '/ignore',				desc: '/ignore <user names>'},
 			{ name: '/join',				desc: '/join <channel names>'},
 			{ name: '/leave',				desc: '/leave <channel names/numbers>'},
 			{ name: '/logout',				desc: '/logout'},
@@ -517,6 +521,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			{ name: '/purgeall',			desc: '/purgeall'},
 			{ name: '/shrug',				desc: '/shrug <message>'},
 			{ name: '/solo',				desc: '/solo <channel names/numbers>'},
+			{ name: '/staticemotes',		desc: '/staticemotes <true|false>'},
 			{ name: '/thirdpartyemotes',	desc: '/thirdpartyemotes <true|false>'},
 			{ name: '/unignore',			desc: '/unignore <user>'},
 			{ name: '/unmute',				desc: '/unmute <channel names/numbers>'},
@@ -524,13 +529,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 		];
 
 		commands
-			.filter(cmd => cmd.name.substring(0, chatInput.value.length).localeCompare(chatInput.value) === 0)
+			.filter(cmd => cmd.name.substring(0, chatInput.value.length).localeCompare(chatInput.value, undefined, { sensitivity: 'base' }) === 0)
 			.forEach(cmd => {
 				const el = document.createElement('option');
 				el.label = cmd.desc;
 				el.value = cmd.name;
 				chatCommands.appendChild(el);
 			});
+	});
+
+	chatCommands.addEventListener('keyup', (e) => {
+		// TESTING
+		console.log('chatCommands', 'keyup', chatCommands.value, e);
 	});
 
 	chatInput.addEventListener('keyup', async (e) => {
@@ -555,7 +565,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					chatInput.value = '';
 				};
 
-				if (content.startsWith('/')) {
+				if (chatInput.value.startsWith('/')) {
 					let delimIndex = content.indexOf(' ');
 					if (delimIndex < 0) delimIndex = content.length;
 
@@ -747,6 +757,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 							commitValue();
 						} return;
 
+						case 'STATICEMOTES': {
+							staticEmotes = arg === 'true';
+							updateUrl();
+							commitValue();
+						} return;
+
 						case 'THIRDPARTYEMOTES': {
 							thirdPartyEmotes = arg === 'true';
 							if (thirdPartyEmotes) {
@@ -789,6 +805,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					}
 				}
 
+				// any commands reaching this point will be sent to twitch
 				if (twitch.connected) {
 					const room_state = roomState.get(currentChannel);
 					if (!room_state.joined || room_state.muted) return;
@@ -919,8 +936,9 @@ async function loadTwitchCheermotes() {
 			return {
 				tier: t.min_bits,
 				color: t.color,
-				// always pull dark animated 2x
+				// NOTE: always grab 2x size
 				url: t.images.dark.animated[2],
+				url_static: t.images.dark.static[2],
 			};
 		});
 		// NOTE: message api seems to return lowercase prefix (match that here)
@@ -956,6 +974,9 @@ async function loadThirdPartyGlobalEmotes() {
 			const data = await res.json();
 
 			for (const emote of data) {
+				// ignore TTV emotes
+				if (emote.provider === 0) continue;
+
 				// for conflicts, prioritize the first source
 				if (!emoteCache.has(emote.code)) {
 					const url = emote.urls.find(o => o.size === '2x')?.url;
@@ -1008,6 +1029,9 @@ async function loadThirdPartyChannelEmotes(room_state) {
 			const data = await res.json();
 
 			for (const emote of data) {
+				// ignore TTV emotes
+				if (emote.provider === 0) continue;
+
 				// for conflicts, prioritize the first source
 				if (!room_state.emoteCache.has(emote.code)) {
 					const url = emote.urls.find(o => o.size === '2x')?.url;
@@ -1443,6 +1467,7 @@ function updateUrl() {
 	params.set('ignore', ignore);
 
 	params.set('botcommands', botCommands);
+	params.set('staticemotes', staticEmotes);
 	params.set('thirdpartyemotes', thirdPartyEmotes);
 	params.set('history', messageHistory);
 	params.set('prune', pruneMessageTime / 1000);

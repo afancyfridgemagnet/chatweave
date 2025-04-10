@@ -22,7 +22,7 @@ Also for users who may want a clean and light-weight chat experience, as the def
 ![narrow](https://github.com/user-attachments/assets/0355ebe3-17b7-4159-8cd9-73daa1d9c673)
 </details>
 
-Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,foreverfancy:eba5d325,gamesdonequick,insym,mst3k,twitch&ignore=moobot,nightbot,pokemoncommunitygame,sery_boy,soundalerts,streamelements,streamlabs,tangiabot&botcommands=false&thirdpartyemotes=true&history=150&prune=0&fresh=60&readonly=false
+Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,foreverfancy:eba5d325,gamesdonequick,insym,mst3k,twitch&ignore=moobot,nightbot,pokemoncommunitygame,sery_boy,soundalerts,streamelements,streamlabs,tangiabot&botcommands=false&staticemotes=false,thirdpartyemotes=true&history=150&prune=0&fresh=60&readonly=false
 
 ## Features
 - [x] Clean, minimalistic and performant design (hides excess chat badges)
@@ -136,6 +136,10 @@ Disconnects from Twitch and invalidates the current access token, effectively lo
 When set to false, messages presumed to be bot commands will not be shown. May be helpful in reducing message spam.  
 Bot commands are messages prefixed with "!" such as !giveaway, !pokecheck, !discord, etc.  
 
+`/staticemotes <true|false>`  
+When set to true, emotes/cheermotes will load the non-animated version. This can have performance improvements.  
+NOTE: Setting will not apply retroactively and will not affect third-party emotes.  
+ 
 `/thirdpartyemotes <true|false>`  
 When set to true, parses and displays third-party GLOBAL and CHANNEL emotes from 7TV, BTTV, FFZ.  
  
