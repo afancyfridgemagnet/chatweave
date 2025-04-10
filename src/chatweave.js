@@ -857,7 +857,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		if (shouldScroll) {
 			const pruneTime = pruneMessageTime > 0 ? now - pruneMessageTime : undefined;
 			const messages = chatOutput.querySelectorAll('.mess');
-			let removeCount = messages.length - messageHistory;
+			let removeCount = messageHistory > 0 ? messages.length - messageHistory : 0;
 
 			messages.forEach(el => {
 				if (el.dataset.time < pruneTime || removeCount > 0) {

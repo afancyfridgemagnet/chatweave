@@ -49,6 +49,10 @@ input, button, textarea, select {
 	font: inherit;
 }
 
+img[src=""], img:not([src]) {
+	visibility: hidden;
+}
+
 ::selection {
 	background-color: var(--accent-color);
 	color: var(--background-color);
