@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				let content = chatInput.value
 					.replace(/\s\s+/g, ' ') // remove excess whitespace
-					.trim();
+					.trimEnd();
 
 				if (content.length === 0 || content.length > MAX_MESSAGE_LENGTH) return;
 
