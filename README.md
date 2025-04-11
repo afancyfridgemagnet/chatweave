@@ -210,6 +210,11 @@ html {
 	flex-basis: 10rem !important;
 }
 
+/* optionally move channel avatar to right */
+.room {
+	order: 4;
+}
+
 /* hide elements */
 /* optionally add .room to the list to hide channel avatar */
 #chatPanel, .system, .badge, .time {

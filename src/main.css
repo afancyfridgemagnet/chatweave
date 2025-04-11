@@ -234,6 +234,7 @@ a:active {
 .mess {
 	width: 100%;
 	min-height: 1.75rem;
+	align-content: center;
 }
 
 .mess:hover {
@@ -242,6 +243,7 @@ a:active {
 
 .mess > div {
 	margin: 0.25rem 0.5rem;
+	align-content: inherit;
 }
 
 .mess .user {
@@ -276,6 +278,7 @@ a:active {
 /* message text */
 .mess .body {
 	flex: 1;
+
 	margin-left: 0.375rem;
 	margin-right: 0.375rem;
 
@@ -371,9 +374,9 @@ a:active {
 
 	.mess .user {
 		flex: none;
+		order: 1;
 		margin-right: auto;
 		text-align: left;
-		order: 1;
 	}
 
 	.mess .time {
@@ -386,10 +389,10 @@ a:active {
 
 	.mess .body {
 		flex: 1 1 100%;
+		order: 4;
 		margin-top: 0;
 		margin-left: 1rem;
 		margin-right: 1rem;
-		order: 4;
 	}
 
 	.mess.ping .body {

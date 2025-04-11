@@ -1354,10 +1354,15 @@ function createMessageFragment(info) {
 			msg.classList.add('ping');
 	}
 
-	const time = clone.querySelector('.time');
-	if (time) {
-		time.title = now.toLocaleString();
-		time.textContent = now.toLocaleTimeString();
+	const room = clone.querySelector('.room');
+	if (room && info.source) {
+		const el = document.createElement('a');
+		el.tabIndex = -1;
+		el.href = `https://twitch.tv/${info.source}`;
+		el.title = info.source;
+		//el.textContent = info.source;
+		el.innerHTML = `<img class="avatar" src="${info.avatar}">`;
+		room.appendChild(el);
 	}
 
 	const user = clone.querySelector('.user');
@@ -1381,13 +1386,13 @@ function createMessageFragment(info) {
 					el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2">${friendlyName}`;
 				break;
 
-				case 'no_audio':
-					el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/aef2cd08-f29b-45a1-8c12-d44d7fd5e6f0/2">${friendlyName}`;
-				break;
+				//case 'no_audio':
+				//	el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/aef2cd08-f29b-45a1-8c12-d44d7fd5e6f0/2">${friendlyName}`;
+				//break;
 
-				case 'no_video':
-					el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/199a0dba-58f3-494e-a7fc-1fa0a1001fb8/2">${friendlyName}`;
-				break;
+				//case 'no_video':
+				//	el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/199a0dba-58f3-494e-a7fc-1fa0a1001fb8/2">${friendlyName}`;
+				//break;
 
 				default:
 					el.textContent = friendlyName;
@@ -1420,15 +1425,10 @@ function createMessageFragment(info) {
 		body.innerHTML = info.text;
 	}
 
-	const room = clone.querySelector('.room');
-	if (room && info.source) {
-		const el = document.createElement('a');
-		el.tabIndex = -1;
-		el.href = `https://twitch.tv/${info.source}`;
-		el.title = info.source;
-		//el.textContent = info.source;
-		el.innerHTML = `<img class="avatar" src="${info.avatar}">`;
-		room.appendChild(el);
+	const time = clone.querySelector('.time');
+	if (time) {
+		time.title = now.toLocaleString();
+		time.textContent = now.toLocaleTimeString();
 	}
 
 	return clone;
