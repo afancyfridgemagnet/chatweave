@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		chatInput.value = '';
 		chatInput.readOnly = true;
 		chatInput.disabled = true;
+		refreshCommands();
 
 		if (e.detail.wasClean) {
 			noticeMessage(`disconnected (${e.detail.code})`);
@@ -462,6 +463,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				if (chatInput.value.length > 0) {
 					chatInput.dataset.historyIndex = commandHistory.length;
 					chatInput.value = '';
+					refreshCommands();
 				} else {
 					chatInput.blur();
 				}
@@ -493,6 +495,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				chatInput.dataset.historyIndex = index;
 				chatInput.value = commandHistory[index] ?? '';
 				chatInput.setSelectionRange(-1, -1);
+				refreshCommands();
 			} break;
 
 			case 'ArrowDown': {
@@ -502,55 +505,66 @@ document.addEventListener('DOMContentLoaded', async () => {
 				chatInput.dataset.historyIndex = index;
 				chatInput.value = commandHistory[index] ?? '';
 				chatInput.setSelectionRange(-1, -1);
+				refreshCommands();
 			} break;
 		}
 	});
 
 	chatInput.addEventListener('input', () => {
-		chatCommands.innerHTML = '';
+		refreshCommands();
+	});
 
-		if (!chatInput.value.startsWith('/'))
-			return;
+	function refreshCommands() {
+		// populate options
+		if (chatCommands.childElementCount === 0) {
+			const commands = [
+				{ name: '/background',			desc: '/background <channel name/number> <hex color>'},
+				{ name: '/botcommands',			desc: '/botcommands <true|false>'},
+				{ name: '/channel',				desc: '/channel <channel name/number>'},
+				{ name: '/fresh',				desc: '/fresh <# seconds>'},
+				{ name: '/history',				desc: '/history <# messages>'},
+				{ name: '/ignore',				desc: '/ignore <user names>'},
+				{ name: '/join',				desc: '/join <channel names>'},
+				{ name: '/leave',				desc: '/leave <channel names/numbers>'},
+				{ name: '/logout',				desc: '/logout'},
+				{ name: '/lurk',				desc: '/lurk'},
+				{ name: '/me',					desc: '/me <action>'},
+				{ name: '/mute',				desc: '/mute <channel names/numbers>'},
+				{ name: '/prune',				desc: '/prune <# seconds>'},
+				{ name: '/purge',				desc: '/purge <channel names/numbers>'},
+				{ name: '/purgeall',			desc: '/purgeall'},
+				{ name: '/shrug',				desc: '/shrug <message>'},
+				{ name: '/solo',				desc: '/solo <channel names/numbers>'},
+				{ name: '/staticemotes',		desc: '/staticemotes <true|false>'},
+				{ name: '/thirdpartyemotes',	desc: '/thirdpartyemotes <true|false>'},
+				{ name: '/unignore',			desc: '/unignore <user>'},
+				{ name: '/unmute',				desc: '/unmute <channel names/numbers>'},
+				{ name: '/unmuteall',			desc: '/unmuteall'},
+			];
 
-		const commands = [
-			{ name: '/background',			desc: '/background <channel name/number> <hex color>'},
-			{ name: '/botcommands',			desc: '/botcommands <true|false>'},
-			{ name: '/channel',				desc: '/channel <channel name/number>'},
-			{ name: '/fresh',				desc: '/fresh <# seconds>'},
-			{ name: '/history',				desc: '/history <# messages>'},
-			{ name: '/ignore',				desc: '/ignore <user names>'},
-			{ name: '/join',				desc: '/join <channel names>'},
-			{ name: '/leave',				desc: '/leave <channel names/numbers>'},
-			{ name: '/logout',				desc: '/logout'},
-			{ name: '/lurk',				desc: '/lurk'},
-			{ name: '/me',					desc: '/me <action>'},
-			{ name: '/mute',				desc: '/mute <channel names/numbers>'},
-			{ name: '/prune',				desc: '/prune <# seconds>'},
-			{ name: '/purge',				desc: '/purge <channel names/numbers>'},
-			{ name: '/purgeall',			desc: '/purgeall'},
-			{ name: '/shrug',				desc: '/shrug <message>'},
-			{ name: '/solo',				desc: '/solo <channel names/numbers>'},
-			{ name: '/staticemotes',		desc: '/staticemotes <true|false>'},
-			{ name: '/thirdpartyemotes',	desc: '/thirdpartyemotes <true|false>'},
-			{ name: '/unignore',			desc: '/unignore <user>'},
-			{ name: '/unmute',				desc: '/unmute <channel names/numbers>'},
-			{ name: '/unmuteall',			desc: '/unmuteall'},
-		];
-
-		// TODO: issue in chrome where you can't hit enter if a command is the same as one displayed in datalist
-		commands
-			.filter(cmd => cmd.name.substring(0, chatInput.value.length).localeCompare(chatInput.value, undefined, { sensitivity: 'base' }) === 0)
-			.forEach(cmd => {
+			for (const cmd of commands) {
 				const el = document.createElement('option');
 				el.label = cmd.desc;
 				el.value = cmd.name;
+				el.disabled = true;
 				chatCommands.appendChild(el);
-			});
-	});
+			}
+		}
 
-	chatCommands.addEventListener('keyup', (e) => {
-		console.log('chatCommands', 'keyup', e);
-	});
+		// disable options
+		chatCommands.querySelectorAll('option:not([disabled])').forEach(opt => opt.disabled = true);
+
+		// commands must start with /
+		if (!chatInput.value.startsWith('/'))
+			return;
+
+		// find exact match (don't enable option because it prevents ENTER key on Chrome)
+		if (chatCommands.querySelector(`option[value="${chatInput.value}" i]`))
+			return;
+
+		// find partial matches (enable potential options)
+		chatCommands.querySelectorAll(`option[value^="${chatInput.value}" i]`).forEach(opt => opt.disabled = false);
+	}
 
 	chatInput.addEventListener('keyup', async (e) => {
 		switch (e.key) {
@@ -572,6 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						commandHistory.shift();
 					chatInput.dataset.historyIndex = commandHistory.length;
 					chatInput.value = '';
+					refreshCommands();
 				};
 
 				if (chatInput.value.startsWith('/')) {
@@ -888,10 +903,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		if (shouldScroll) scrollToBottom();
 	}, 1_000);
-
-	window.addEventListener('error', (e) => {
-		console.error('window.error', e);
-	});
 
 }, { once: true });
 

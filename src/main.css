@@ -49,6 +49,10 @@ input, button, textarea, select {
 	font: inherit;
 }
 
+input::-webkit-calendar-picker-indicator {
+	display: none !important;
+}
+
 img[src=""], img:not([src]) {
 	/* hides but allows tooltip */
 	opacity: 0;
