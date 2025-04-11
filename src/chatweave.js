@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				chatInput.dataset.historyIndex = index;
 				chatInput.value = commandHistory[index] ?? '';
 				chatInput.setSelectionRange(-1, -1);
-				refreshCommands();
+				// refreshCommands();
 			} break;
 
 			case 'ArrowDown': {
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				chatInput.dataset.historyIndex = index;
 				chatInput.value = commandHistory[index] ?? '';
 				chatInput.setSelectionRange(-1, -1);
-				refreshCommands();
+				// refreshCommands();
 			} break;
 		}
 	});
