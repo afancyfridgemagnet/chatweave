@@ -489,23 +489,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 			} break;
 
 			case 'ArrowUp': {
+				if (chatCommands.querySelector('option:not([disabled])')) return;
 				e.preventDefault();
 
 				const index = Math.max(0, parseInt(chatInput.dataset.historyIndex ?? commandHistory.length) - 1);
 				chatInput.dataset.historyIndex = index;
 				chatInput.value = commandHistory[index] ?? '';
 				chatInput.setSelectionRange(-1, -1);
-				// refreshCommands();
 			} break;
 
 			case 'ArrowDown': {
+				if (chatCommands.querySelector('option:not([disabled])')) return;
 				e.preventDefault();
 
 				const index = Math.min(commandHistory.length, parseInt(chatInput.dataset.historyIndex) + 1);
 				chatInput.dataset.historyIndex = index;
 				chatInput.value = commandHistory[index] ?? '';
 				chatInput.setSelectionRange(-1, -1);
-				// refreshCommands();
 			} break;
 		}
 	});
