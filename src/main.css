@@ -50,7 +50,8 @@ input, button, textarea, select {
 }
 
 img[src=""], img:not([src]) {
-	visibility: hidden;
+	/* hides but allows tooltip */
+	opacity: 0;
 }
 
 ::selection {

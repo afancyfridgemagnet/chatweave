@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					return '<span>' + frag.text.split(' ').map(text => {
 						// linkify URLs
 						if (isValidUrl(text))
-							return `<a tabindex="-1" href="${text}" target="_blank">${text}</a>`;
+							return `<a tabindex="-1" href="${text}">${text}</a>`;
 
 						// third-party emotes
 						if (thirdPartyEmotes) {
@@ -548,6 +548,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 			});
 	});
 
+	chatCommands.addEventListener('keyup', (e) => {
+		console.log('chatCommands', 'keyup', e);
+	});
+
 	chatInput.addEventListener('keyup', async (e) => {
 		switch (e.key) {
 			case 'Enter': {
@@ -648,7 +652,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							// NOTE: user may specify name:color
 							const channels = parseChannelString(arg);
 
-							if (channels.length === 0) return;
+							if (!channels || channels.length === 0) return;
 
 							joinChannels(...channels);
 							commitValue();
@@ -884,6 +888,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		if (shouldScroll) scrollToBottom();
 	}, 1_000);
+
+	window.addEventListener('error', (e) => {
+		console.error('window.error', e);
+	});
 
 }, { once: true });
 
@@ -1355,7 +1363,6 @@ function createMessageFragment(info) {
 			const el = document.createElement('a');
 			el.tabIndex = -1;
 			el.href = `https://twitch.tv/${info.user}`;
-			el.target = '_blank';
 			el.title = friendlyName;
 
 			switch (info.badge) {
@@ -1407,7 +1414,6 @@ function createMessageFragment(info) {
 		const el = document.createElement('a');
 		el.tabIndex = -1;
 		el.href = `https://twitch.tv/${info.source}`;
-		el.target = '_blank';
 		el.title = info.source;
 		//el.textContent = info.source;
 		el.innerHTML = `<img class="avatar" src="${info.avatar}">`;
@@ -1458,8 +1464,9 @@ function errorMessage(text, format) {
 }
 
 function parseChannelString(data) {
+	if (!data) return null;
 	// name1:color1,name2:color2
-	return data?.split(/[ ,]+/, MAX_CHANNEL_LIMIT)
+	return data.split(/[ ,]+/, MAX_CHANNEL_LIMIT)
 		// name:color
 		.map(s => {
 			const [name, color] = s.split(':', 2);
