@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	twitch.connect();
 
 	twitch.addEventListener('connected', () => {
-		const timestamp = new Date((Math.floor(Date.now() / 1000) + userState.expires_in) * 1000);
+		const timestamp = new Date((Math.floor(Date.now() / 1000) + userState.expires_in) * 1000).toLocaleString();
 		noticeMessage(`connection established (access_token expires ${timestamp})`);
 	});
 
@@ -1356,10 +1356,10 @@ function createMessageFragment(info) {
 		msg.dataset.roomid = info.roomid;
 		msg.dataset.userid = info.userid;
 
-		msg.classList.toggle('system', info.system);
-		msg.classList.toggle('event', info.event);
-		msg.classList.toggle('action', info.action);
-		msg.classList.toggle('ping', info.ping);
+		msg.classList.toggle('system', !!info.system);
+		msg.classList.toggle('event', !!info.event);
+		msg.classList.toggle('action', !!info.action);
+		msg.classList.toggle('ping', !!info.ping);
 		msg.style.backgroundColor = info.shade;
 	}
 
