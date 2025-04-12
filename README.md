@@ -201,20 +201,20 @@ html {
 	font-weight: bold;
 }
 
-.user {
+.msg-user {
 	/* user name width */
 	/* 1rem = 16px (rem scales with font-size) */
-	flex-basis: 12rem !important;
+	flex-basis: 12rem;
 }
 
 /* optionally move channel avatar to right */
-.room {
+.msg-room {
 	order: 4;
 }
 
 /* hide elements */
-/* optionally add .room to the list to hide channel avatar */
-#chatPanel, #chatTracker, .system, .badge, .time {
+/* optionally add .msg-room to the list to hide channel avatar */
+#chatTracker, #chatPanel, .msg-time, .system, .badge {
 	display: none !important;
 }
 ```

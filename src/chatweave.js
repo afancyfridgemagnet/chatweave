@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	// token verified
 	const pingRegEx = new RegExp('\\b'+userState.login+'\\b', 'i');
 	chatInput.placeholder += ` as ${userState.login}`;
-	chatPanel.classList.toggle('hide',
+	chatPanel.classList.toggle('hidden',
 		!userState.scopes.includes('user:write:chat') || pageUrl.searchParams.get('readonly') === 'true'
 	);
 
@@ -250,26 +250,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('channel.chat.clear', ({ detail: msg }) => {
 		// remove all channel messages
-		const selector = `.mess[data-roomid="${msg.broadcaster_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => {
-			el.remove();
-		});
+		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"]`;
+		chatOutput.querySelectorAll(selector)
+			.forEach(el => el.remove());
 	});
 
 	twitch.addEventListener('channel.chat.clear_user_messages', ({ detail: msg }) => {
 		// remove all messages from user
-		const selector = `.mess[data-roomid="${msg.broadcaster_user_id}"][data-userid="${msg.target_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => {
-			el.remove();
-		});
+		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-userid="${msg.target_user_id}"]`;
+		chatOutput.querySelectorAll(selector)
+			.forEach(el => el.remove());
 	});
 
 	twitch.addEventListener('channel.chat.message_delete', ({ detail: msg }) => {
 		// remove specific message
-		const selector = `.mess[data-roomid="${msg.broadcaster_user_id}"][data-msgid="${msg.message_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => {
-			el.remove();
-		});
+		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-msgid="${msg.message_id}"]`;
+		chatOutput.querySelectorAll(selector)
+			.forEach(el => el.remove());
 	});
 
 	twitch.addEventListener('channel.chat.message', ({ detail: msg }) => {
@@ -552,7 +549,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		// disable options
-		chatCommands.querySelectorAll('option:not([disabled])').forEach(opt => opt.disabled = true);
+		chatCommands.querySelectorAll('option:not([disabled])')
+			.forEach(opt => opt.disabled = true);
 
 		// commands must start with /
 		if (!chatInput.value.startsWith('/'))
@@ -563,7 +561,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 			return;
 
 		// find partial matches (enable potential options)
-		chatCommands.querySelectorAll(`option[value^="${chatInput.value}" i]`).forEach(opt => opt.disabled = false);
+		chatCommands.querySelectorAll(`option[value^="${chatInput.value}" i]`)
+			.forEach(opt => opt.disabled = false);
 	}
 
 	chatInput.addEventListener('keyup', async (e) => {
@@ -651,14 +650,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 							channelNames.forEach(chan => {
 								const room_state = roomState.get(chan);
-								chatOutput.querySelectorAll(`.mess[data-roomid="${room_state.id}"]`).forEach(el => el.remove());
+								chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
+									.forEach(el => el.remove());
 							});
 							commitValue();
 						} return;
 
 						case 'PURGEALL': {
 							// clear all messages
-							chatOutput.querySelectorAll('.mess').forEach(el => el.remove());
+							chatOutput.querySelectorAll('.msg')
+								.forEach(el => el.remove());
 							commitValue();
 						} return;
 
@@ -738,7 +739,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 							if (!room_state) return;
 
 							room_state.color = isValidHexColor(hexColor) ? hexColor : undefined;
-							chatOutput.querySelectorAll(`.mess[data-roomid="${room_state.id}"]`).forEach(el => el.style.backgroundColor = room_state.color ?? '');
+							chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
+								.forEach(el => el.style.backgroundColor = room_state.color);
 							updateUrl();
 							commitValue();
 						} return;
@@ -750,11 +752,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 								userNames.forEach(user => {
 									ignoredUsers.add(user);
 									// remove previous messages
-									// NOTE: we don't store username directly and don't map a username to a user id, so this is a round about way...
-									const selector = `.mess .user a[href="https://twitch.tv/${user}"]`;
-									chatOutput.querySelectorAll(selector).forEach(el => {
-										el.closest('.mess').remove();
-									});
+									// NOTE: we don't store username directly and don't map a username to a user id...
+									const selector = `.msg-user a[href="https://twitch.tv/${user}"]`;
+									chatOutput.querySelectorAll(selector)
+										.forEach(el => el.closest('.msg').remove());
 								});
 								updateUrl();
 							}
@@ -875,7 +876,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// prune messages (only if scrolled to bottom to allow reading history easily)
 		if (shouldScroll) {
 			const pruneTime = pruneMessageTime > 0 ? now - pruneMessageTime : undefined;
-			const messages = chatOutput.querySelectorAll('.mess');
+			const messages = chatOutput.querySelectorAll('.msg');
 			let removeCount = messageHistory > 0 ? messages.length - messageHistory : 0;
 
 			messages.forEach(el => {
@@ -1150,7 +1151,8 @@ async function joinChannels(...channels) {
 			el.classList.add('active');
 
 		// attempt to insert alphabetically
-		const sibling = [...chatRooms.querySelectorAll('[data-room]')].find(e => room_state.login.localeCompare(e.dataset.room) < 1);
+		const sibling = [...chatRooms.querySelectorAll('[data-room]')]
+			.find(e => room_state.login.localeCompare(e.dataset.room) < 1);
 		if (sibling)
 			chatRooms.insertBefore(el, sibling);
 		else
@@ -1279,10 +1281,9 @@ async function partChannels(...channels) {
 		}
 
 		// remove messages
-		const selector = `.mess[data-roomid="${room_state.id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => {
-			el.remove();
-		});
+		const selector = `.msg[data-roomid="${room_state.id}"]`;
+		chatOutput.querySelectorAll(selector)
+			.forEach(el => el.remove());
 
 		// update ui
 		const el = chatRooms.querySelector(`[data-room="${channel}"]`);
@@ -1323,12 +1324,10 @@ function activateChannel(channel) {
 	if (!channel) return;
 
 	// deactivate old
-	const current = chatRooms.querySelector('.active');
-	current?.classList.remove('active');
+	chatRooms.querySelector('.active')?.classList.remove('active');
 
 	// activate new
-	const el = chatRooms.querySelector(`[data-room="${channel}"]`);
-	el?.classList.add('active');
+	chatRooms.querySelector(`[data-room="${channel}"]`)?.classList.add('active');
 }
 
 function toggleMute(channel, state) {
@@ -1341,7 +1340,8 @@ function toggleMute(channel, state) {
 
 	// clear messages
 	if (room_state.muted) {
-		chatOutput.querySelectorAll(`.mess[data-roomid="${room_state.id}"]`).forEach(el => el.remove());
+		chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
+			.forEach(el => el.remove());
 	}
 }
 
@@ -1349,30 +1349,21 @@ function createMessageFragment(info) {
 	const clone = chatTemplate.content.cloneNode(true);
 	const now = new Date();
 
-	const msg = clone.querySelector('.mess');
+	const msg = clone.querySelector('.msg');
 	if (msg) {
 		msg.dataset.time = now.getTime();
 		msg.dataset.msgid = info.msgid;
 		msg.dataset.roomid = info.roomid;
 		msg.dataset.userid = info.userid;
 
-		if (info.shade)
-			msg.style.backgroundColor = info.shade;
-
-		if (info.system)
-			msg.classList.add('system');
-
-		if (info.event)
-			msg.classList.add('event');
-
-		if (info.action)
-			msg.classList.add('action');
-
-		if (info.ping)
-			msg.classList.add('ping');
+		msg.classList.toggle('system', info.system);
+		msg.classList.toggle('event', info.event);
+		msg.classList.toggle('action', info.action);
+		msg.classList.toggle('ping', info.ping);
+		msg.style.backgroundColor = info.shade;
 	}
 
-	const room = clone.querySelector('.room');
+	const room = clone.querySelector('.msg-room');
 	if (room && info.source) {
 		const el = document.createElement('a');
 		el.tabIndex = -1;
@@ -1383,7 +1374,7 @@ function createMessageFragment(info) {
 		room.appendChild(el);
 	}
 
-	const user = clone.querySelector('.user');
+	const user = clone.querySelector('.msg-user');
 	if (user) {
 		if (info.system) {
 			user.textContent = info.name;
@@ -1437,13 +1428,13 @@ function createMessageFragment(info) {
 		}
 	}
 
-	const body = clone.querySelector('.body');
+	const body = clone.querySelector('.msg-body');
 	if (body) {
 		// NOTE: innerHTML MUST BE SANITIZED!!
 		body.innerHTML = info.text;
 	}
 
-	const time = clone.querySelector('.time');
+	const time = clone.querySelector('.msg-time');
 	if (time) {
 		time.title = now.toLocaleString();
 		time.textContent = now.toLocaleTimeString();
@@ -1531,7 +1522,7 @@ function updateUrl() {
 	params.set('history', messageHistory);
 	params.set('prune', pruneMessageTime / 1000);
 	params.set('fresh', freshMessageTime / 1000);
-	params.set('readonly', chatPanel.classList.contains('hide'));
+	params.set('readonly', chatPanel.classList.contains('hidden'));
 
 	// update page
 	chatTracker?.classList.toggle('invisible', freshMessageTime <= 0);
