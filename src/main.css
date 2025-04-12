@@ -366,7 +366,7 @@ a:active {
 
 	.msg-user {
 		order: 1;
-		/*flex: none;*/
+		flex: none; /* allows name to expand */
 
 		margin-right: auto;
 		text-align: left;
