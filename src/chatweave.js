@@ -1045,7 +1045,7 @@ async function loadThirdPartyChannelEmotes(room_state) {
 		if (res.ok) {
 			const data = await res.json();
 
-			const count = 0;
+			let count = 0;
 			for (const emote of data) {
 				// store in global cache with prefix
 				const key = `${room_state.login} ${emote.code}`;
