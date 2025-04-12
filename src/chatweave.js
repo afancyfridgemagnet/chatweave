@@ -1298,7 +1298,6 @@ async function partChannels(...channels) {
 			if (el.classList.contains('active')) {
 				(el.nextElementSibling ?? el.previousElementSibling)?.classList.add('active');
 			}
-
 			el.remove();
 		}
 

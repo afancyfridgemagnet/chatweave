@@ -108,7 +108,7 @@ a:active {
 	/* height: 100%; */
 
 	/* push content to bottom */
-	margin-top: auto;;
+	margin-top: auto;
 
 	overflow-x: hidden;
 	/* inherit allows us to inherit body overflow (for overlays) */
@@ -250,8 +250,6 @@ a:active {
 
 .msg-user,
 .msg-user a {
-	/*display: block;*/
-
 	color: inherit;
 	overflow-x: hidden;
 	text-overflow: ellipsis;
@@ -357,7 +355,7 @@ a:active {
 
 /* responsive layout */
 
-@media (max-width: 36rem) or (orientation: portrait) {
+@media (max-width: 36rem) /*or (orientation: portrait)*/ {
 	.msg {
 		flex-wrap: wrap;
 		padding-top: 0.125rem;
@@ -366,7 +364,8 @@ a:active {
 
 	.msg-user {
 		order: 1;
-		flex: none; /* allows name to expand */
+		/* allows name to expand */
+		flex: none;
 
 		margin-right: auto;
 		text-align: left;
