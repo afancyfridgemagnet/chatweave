@@ -130,7 +130,7 @@ a:active {
 	background-color: var(--dark-color);
 }
 
-#chatOutput > div {
+#chatOutput > * {
 	display: flex;
 	flex-shrink: 0;
 }
@@ -231,7 +231,7 @@ a:active {
 	filter: brightness(1.25);
 }
 
-.msg > div {
+.msg > * {
 	margin: 0.25rem 0.5rem;
 	align-content: inherit;
 }
@@ -250,8 +250,9 @@ a:active {
 
 .msg-user,
 .msg-user a {
-	display: block;
+	/*display: block;*/
 
+	color: inherit;
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 }
@@ -298,7 +299,7 @@ a:active {
 	color: var(--accent-color);
 }
 
-.msg.deleted > div {
+.msg.deleted > * {
 	opacity: 50%;
 }
 
@@ -359,13 +360,13 @@ a:active {
 @media (max-width: 36rem) or (orientation: portrait) {
 	.msg {
 		flex-wrap: wrap;
-		margin-top: 0.125rem;
-		margin-bottom: 0.125rem;
+		padding-top: 0.125rem;
+		padding-bottom: 0.125rem;
 	}
 
 	.msg-user {
 		order: 1;
-		flex-grow: 1;
+		/*flex: none;*/
 
 		margin-right: auto;
 		text-align: left;

@@ -1421,7 +1421,7 @@ function createMessageFragment(info) {
 					// add to cache
 					colorCache.set(info.color, hexColor);
 				}
-				el.style.color = hexColor;
+				user.style.color = hexColor;
 			}
 
 			user.appendChild(el);
