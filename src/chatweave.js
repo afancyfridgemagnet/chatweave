@@ -29,7 +29,7 @@ const MAX_CHANNEL_LIMIT = 100;		// twitch limit
 
 const colorCache = new Map();		// hex -> adjusted hsl
 const cheermoteCache = new Map();	// prefix id -> { tier, color, url }
-const emoteCache = new Map();		// id -> url
+const emoteCache = new Map();		// 'source id' -> emote
 const commandHistory = [];
 const MAX_COMMAND_HISTORY = 25;
 const MAX_MESSAGE_LENGTH = 500;		// twitch limit
@@ -300,19 +300,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 						// third-party emotes
 						if (thirdPartyEmotes) {
 							// channel emotes
-							const chanEmote = room_state.emoteCache.get(text);
+							const chanEmote = emoteCache.get(`${room_state.login} ${text}`);
 							if (chanEmote) {
 								if (staticEmotes && chanEmote.url_static)
-									return `<img class="emote" src="${chanEmote.url_static}" title="${chanEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,'${room_state.login}');">`;
+									return `<img class="emote" src="${chanEmote.url_static}" title="${chanEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,'${room_state.login}')">`;
 								else
 									return `<img class="emote" src="${chanEmote.url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
 							}
 
 							// global emotes
-							const gblEmote = emoteCache.get(text);
+							const gblEmote = emoteCache.get(`* ${text}`);
 							if (gblEmote) {
 								if (staticEmotes && gblEmote.url_static)
-									return `<img class="emote" src="${gblEmote.url_static}" title="${gblEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,null);">`;
+									return `<img class="emote" src="${gblEmote.url_static}" title="${gblEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,null)">`;
 								else
 									return `<img class="emote" src="${gblEmote.url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
 							}
@@ -974,13 +974,13 @@ async function loadTwitchCheermotes() {
 
 // TODO: max 60 requests/minute
 async function loadThirdPartyGlobalEmotes() {
-	if (!thirdPartyEmotes || emoteCache.size > 0) return;
+	if (!thirdPartyEmotes || [...emoteCache.keys()].find(key => key.startsWith(`* `))) return;
 
 	// https://adiq.stoplight.io/docs/temotes/YXBpOjMyNjU2ODIx-t-emotes-api
-	// const apiUrl = 'https://emotes.adamcy.pl/v1/global/emotes/7tv.bttv.ffz';
+	const apiUrl = 'https://emotes.adamcy.pl/v1/global/emotes/7tv.bttv.ffz';
 
 	// https://github.com/CrippledByte/emotes-api
-	const apiUrl = 'https://emotes.crippled.dev/v1/global/all';
+	// const apiUrl = 'https://emotes.crippled.dev/v1/global/all';
 
 	try {
 		const res = await fetch(apiUrl, {
@@ -997,19 +997,22 @@ async function loadThirdPartyGlobalEmotes() {
 		if (res.ok) {
 			const data = await res.json();
 
+			let count = 0;
 			for (const emote of data) {
+				// store in global cache with prefix
+				const key = `* ${emote.code}`;
 				// for conflicts, prioritize the first source
-				if (!emoteCache.has(emote.code)) {
+				if (!emoteCache.has(key)) {
 					const parsedEmote = parseThirdPartyEmote(emote);
 					if (parsedEmote) {
-						emoteCache.set(emote.code, parsedEmote);
+						emoteCache.set(key, parsedEmote);
+						count++;
 					}
 				}
 			}
 
-			console.log('loaded', emoteCache.size, 'third-party global emotes');
+			console.log('loaded', count, 'third-party global emotes');
 		} else {
-			emoteCache.set(null, null); // fake entry to avoid future load attempts
 			console.warn('failed loading third-party global emotes');
 		}
 	} catch (err) {
@@ -1018,7 +1021,7 @@ async function loadThirdPartyGlobalEmotes() {
 }
 
 async function loadThirdPartyChannelEmotes(room_state) {
-	if (!thirdPartyEmotes || room_state.emoteCache.size > 0) return;
+	if (!thirdPartyEmotes || room_state.loadedEmotes) return;
 
 	// https://adiq.stoplight.io/docs/temotes/YXBpOjMyNjU2ODIx-t-emotes-api
 	const apiUrl = `https://emotes.adamcy.pl/v1/channel/${room_state.login}/emotes/7tv.bttv.ffz`;
@@ -1042,21 +1045,25 @@ async function loadThirdPartyChannelEmotes(room_state) {
 		if (res.ok) {
 			const data = await res.json();
 
+			const count = 0;
 			for (const emote of data) {
+				// store in global cache with prefix
+				const key = `${room_state.login} ${emote.code}`;
 				// for conflicts, prioritize the first source
-				if (!room_state.emoteCache.has(emote.code)) {
+				if (!emoteCache.has(key)) {
 					const parsedEmote = parseThirdPartyEmote(emote);
 					if (parsedEmote) {
-						room_state.emoteCache.set(emote.code, parsedEmote);
+						emoteCache.set(key, parsedEmote);
+						count++;
 					}
 				}
 			}
 
-			console.log('loaded', room_state.emoteCache.size, 'third-party emotes', room_state.login);
+			console.log('loaded', count, 'third-party emotes', room_state.login);
 		} else {
-			room_state.emoteCache.set(null, null); // fake entry to avoid future load attempts
 			console.warn('failed loading third-party emotes', room_state.login);
 		}
+		room_state.loadedEmotes = true;
 	} catch (err) {
 		console.error('failed loading third-party emotes', room_state.login, err.message);
 	}
@@ -1075,7 +1082,7 @@ function parseThirdPartyEmote(emote) {
 			: emote.provider === 1 ? '7TV'
 			: emote.provider === 2 ? 'BTTV'
 			: emote.provider === 3 ? 'FFZ'
-			: 'UNKNOWN',
+			: undefined,
 		url: url,
 		// HACK: manipulate url to attempt to find static version
 		// not guaranteed to exist. if img.onerror, will replace the static url with regular url
@@ -1092,8 +1099,8 @@ function staticEmoteLoadError(img, chan) {
 	// static url failed to load on img
 	img.onerror = null;
 	// get channel (or global) emote from cache
-	const cache = chan ? roomState.get(chan).emoteCache : emoteCache;
-	const emote = cache.get(img.alt);
+	const key = chan ? `${chan} ${img.alt}` : `* ${img.alt}`;
+	const emote = emoteCache.get(key);
 	// remove referenced url so it won't get used again
 	emote.url_static = null;
 	// replace img src with original url (could be animated /shrug)
@@ -1125,8 +1132,8 @@ async function joinChannels(...channels) {
 			joined: false,
 			muted: true,
 			subscriptions: new Map(),
-			emoteCache: new Map(),
 			color: channels.find(chan => chan.name === user.login)?.color,
+			loadedEmotes: false,
 		};
 		roomState.set(user.login, room_state);
 
@@ -1286,6 +1293,15 @@ async function partChannels(...channels) {
 			el.remove();
 		}
 
+		// remove channel emotes
+		if (room_state.loadedEmotes) {
+			[...emoteCache.keys()]
+				.filter(key => key.startsWith(`${room_state.login} `))
+				.forEach(key => emoteCache.delete(key));
+			room_state.loadedEmotes = false;
+		}
+
+		// finalize
 		if (room_state.joined) {
 			noticeMessage(`left #${channel}`, {
 				source: channel,
@@ -1293,7 +1309,6 @@ async function partChannels(...channels) {
 				avatar: room_state.avatar,
 			});
 		}
-
 		room_state.joined = false;
 		roomState.delete(channel);
 	}
