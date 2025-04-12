@@ -247,7 +247,7 @@ a:active {
 }
 
 .mess .user {
-	flex: 0 0 10rem;
+	flex: 0 0 12rem;
 
 	font-weight: bold;
 	text-align: right;

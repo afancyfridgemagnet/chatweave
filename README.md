@@ -206,8 +206,8 @@ html {
 
 .user {
 	/* user name width */
-	/* 10rem = 160px (rem scales with font-size) */
-	flex-basis: 10rem !important;
+	/* 1rem = 16px (rem scales with font-size) */
+	flex-basis: 12rem !important;
 }
 
 /* optionally move channel avatar to right */
