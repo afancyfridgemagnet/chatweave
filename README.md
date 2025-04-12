@@ -180,9 +180,6 @@ You may have to login to Twitch and/or authorize ChatWeave to your account.
 In order to do this you can right-click your Browser source and select Interact. This will allow you to use your mouse and keyboard to interact with the page directly.   
 After logging in/authorizing ChatWeave it should begin working.  
 
-> [!IMPORTANT]  
-> It's recommended to set the FRESH parameter in the URL to 0 to disable the tracker bar instead of hiding it visually with CSS to avoid some strange behaviors.
-
 > [!NOTE]
 > Twitch access tokens are only good for ~45-60 days. If you see the error "access_token failed validation" you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
 
@@ -217,7 +214,7 @@ html {
 
 /* hide elements */
 /* optionally add .room to the list to hide channel avatar */
-#chatPanel, .system, .badge, .time {
+#chatPanel, #chatTracker, .system, .badge, .time {
 	display: none !important;
 }
 ```

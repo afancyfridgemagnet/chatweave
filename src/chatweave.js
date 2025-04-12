@@ -104,11 +104,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 	twitch.connect();
 
 	twitch.addEventListener('connected', () => {
-		noticeMessage(`connection established`);
+		const timestamp = new Date((Math.floor(Date.now() / 1000) + userState.expires_in) * 1000);
+		noticeMessage(`connection established (access_token expires ${timestamp})`);
 	});
 
 	twitch.addEventListener('disconnected', (e) => {
-		// cleanup
 		clearTimeout(window.validationTimer);
 		clearInterval(window.intervalTimer);
 		chatOutput.innerHTML = '';
@@ -1101,10 +1101,12 @@ function staticEmoteLoadError(img, chan) {
 	// get channel (or global) emote from cache
 	const key = chan ? `${chan} ${img.alt}` : `* ${img.alt}`;
 	const emote = emoteCache.get(key);
-	// remove referenced url so it won't get used again
-	emote.url_static = null;
-	// replace img src with original url (could be animated /shrug)
+	// replace img src with default url
 	img.src = emote.url;
+	// remove referenced url_static to avoid using it again
+	[...emoteCache.values()]
+		.filter(e => e.url_static === emote.url_static)
+		.forEach(e => e.url_static = null);
 }
 
 async function joinChannels(...channels) {
@@ -1129,11 +1131,11 @@ async function joinChannels(...channels) {
 			avatar: user.profile_image_url.replace('profile_image-300x300','profile_image-50x50'),
 
 			// app info
+			color: channels.find(chan => chan.name === user.login)?.color,
 			joined: false,
 			muted: true,
-			subscriptions: new Map(),
-			color: channels.find(chan => chan.name === user.login)?.color,
 			loadedEmotes: false,
+			subscriptions: new Map(),
 		};
 		roomState.set(user.login, room_state);
 
