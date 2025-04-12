@@ -1295,8 +1295,9 @@ async function partChannels(...channels) {
 
 		// remove channel emotes
 		if (room_state.loadedEmotes) {
+			const prefix = `${room_state.login} `;
 			[...emoteCache.keys()]
-				.filter(key => key.startsWith(`${room_state.login} `))
+				.filter(key => key.startsWith(prefix))
 				.forEach(key => emoteCache.delete(key));
 			room_state.loadedEmotes = false;
 		}
