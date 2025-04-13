@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('disconnected', (e) => {
 		clearTimeout(window.validationTimer);
-		clearInterval(window.intervalTimer);
+		clearTimeout(window.routineTimer);
 		chatOutput.innerHTML = '';
 		chatRooms.innerHTML = '';
 		chatInput.value = '';
@@ -893,8 +893,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 	});
 
-	// timer functions that may modify state
-	window.intervalTimer = setInterval(() => {
+	window.routineTimer = setTimeout(function routine() {
 		const shouldScroll = isScrolledToBottom();
 		const now = new Date().getTime();
 
@@ -928,6 +927,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		if (shouldScroll) scrollToBottom();
+		
+		window.routineTimer = setTimeout(routine, 1_000);
 	}, 1_000);
 
 }, { once: true });
