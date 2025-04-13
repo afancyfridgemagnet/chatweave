@@ -505,12 +505,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 					const selector = `.msg[data-roomid="${room_state.id}"]:not(.deleted)`;
 					const users = [...chatOutput.querySelectorAll(selector)]
 						.map(el => el.dataset.user)
+						.filter(Boolean) // remove blanks
 						.reverse();	// prioritize by most recent
 
 					// add current channel as a fallback
 					users.push(currentChannel);
 
-					const username = !word
+					const username = !word // just "@"
 						? users.shift() // first username
 						: users.find(user => localeEquals(user.substring(0, word.length), word));
 
