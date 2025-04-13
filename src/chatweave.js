@@ -22,6 +22,7 @@ const isValidTwitchAccount = (s) => s && /^[a-zA-Z0-9_]{4,25}$/.test(s);
 const isValidHexColor = (s) => s && /^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(s);
 const isValidUrl = (s) => s && /^((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)$/.test(s);
 const isBotCommand = (s) => s && /^!{1}[a-zA-Z0-9]+/.test(s);
+const localeEquals = (x, y) => x.localeCompare(y, undefined, { sensitivity: 'base' }) === 0;
 
 const userState = {};				// state properties
 const roomState = new Map();		// name -> state properties
@@ -464,11 +465,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 	});
 
 	chatInput.addEventListener('keydown', (e) => {
+		if (chatInput.readOnly) return;
+
 		switch (e.key) {
 			case 'Escape': {
 				e.preventDefault();
-
-				if (chatInput.readOnly) return;
 
 				if (chatInput.value.length > 0) {
 					chatInput.dataset.historyIndex = commandHistory.length;
@@ -482,12 +483,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 			case 'Tab': {
 				e.preventDefault();
 
-				if (chatInput.readOnly || chatInput.value.startsWith('/')) return;
+				const text = chatInput.value;
 
+				// interacting with command list
+				if (text.startsWith('/') && text.indexOf(' ') < 0) return;
+
+				// @username tab completion
+				let wordStart = text.lastIndexOf(' ', chatInput.selectionStart - 1) + 1;
+
+				if (text.charAt(wordStart) === '@') {
+					wordStart++;
+					let wordEnd = text.indexOf(' ', chatInput.selectionStart);
+					if (wordEnd < 0) wordEnd = text.length;
+					let word = text.substring(wordStart, wordEnd);
+
+					if (!isValidTwitchAccount(word)) return;
+
+					const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
+					if (!currentChannel) return;
+
+					// get recent chatters
+					const room_state = roomState.get(currentChannel);
+					const selector = `.msg[data-roomid="${room_state.id}"]:not(.deleted) .msg-user a`;
+					const users = [...chatOutput.querySelectorAll(selector)].map(el => el.title);
+
+					const username = !word
+						? users[users.length - 1] // reply to most recent
+						: users.sort().find(user => localeEquals(user.substring(0, word.length), word));
+
+					if (username) {
+						// replace input
+						chatInput.value = text.substring(0, wordStart) + username + text.substring(wordEnd);
+						chatInput.selectionStart = chatInput.selectionEnd = wordStart + username.length;
+					}
+
+					return;
+				}
+
+				// cycling channels
 				const current = chatRooms.querySelector('.active');
 				current?.classList.remove('active');
 
-				// cycle to next
 				const cycleElement = !!e.shiftKey
 					? current?.previousElementSibling ?? chatRooms.querySelector(':scope > :last-child') // backwards
 					: current?.nextElementSibling ?? chatRooms.querySelector(':scope > :first-child'); // forwards
@@ -927,7 +963,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		if (shouldScroll) scrollToBottom();
-		
+
 		window.routineTimer = setTimeout(routine, 1_000);
 	}, 1_000);
 
@@ -1103,12 +1139,12 @@ function parseThirdPartyEmote(emote) {
 	// NOTE: always grab 2x size because it scales better
 	const url = emote.urls.find(o => o.size === '2x')?.url;
 	if (!url) return;
-	
+
 	// attempt to get an existing emote from cache since there can be overlap
 	// helps to prevent additional network requests for static emotes when we know they don't exist
 	const existingEmote = [...emoteCache.values()]
 		.find(e => e.url === emote.url);
-	
+
 	if (existingEmote) return existingEmote;
 
 	// create a new entry
@@ -1155,7 +1191,7 @@ async function joinChannels(...channels) {
 
 	// verify remaining channels and return details
 	const data = await twitch.getUsers(...channels.map(chan => chan.name));
-	
+
 	// enforce a specific join order
 	data.sort((a, b) => a.login.localeCompare(b.login));
 
@@ -1417,7 +1453,7 @@ function createMessageFragment(info) {
 		} else {
 			// message from user
 			// support localized names
-			const friendlyName = info.name.localeCompare(info.user, undefined, { sensitivity: 'base' }) === 0
+			const friendlyName = localeEquals(info.name, info.user)
 				? info.name
 				: `${info.name} (${info.user})`;
 

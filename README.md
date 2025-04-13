@@ -25,12 +25,13 @@ Also for users who may want a clean and light-weight chat experience, as the def
 
 ## Features
 - [x] Clean, minimalistic and performant design
-- [x] Improved chat readability with large font size and improved color contrast of usernames
+- [x] Improved readability with larger font size and improved color contrast
 - [x] Send/receive basic chat messages w/ support for third-party emotes
-- [x] Ability to ignore messages from specific accounts (such as bots)
+- [x] @username tab-completion for recent chatters
+- [x] Ignore messages from specific accounts (such as bots)
 - [x] Temporarily mute channels to stop displaying their messages
-- [x] Proper link parsing, and all links open in a new browser tab
-- [x] Scrolling up preserves message history, allowing you to slowly read through past messages without losing them
+- [x] Proper link parsing, all links open in a new browser tab
+- [x] Scroll up to preserve message history to read through past messages without losing them
 - [x] Completely client-side
 - [x] Mobile Support
 - [x] Usable as OBS overlay
@@ -42,7 +43,6 @@ Also for users who may want a clean and light-weight chat experience, as the def
 - [ ] Support message replies
 - [ ] Broadcaster online/offline/raid messages
 - [ ] Basic moderator commands (timeout, ban, etc)
-- [ ] Auto-completion of @names for users that are recently active
 - [ ] Respect Twitch API request limits
 - [ ] Allow user choice of permissions (read only, read/send, read/send/mod commands)
 
