@@ -504,8 +504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					const room_state = roomState.get(currentChannel);
 					const selector = `.msg[data-roomid="${room_state.id}"]:not(.deleted)`;
 					const users = [...chatOutput.querySelectorAll(selector)]
-						.map(el => el.dataset.username)
-						.filter(Boolean) // remove empty
+						.map(el => el.dataset.user)
 						.reverse();	// prioritize by most recent
 
 					// add current channel as a fallback
@@ -806,10 +805,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 								userNames.forEach(user => {
 									ignoredUsers.add(user);
 									// remove previous messages
-									// NOTE: we don't store username directly and don't map a username to a user id...
-									const selector = `.msg-user a[href="https://twitch.tv/${user}"]`;
+									const selector = `.msg[data-user=${user}]`;
 									chatOutput.querySelectorAll(selector)
-										.forEach(el => el.closest('.msg').remove());
+										.forEach(el => el.remove());
 								});
 								updateUrl();
 							}
@@ -1428,10 +1426,15 @@ function createMessageFragment(info) {
 	const msg = clone.querySelector('.msg');
 	if (msg) {
 		msg.dataset.time = now.getTime();
-		msg.dataset.msgid = info.msgid;
-		msg.dataset.roomid = info.roomid;
-		msg.dataset.userid = info.userid;
-		msg.dataset.username = info.user;
+		// avoiding "undefined" values helps us long term
+		if (info.msgid)
+			msg.dataset.msgid = info.msgid;
+		if (info.roomid)
+			msg.dataset.roomid = info.roomid;
+		if (info.userid)
+			msg.dataset.userid = info.userid;
+		if (info.user)
+			msg.dataset.user = info.user;
 
 		msg.classList.toggle('system', !!info.system);
 		msg.classList.toggle('event', !!info.event);
