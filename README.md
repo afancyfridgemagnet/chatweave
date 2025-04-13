@@ -22,28 +22,27 @@ Also for users who may want a clean and light-weight chat experience, as the def
 ![narrow](https://github.com/user-attachments/assets/0355ebe3-17b7-4159-8cd9-73daa1d9c673)
 </details>
 
-Example URL: https://afancyfridgemagnet.github.io/chatweave/?channels=bobross,foreverfancy:eba5d325,gamesdonequick,insym,mst3k,twitch&ignore=moobot,nightbot,pokemoncommunitygame,sery_boy,soundalerts,streamelements,streamlabs,tangiabot&botcommands=false&staticemotes=false,thirdpartyemotes=true&history=150&prune=0&fresh=60&readonly=false
 
 ## Features
-- [x] Clean, minimalistic and performant design (hides excess chat badges)
-- [x] Improved chat readability with large font size and improved color contrast of usernames!
-- [x] Sending/Receiving basic chat messages (supports third-party emotes!)
+- [x] Clean, minimalistic and performant design
+- [x] Improved chat readability with large font size and improved color contrast of usernames
+- [x] Send/receive basic chat messages w/ support for third-party emotes
 - [x] Ability to ignore messages from specific accounts (such as bots)
-- [x] Temporarily muting of channels
+- [x] Temporarily mute channels to stop displaying their messages
 - [x] Proper link parsing, and all links open in a new browser tab
 - [x] Scrolling up preserves message history, allowing you to slowly read through past messages without losing them
 - [x] Completely client-side
 - [x] Mobile Support
 - [x] Usable as OBS overlay
-- [x] Shareable configuration!
+- [x] Shareable/bookmarkable configuration via URLs!
 
 
-## Potential Future Features
-- [ ] Support highlighted messages / message effects?
-- [ ] Support message replies?
-- [ ] Support for broadcaster online/offline/raid messages
-- [ ] Support for basic moderator commands (timeout, ban, etc)
-- [ ] Support for auto-completion of @names for users that have sent a message
+## Potential Future Features (No promises)
+- [ ] Indicator for highlighted messages / message effect redeems
+- [ ] Support message replies
+- [ ] Broadcaster online/offline/raid messages
+- [ ] Basic moderator commands (timeout, ban, etc)
+- [ ] Auto-completion of @names for users that are recently active
 - [ ] Respect Twitch API request limits
 - [ ] Allow user choice of permissions (read only, read/send, read/send/mod commands)
 
@@ -54,6 +53,7 @@ Authorization will be needed through your Twitch.tv account to send and receive 
 By default it will automatically join your Twitch Account's chat channel, but you may /join and /leave channels at your discretion.
 
 Configuration changes will update the page's current URL, which can then be bookmarked for future use, or shared with other people.  
+
 
 ## Keyboard Shortcuts
 
@@ -130,6 +130,7 @@ Remove users from ignore list, allowing future messages to be shown.
 `/logout`  
 Disconnects from Twitch and invalidates the current access token, effectively logging out of the current session completely.  
 
+
 ## Configuration Commands
 
 `/botcommands <true|false>`  
@@ -142,6 +143,9 @@ When set to true, future messages containing emotes/cheermotes will load non-ani
 `/thirdpartyemotes <true|false>`  
 When set to true, parses and displays third-party GLOBAL and CHANNEL emotes from 7TV, BTTV, FFZ.  
  
+`/nodelete <true|false>`  
+When set to true, prevents deleted messages from being removed.  
+ 
 `/history <# messages>`  
 Sets the maximum number of messages to keep visible. Messages over this limit will be removed. Set to 0 to disable this functionality.  
 
@@ -150,6 +154,7 @@ Sets the maximum age of messages to keep visible. Messages older than this will 
 
 `/fresh <# seconds>`  
 Messages older than # seconds will be separated with a 'tracker bar' that may help keep track of new messages. Set to 0 to disable this functionality.  
+
 
 ## Extra Commands
 
@@ -181,7 +186,8 @@ In order to do this you can right-click your Browser source and select Interact.
 After logging in/authorizing ChatWeave it should begin working.  
 
 > [!NOTE]
-> Twitch access tokens are only good for ~45-60 days. If you see the error "access_token failed validation" you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
+> Twitch access tokens are only good for ~45-60 days. If you see the error "access_token failed validation" or new messages are not appearing, you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
+
 
 ## Custom CSS template
 ![overlay](https://github.com/user-attachments/assets/545ca7c2-ead2-41d8-b2a3-92a4df940235)
@@ -212,12 +218,13 @@ html {
 	order: 4;
 }
 
-/* hide elements */
+/* hide elements (tracker bar, bottom panel, time column, system messages, badges */
 /* optionally add .msg-room to the list to hide channel avatar */
 #chatTracker, #chatPanel, .msg-time, .system, .badge {
 	display: none !important;
 }
 ```
+
 
 # Removing ChatWeave
 In order to completely disconnect ChatWeave from your Twitch Account you should visit your Settings -> Connections page on Twitch and scroll down to "Other Connections".  
@@ -225,6 +232,7 @@ Shortcut: [Twitch Connections](https://www.twitch.tv/settings/connections)
 
 Find "ChatWeave" and click the Disconnect button.  
 ![twitch-connections](https://github.com/user-attachments/assets/bcd6f844-ae78-41cc-82fb-58044b1e2169)
+
 
 # Credits / Contributors
 

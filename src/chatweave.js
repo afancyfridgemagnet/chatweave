@@ -41,6 +41,7 @@ const ignoredUsers = new Set(
 let botCommands = (pageUrl.searchParams.get('botcommands') ?? 'true') === 'true';
 let staticEmotes = (pageUrl.searchParams.get('staticemotes') ?? 'false') === 'true';
 let thirdPartyEmotes = (pageUrl.searchParams.get('thirdpartyemotes') ?? 'false') === 'true';
+let preventDelete = (pageUrl.searchParams.get('nodelete') ?? 'false') === 'true';
 let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 150);
 let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; // ms
 let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 60) * 1000; // ms
@@ -533,6 +534,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				{ name: '/lurk',				desc: '/lurk'},
 				{ name: '/me',					desc: '/me <action>'},
 				{ name: '/mute',				desc: '/mute <channel names/numbers>'},
+				{ name: '/nodelete',			desc: '/nodelete <true|false>'},
 				{ name: '/prune',				desc: '/prune <# seconds>'},
 				{ name: '/purge',				desc: '/purge <channel names/numbers>'},
 				{ name: '/purgeall',			desc: '/purgeall'},
@@ -799,6 +801,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 							if (thirdPartyEmotes) {
 								loadThirdPartyGlobalEmotes();
 								[...roomState.values()].forEach(room_state => loadThirdPartyChannelEmotes(room_state));
+							}
+							updateUrl();
+							commitValue();
+						} return;
+
+						case 'NODELETE': {
+							preventDelete = arg === 'true';
+							if (!preventDelete) {
+								// remove deleted messages
+								chatOutput.querySelectorAll('.msg.deleted')
+									.forEach(el => el.remove());
 							}
 							updateUrl();
 							commitValue();
@@ -1083,7 +1096,15 @@ function parseThirdPartyEmote(emote) {
 	// NOTE: always grab 2x size because it scales better
 	const url = emote.urls.find(o => o.size === '2x')?.url;
 	if (!url) return;
+	
+	// attempt to get an existing emote from cache since there can be overlap
+	// helps to prevent additional network requests for static emotes when we know they don't exist
+	const existingEmote = [...emoteCache.values()]
+		.find(e => e.url === emote.url);
+	
+	if (existingEmote) return existingEmote;
 
+	// create a new entry
 	return {
 		set: emote.provider === 0 ? 'TTV'
 			: emote.provider === 1 ? '7TV'
@@ -1092,7 +1113,7 @@ function parseThirdPartyEmote(emote) {
 			: undefined,
 		url: url,
 		// HACK: manipulate url to attempt to find static version
-		// not guaranteed to exist. if img.onerror, will replace the static url with regular url
+		// not guaranteed to exist. during img.onerror will call staticEmoteLoadError
 		url_static: emote.provider === 0 ? url.replace('/default/','/static/')
 			: emote.provider === 1 ? url.replace(/\/emote\/(.*)\/2x/,'/emote/$1/2x_static')
 			: emote.provider === 2 ? url.replace(/\/emote\/(.*)\/2x/,'/emote/$1/static/2x')
@@ -1110,7 +1131,7 @@ function staticEmoteLoadError(img, chan) {
 	const emote = emoteCache.get(key);
 	// replace img src with default url
 	img.src = emote.url;
-	// remove referenced url_static to avoid using it again
+	// remove all references to static url to avoid using it
 	[...emoteCache.values()]
 		.filter(e => e.url_static === emote.url_static)
 		.forEach(e => e.url_static = null);
@@ -1524,6 +1545,7 @@ function updateUrl() {
 	params.set('botcommands', botCommands);
 	params.set('staticemotes', staticEmotes);
 	params.set('thirdpartyemotes', thirdPartyEmotes);
+	params.set('nodelete', preventDelete);
 	params.set('history', messageHistory);
 	params.set('prune', pruneMessageTime / 1000);
 	params.set('fresh', freshMessageTime / 1000);
