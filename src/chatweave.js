@@ -506,6 +506,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					const users = [...chatOutput.querySelectorAll(selector)]
 						.map(el => el.dataset.user)
 						.filter(Boolean) // remove blanks
+						.filter(s => s != userState.login) // remove self
 						.reverse();	// prioritize by most recent
 
 					// add current channel as a fallback
