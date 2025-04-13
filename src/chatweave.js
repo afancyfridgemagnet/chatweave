@@ -497,8 +497,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 					if (wordEnd < 0) wordEnd = text.length;
 					let word = text.substring(wordStart, wordEnd);
 
-					if (!isValidTwitchAccount(word)) return;
-
 					const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
 					if (!currentChannel) return;
 
