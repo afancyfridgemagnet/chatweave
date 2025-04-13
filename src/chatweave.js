@@ -502,12 +502,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					// get recent chatters
 					const room_state = roomState.get(currentChannel);
-					const selector = `.msg[data-roomid="${room_state.id}"]:not(.deleted) .msg-user a`;
-					const users = [...chatOutput.querySelectorAll(selector)].map(el => el.title);
+					const selector = `.msg[data-roomid="${room_state.id}"]:not(.deleted)`;
+					const users = [...chatOutput.querySelectorAll(selector)]
+						.map(el => el.dataset.username)
+						.filter(Boolean) // filter out blank
+						.reverse();	// prioritize by most recent
+
+					// add current channel as a fallback
+					users.push(currentChannel);
 
 					const username = !word
-						? users[users.length - 1] // reply to most recent
-						: users.sort().find(user => localeEquals(user.substring(0, word.length), word));
+						? users.shift() // first username
+						: users.find(user => localeEquals(user.substring(0, word.length), word));
 
 					if (username) {
 						// replace input
@@ -1425,6 +1431,7 @@ function createMessageFragment(info) {
 		msg.dataset.msgid = info.msgid;
 		msg.dataset.roomid = info.roomid;
 		msg.dataset.userid = info.userid;
+		msg.dataset.username = info.name;
 
 		msg.classList.toggle('system', !!info.system);
 		msg.classList.toggle('event', !!info.event);
