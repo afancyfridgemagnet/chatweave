@@ -1477,7 +1477,7 @@ function createMessageFragment(info) {
 
 function isScrolledToBottom() {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
-	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 1;
+	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 4;
 }
 
 function scrollToBottom() {
