@@ -253,8 +253,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// remove all channel messages
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"]`;
 		chatOutput.querySelectorAll(selector).forEach(el => {
-			el.classList.add('deleted');
-			el.remove();
+			if (preventDelete)
+				el.classList.add('deleted');
+			else
+				el.remove();
 		});
 	});
 
@@ -262,8 +264,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// remove all messages from user
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-userid="${msg.target_user_id}"]`;
 		chatOutput.querySelectorAll(selector).forEach(el => {
-			el.classList.add('deleted');
-			el.remove();
+			if (preventDelete)
+				el.classList.add('deleted');
+			else
+				el.remove();
 		});
 	});
 
@@ -271,8 +275,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// remove specific message
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-msgid="${msg.message_id}"]`;
 		chatOutput.querySelectorAll(selector).forEach(el => {
-			el.classList.add('deleted');
-			el.remove();
+			if (preventDelete)
+				el.classList.add('deleted');
+			else
+				el.remove();
 		});
 	});
 
