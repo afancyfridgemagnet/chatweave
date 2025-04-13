@@ -345,8 +345,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 					}).join(' ') + '</span>';
 				}
 
-				case 'mention': // @username
-					return `<span class="mention">${frag.text}</span>`;
+				case 'mention': // @username, lowercase for stylistic choice
+					return `<span class="mention">${frag.text.toLowerCase()}</span>`;
 
 				case 'emote': {
 					const type = staticEmotes ? 'static' : 'default';
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					const selector = `.msg[data-roomid="${room_state.id}"]:not(.deleted)`;
 					const users = [...chatOutput.querySelectorAll(selector)]
 						.map(el => el.dataset.username)
-						.filter(Boolean) // filter out blank
+						.filter(Boolean) // remove empty
 						.reverse();	// prioritize by most recent
 
 					// add current channel as a fallback
@@ -1431,7 +1431,7 @@ function createMessageFragment(info) {
 		msg.dataset.msgid = info.msgid;
 		msg.dataset.roomid = info.roomid;
 		msg.dataset.userid = info.userid;
-		msg.dataset.username = info.name;
+		msg.dataset.username = info.user;
 
 		msg.classList.toggle('system', !!info.system);
 		msg.classList.toggle('event', !!info.event);
