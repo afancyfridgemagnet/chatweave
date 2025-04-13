@@ -1149,6 +1149,9 @@ function parseThirdPartyEmote(emote) {
 	const existingEmote = [...emoteCache.values()]
 		.find(e => e.url === emote.url);
 
+	// NOTE: just return the existing emote. the emote codes may be different
+	// but that is taken care of outside this function using map key
+	// and the code is not stored within this object anyway
 	if (existingEmote) return existingEmote;
 
 	// create a new entry
