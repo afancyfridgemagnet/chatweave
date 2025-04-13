@@ -1154,6 +1154,9 @@ async function joinChannels(...channels) {
 
 	// verify remaining channels and return details
 	const data = await twitch.getUsers(...channels.map(chan => chan.name));
+	
+	// enforce a specific join order
+	data.sort((a, b) => a.login.localeCompare(b.login));
 
 	// data contains channels that actually exist
 	for (const user of data) {
