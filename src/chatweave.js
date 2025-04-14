@@ -46,7 +46,7 @@ let thirdPartyEmotes = (pageUrl.searchParams.get('thirdpartyemotes') ?? 'false')
 let preventDelete = (pageUrl.searchParams.get('nodelete') ?? 'false') === 'true';
 let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 150);
 let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; // ms
-let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 60) * 1000; // ms
+let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 0) * 1000; // ms
 
 window.addEventListener('resize', scrollToBottom);
 
@@ -945,16 +945,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 				const msg = chatOutput.querySelector('.msg');
 				if (msg && msg.dataset.time < pruneTime)
 					msg.remove();
-				else 
+				else
 					break;
 			}
 		}
-		
+
 		// limit history
 		const messages = chatOutput.querySelectorAll('.msg');
 		let removeCount = messages.length - (
-			scrolledToBottom && messageHistory > 0 
-			? messageHistory 
+			scrolledToBottom && messageHistory > 0
+			? messageHistory
 			: Math.max(messageHistory, MAX_MESSAGE_COUNT)
 		);
 

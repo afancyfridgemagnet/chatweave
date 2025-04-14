@@ -152,7 +152,7 @@ Sets the maximum number of messages to keep available. Messages over this limit 
 `/prune <# seconds>` (default: 0)  
 Sets the maximum age of messages to keep available. Messages older than this will be removed. Set to 0 to disable this functionality.  
 
-`/fresh <# seconds>` (default: 60)  
+`/fresh <# seconds>` (default: 0)  
 Messages older than # seconds will be separated with a 'tracker bar' that may help keep track of new messages. Set to 0 to disable this functionality.  
 
 
