@@ -147,7 +147,7 @@ When set to true, parses and displays third-party GLOBAL and CHANNEL emotes from
 When set to true, prevents deleted messages from being removed.  
  
 `/history <# messages>`  
-Sets the maximum number of messages to keep visible. Messages over this limit will be removed. Set to 0 to disable this functionality.  
+Sets the maximum number of messages to keep visible. Messages over this limit will be removed. Set to 0 to disable this functionality (recommended to set to a very high number instead).  
 
 `/prune <# seconds>`  
 Sets the maximum age of messages to keep visible. Messages older than this will be removed. Set to 0 to disable this functionality.  

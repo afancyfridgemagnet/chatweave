@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		chatOutput.innerHTML = '';
 		chatRooms.innerHTML = '';
 		chatInput.value = '';
+		chatInput.placeholder = 'DISCONNECTED';
 		chatInput.readOnly = true;
 		chatInput.disabled = true;
 		refreshCommands();
@@ -951,11 +952,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 			});
 		}
 
-		// move tracker down page
+		// move tracker
 		if (freshMessageTime > 0 && chatTracker) {
 			const freshTime = now - freshMessageTime;
 
-			// move up (would only happen if user adjusts freshTime)
+			// move up (would only trigger if user increases freshTime)
 			while (chatTracker.previousElementSibling?.dataset.time > freshTime) {
 				chatTracker.previousElementSibling.before(chatTracker);
 			}
@@ -966,7 +967,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			}
 		}
 
-		if (shouldScroll) scrollToBottom();
+		//if (shouldScroll) scrollToBottom();
 
 		window.routineTimer = setTimeout(routine, 1_000);
 	}, 1_000);
@@ -1530,7 +1531,7 @@ function createMessageFragment(info) {
 
 function isScrolledToBottom() {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
-	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 4;
+	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 1;
 }
 
 function scrollToBottom() {

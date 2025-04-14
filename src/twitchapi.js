@@ -23,7 +23,7 @@ class twitchApi extends EventTarget {
 		super();
 
 		// NOTE: timeout of >=60s sometimes causes browser disconnects (1006 error)
-		this.#socketUrl = 'wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30';
+		this.#socketUrl = 'wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=15';
 		this.#clientId = clientId;
 		this.#accessToken = accessToken;
     }
