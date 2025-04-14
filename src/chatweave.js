@@ -34,6 +34,7 @@ const emoteCache = new Map();		// 'source id' -> emote
 const commandHistory = [];
 const MAX_COMMAND_HISTORY = 25;
 const MAX_MESSAGE_LENGTH = 500;		// twitch limit
+const MAX_MESSAGE_COUNT = 1500;
 
 const ignoredUsers = new Set(
 	pageUrl.searchParams.get('ignore')?.split(',').map(cleanName).filter(isValidTwitchAccount)
@@ -185,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('stream.online', ({ detail: msg }) => {
 		const room_state = roomState(msg.to_broadcaster_user_login);
-		if (room_state.muted) return;
+		if (!room_state || !room_state.joined || room_state.muted) return;
 
 		const content = `${msg.broadcaster_user_login} has gone live!`;
 
@@ -207,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('stream.offline', ({ detail: msg }) => {
 		const room_state = roomState(msg.to_broadcaster_user_login);
-		if (room_state.muted) return;
+		if (!room_state || !room_state.joined || room_state.muted) return;
 
 		const content = `${msg.broadcaster_user_login} has gone offline!`;
 
@@ -229,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('channel.raid', ({ detail: msg }) => {
 		const room_state = roomState(msg.to_broadcaster_user_login);
-		if (room_state.muted) return;
+		if (!room_state || !room_state.joined || room_state.muted) return;
 
 		const viewers = parseInt(msg.viewers).toLocaleString();
 		const content = `${msg.from_broadcaster_user_login} is raiding ${msg.to_broadcaster_user_login} with a party of ${viewers}!`;
@@ -245,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			//user: msg.from_broadcaster_user_login,
 			//name: msg.from_broadcaster_user_name,
 			// message
-			ping: msg.to_broadcaster_user_login === userState.login,
+			ping: msg.to_broadcaster_user_id === userState.id,
 			action: true,
 			event: true,
 		});
@@ -501,13 +502,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 					const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
 					if (!currentChannel) return;
 
-					// get recent chatters
+					// get recent chatters for channel, ignoring self and deleted msg
 					const room_state = roomState.get(currentChannel);
-					const selector = `.msg[data-roomid="${room_state.id}"]:not(.deleted)`;
+					const selector = `.msg[data-user][data-roomid="${room_state.id}"]:not([data-userid="${userState.id}"]):not(.deleted)`;
 					const users = [...chatOutput.querySelectorAll(selector)]
 						.map(el => el.dataset.user)
-						.filter(Boolean) // remove blanks
-						.filter(s => s != userState.login) // remove self
 						.reverse();	// prioritize by most recent
 
 					// add current channel as a fallback
@@ -868,7 +867,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							const val = parseInt(arg);
 							if (isNaN(val)) return;
 
-							messageHistory = val;
+							messageHistory = Math.max(val, 0);
 							updateUrl();
 							commitValue();
 						} return;
@@ -877,7 +876,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							const val = parseInt(arg) * 1000;
 							if (isNaN(val)) return;
 
-							pruneMessageTime = val;
+							pruneMessageTime = Math.max(val, 0);
 							updateUrl();
 							commitValue();
 						} return;
@@ -886,7 +885,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							const val = parseInt(arg) * 1000;
 							if (isNaN(val)) return;
 
-							freshMessageTime = val;
+							freshMessageTime = Math.max(val, 0);
 							updateUrl();
 							commitValue();
 						} return;
@@ -935,21 +934,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 	});
 
 	window.routineTimer = setTimeout(function routine() {
-		const shouldScroll = isScrolledToBottom();
+		const scrolledToBottom = isScrolledToBottom();
 		const now = new Date().getTime();
 
-		// prune messages (only if scrolled to bottom to allow reading history easily)
-		if (shouldScroll) {
-			const pruneTime = pruneMessageTime > 0 ? now - pruneMessageTime : undefined;
-			const messages = chatOutput.querySelectorAll('.msg');
-			let removeCount = messageHistory > 0 ? messages.length - messageHistory : 0;
+		// prune old messages off the top
+		if (scrolledToBottom && pruneMessageTime > 0) {
+			const pruneTime =  now - pruneMessageTime;
 
-			messages.forEach(el => {
-				if (el.dataset.time < pruneTime || removeCount > 0) {
-					el.remove();
-					removeCount--;
-				}
-			});
+			while (true) {
+				const msg = chatOutput.querySelector('.msg');
+				if (msg && msg.dataset.time < pruneTime)
+					msg.remove();
+				else 
+					break;
+			}
+		}
+		
+		// limit history
+		const messages = chatOutput.querySelectorAll('.msg');
+		let removeCount = messages.length - (
+			scrolledToBottom && messageHistory > 0 
+			? messageHistory 
+			: Math.max(messageHistory, MAX_MESSAGE_COUNT)
+		);
+
+		for (let i = 0; i < removeCount; i++) {
+			messages[i].remove();
 		}
 
 		// move tracker
@@ -966,8 +976,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				chatTracker.nextElementSibling.after(chatTracker);
 			}
 		}
-
-		//if (shouldScroll) scrollToBottom();
 
 		window.routineTimer = setTimeout(routine, 1_000);
 	}, 1_000);
@@ -1247,6 +1255,7 @@ async function joinChannels(...channels) {
 		});
 
 		// subscribe to twitch events
+
 		const subscribe = async (data) => {
 			if (room_state.subscriptions.has(data.type)) return;
 
@@ -1315,6 +1324,17 @@ async function joinChannels(...channels) {
 
 		// TODO: when there's a cost we need to throttle subscriptions
 
+		// event only for self
+		if (room_state.id === userState.id) {
+			await subscribe({
+				type: 'channel.raid', // cost 1
+				version: '1',
+				condition: {
+					to_broadcaster_user_id: room_state.id,
+				},
+			});
+		}
+
 		//await subscribe({
 		//	type: 'stream.online', // cost 1
 		//	version: '1',
@@ -1328,14 +1348,6 @@ async function joinChannels(...channels) {
 		//	version: '1',
 		//	condition: {
 		//		broadcaster_user_id: room_state.id,
-		//	},
-		//});
-
-		//await subscribe({
-		//	type: 'channel.raid', // cost 1
-		//	version: '1',
-		//	condition: {
-		//		to_broadcaster_user_id: room_state.id,
 		//	},
 		//});
 

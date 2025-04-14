@@ -31,7 +31,7 @@ Also for users who may want a clean and light-weight chat experience, as the def
 - [x] Ignore messages from specific accounts (such as bots)
 - [x] Temporarily mute channels to stop displaying their messages
 - [x] Proper link parsing, all links open in a new browser tab
-- [x] Scroll up to preserve message history to read through past messages without losing them
+- [x] Scrolling up preserves message history while you catch up
 - [x] Completely client-side
 - [x] Mobile Support
 - [x] Usable as OBS overlay
@@ -133,26 +133,26 @@ Disconnects from Twitch and invalidates the current access token, effectively lo
 
 ## Configuration Commands
 
-`/botcommands <true|false>`  
+`/botcommands <true|false>` (default: true)  
 When set to false, messages presumed to be bot commands will not be shown. May be helpful in reducing message spam.  
 Bot commands are messages prefixed with "!" such as !giveaway, !pokecheck, !discord, etc.  
 
-`/staticemotes <true|false>`  
+`/staticemotes <true|false>` (default: false)  
 When set to true, future messages containing emotes/cheermotes will load non-animated versions if available. This can have performance improvements.  
  
-`/thirdpartyemotes <true|false>`  
+`/thirdpartyemotes <true|false>` (default: false)  
 When set to true, parses and displays third-party GLOBAL and CHANNEL emotes from 7TV, BTTV, FFZ.  
  
-`/nodelete <true|false>`  
+`/nodelete <true|false>` (default: false)  
 When set to true, prevents deleted messages from being removed.  
  
-`/history <# messages>`  
-Sets the maximum number of messages to keep visible. Messages over this limit will be removed. Set to 0 to disable this functionality (recommended to set to a very high number instead).  
+`/history <# messages>` (default: 150)  
+Sets the maximum number of messages to keep available. Messages over this limit will be removed.  
 
-`/prune <# seconds>`  
-Sets the maximum age of messages to keep visible. Messages older than this will be removed. Set to 0 to disable this functionality.  
+`/prune <# seconds>` (default: 0)  
+Sets the maximum age of messages to keep available. Messages older than this will be removed. Set to 0 to disable this functionality.  
 
-`/fresh <# seconds>`  
+`/fresh <# seconds>` (default: 60)  
 Messages older than # seconds will be separated with a 'tracker bar' that may help keep track of new messages. Set to 0 to disable this functionality.  
 
 
