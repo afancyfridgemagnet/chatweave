@@ -52,6 +52,7 @@ window.addEventListener('resize', scrollToBottom);
 
 document.addEventListener('DOMContentLoaded', async () => {
 	window.twitch = new twitchApi(client_id, access_token);
+	window.routineTimer = setInterval(routineMaintenance, 1_000);
 
 	const validateToken = async () => {
 		const result = await twitch.validateToken();
@@ -112,8 +113,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 	});
 
 	twitch.addEventListener('disconnected', (e) => {
+		clearInterval(window.routineTimer);
 		clearTimeout(window.validationTimer);
-		clearTimeout(window.routineTimer);
 		chatOutput.innerHTML = '';
 		chatRooms.innerHTML = '';
 		chatInput.value = '';
@@ -933,53 +934,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 	});
 
-	window.routineTimer = setTimeout(function routine() {
-		const scrolledToBottom = isScrolledToBottom();
-		const now = new Date().getTime();
-
-		// prune old messages off the top
-		if (scrolledToBottom && pruneMessageTime > 0) {
-			const pruneTime =  now - pruneMessageTime;
-
-			while (true) {
-				const msg = chatOutput.querySelector('.msg');
-				if (msg && msg.dataset.time < pruneTime)
-					msg.remove();
-				else
-					break;
-			}
-		}
-
-		// limit history
-		const messages = chatOutput.querySelectorAll('.msg');
-		let removeCount = messages.length - (
-			scrolledToBottom && messageHistory > 0
-			? messageHistory
-			: Math.max(messageHistory, MAX_MESSAGE_COUNT)
-		);
-
-		for (let i = 0; i < removeCount; i++) {
-			messages[i].remove();
-		}
-
-		// move tracker
-		if (freshMessageTime > 0 && chatTracker) {
-			const freshTime = now - freshMessageTime;
-
-			// move up (would only trigger if user increases freshTime)
-			while (chatTracker.previousElementSibling?.dataset.time > freshTime) {
-				chatTracker.previousElementSibling.before(chatTracker);
-			}
-
-			// move down
-			while (chatTracker.nextElementSibling?.dataset.time < freshTime) {
-				chatTracker.nextElementSibling.after(chatTracker);
-			}
-		}
-
-		window.routineTimer = setTimeout(routine, 1_000);
-	}, 1_000);
-
 }, { once: true });
 
 function twitchAuthorizeRedirect() {
@@ -1576,6 +1530,51 @@ function errorMessage(text, format) {
 		text: text,
 		shade: 'red',
 	});
+}
+
+function routineMaintenance() {
+	const scrolledToBottom = isScrolledToBottom();
+	const now = new Date().getTime();
+
+	// prune old messages off the top
+	if (scrolledToBottom && pruneMessageTime > 0) {
+		const pruneTime =  now - pruneMessageTime;
+
+		while (true) {
+			const msg = chatOutput.querySelector('.msg');
+			if (msg && msg.dataset.time < pruneTime)
+				msg.remove();
+			else
+				break;
+		}
+	}
+
+	// limit history
+	const messages = chatOutput.querySelectorAll('.msg');
+	let removeCount = messages.length - (
+		scrolledToBottom && messageHistory > 0
+		? messageHistory
+		: Math.max(messageHistory, MAX_MESSAGE_COUNT)
+	);
+
+	for (let i = 0; i < removeCount; i++) {
+		messages[i].remove();
+	}
+
+	// move tracker
+	if (freshMessageTime > 0 && chatTracker) {
+		const freshTime = now - freshMessageTime;
+
+		// move up (would only trigger if user increases freshTime)
+		while (chatTracker.previousElementSibling?.dataset.time > freshTime) {
+			chatTracker.previousElementSibling.before(chatTracker);
+		}
+
+		// move down
+		while (chatTracker.nextElementSibling?.dataset.time < freshTime) {
+			chatTracker.nextElementSibling.after(chatTracker);
+		}
+	}
 }
 
 function parseChannelString(data) {
