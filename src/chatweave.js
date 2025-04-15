@@ -1563,7 +1563,9 @@ function routineMaintenance() {
 	);
 
 	for (let i = 0; i < removeCount; i++) {
-		messages[i].remove();
+		let msg = messages[i];
+		msg.remove();
+		msg = null;
 	}
 	messages = null;
 
