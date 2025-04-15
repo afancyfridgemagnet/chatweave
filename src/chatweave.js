@@ -1329,8 +1329,8 @@ async function partChannels(...channels) {
 
 		// remove messages
 		const selector = `.msg[data-roomid="${room_state.id}"]`;
-		chatOutput.querySelectorAll(selector)
-			.forEach(el => el.remove());
+		//chatOutput.querySelectorAll(selector)
+		//	.forEach(el => el.remove());
 
 		// update ui
 		const el = chatRooms.querySelector(`[data-room="${channel}"]`);
