@@ -1537,22 +1537,27 @@ function routineMaintenance() {
 	const now = new Date().getTime();
 
 	// prune old messages off the top
-	if (scrolledToBottom && pruneMessageTime > 0) {
+	if (pruneMessageTime > 0 && scrolledToBottom) {
 		const pruneTime =  now - pruneMessageTime;
 
 		while (true) {
-			const msg = chatOutput.querySelector('.msg');
-			if (msg && msg.dataset.time < pruneTime)
+			let msg = chatOutput.querySelector('.msg');
+
+			if (msg && msg.dataset.time < pruneTime) {
 				msg.remove();
-			else
-				break;
+				msg = null;
+				continue;
+			}
+			
+			msg = null;
+			break;
 		}
 	}
 
 	// limit history
-	const messages = chatOutput.querySelectorAll('.msg');
+	let messages = chatOutput.querySelectorAll('.msg');
 	let removeCount = messages.length - (
-		scrolledToBottom && messageHistory > 0
+		messageHistory > 0 && scrolledToBottom
 		? messageHistory
 		: Math.max(messageHistory, MAX_MESSAGE_COUNT)
 	);
@@ -1560,6 +1565,7 @@ function routineMaintenance() {
 	for (let i = 0; i < removeCount; i++) {
 		messages[i].remove();
 	}
+	messages = null;
 
 	// move tracker
 	if (freshMessageTime > 0 && chatTracker) {
