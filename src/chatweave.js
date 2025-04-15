@@ -1562,8 +1562,9 @@ function routineMaintenance() {
 		: Math.max(messageHistory, MAX_MESSAGE_COUNT)
 	);
 
+	let msg;
 	for (let i = 0; i < removeCount; i++) {
-		let msg = messages[i];
+		msg = messages[i];
 		msg.remove();
 		msg = null;
 	}
