@@ -1437,7 +1437,22 @@ function toggleMute(channel, state) {
 	}
 }
 
-function createMessageFragment(info) {
+function isScrolledToBottom() {
+	// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
+	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 1;
+}
+
+function scrollToBottom() {
+	chatOutput.scrollTo({
+		top: chatOutput.scrollHeight,
+		behavior: 'instant'
+	});
+}
+
+function appendMessage(info) {
+	const shouldScroll = isScrolledToBottom();
+
+	// create a message fragment
 	const clone = chatTemplate.content.cloneNode(true);
 	const now = new Date();
 
@@ -1538,26 +1553,8 @@ function createMessageFragment(info) {
 		time.textContent = now.toLocaleTimeString();
 	}
 
-	return clone;
-}
-
-function isScrolledToBottom() {
-	// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
-	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 1;
-}
-
-function scrollToBottom() {
-	chatOutput.scrollTo({
-		top: chatOutput.scrollHeight,
-		behavior: 'instant'
-	});
-}
-
-function appendMessage(info) {
-	const shouldScroll = isScrolledToBottom();
-
-	const fragment = createMessageFragment(info);
-	chatOutput.appendChild(fragment);
+	// append to dom
+	chatOutput.appendChild(clone);
 
 	if (shouldScroll) scrollToBottom();
 }
