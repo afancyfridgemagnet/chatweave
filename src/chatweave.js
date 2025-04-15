@@ -1319,6 +1319,7 @@ async function partChannels(...channels) {
 		const room_state = roomState.get(channel);
 		if (!room_state || !room_state.joined) continue;
 
+		// prevents new messages and removes existing
 		toggleMute(room_state.login, true);
 
 		// unsubscribe to twitch events
@@ -1326,11 +1327,6 @@ async function partChannels(...channels) {
 			room_state.subscriptions.delete(type);
 			await twitch.deleteSubscription(id);
 		}
-
-		// remove messages
-		const selector = `.msg[data-roomid="${room_state.id}"]`;
-		//chatOutput.querySelectorAll(selector)
-		//	.forEach(el => el.remove());
 
 		// update ui
 		const el = chatRooms.querySelector(`[data-room="${channel}"]`);
@@ -1541,34 +1537,26 @@ function routineMaintenance() {
 		const pruneTime =  now - pruneMessageTime;
 
 		while (true) {
-			let msg = chatOutput.querySelector('.msg');
-
+			const msg = chatOutput.querySelector('.msg');
 			if (msg && msg.dataset.time < pruneTime) {
 				msg.remove();
-				msg = null;
 				continue;
 			}
-			
-			msg = null;
 			break;
 		}
 	}
 
 	// limit history
-	let messages = chatOutput.querySelectorAll('.msg');
+	const messages = chatOutput.querySelectorAll('.msg');
 	let removeCount = messages.length - (
 		messageHistory > 0 && scrolledToBottom
 		? messageHistory
 		: Math.max(messageHistory, MAX_MESSAGE_COUNT)
 	);
 
-	let msg;
 	for (let i = 0; i < removeCount; i++) {
-		msg = messages[i];
-		msg.remove();
-		msg = null;
+		messages[i].remove();
 	}
-	messages = null;
 
 	// move tracker
 	if (freshMessageTime > 0 && chatTracker) {
