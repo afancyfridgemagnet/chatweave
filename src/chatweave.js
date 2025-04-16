@@ -29,8 +29,8 @@ const roomState = new Map();		// name -> state properties
 const MAX_CHANNEL_LIMIT = 100;		// twitch limit
 
 const colorCache = new Map();		// hex -> adjusted hsl
-const cheermoteCache = new Map();	// prefix id -> { tier, color, url }
 const emoteCache = new Map();		// 'source id' -> emote
+const cheermoteCache = new Map();	// prefix id -> { tier, color, url }
 const commandHistory = [];
 const MAX_COMMAND_HISTORY = 25;
 const MAX_MESSAGE_LENGTH = 500;		// twitch limit
@@ -115,6 +115,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 	twitch.addEventListener('disconnected', (e) => {
 		clearInterval(window.routineTimer);
 		clearTimeout(window.validationTimer);
+		// state and cache
+		roomState.clear();
+		colorCache.clear();
+		emoteCache.clear();
+		cheermoteCache.clear();
+		commandHistory.length = 0;
+		// ui
 		chatOutput.innerHTML = '';
 		chatRooms.innerHTML = '';
 		chatInput.value = '';
@@ -1557,6 +1564,7 @@ function routineMaintenance() {
 	for (let i = 0; i < removeCount; i++) {
 		messages[i].remove();
 	}
+	messages.length = 0;
 
 	// move tracker
 	if (freshMessageTime > 0 && chatTracker) {
