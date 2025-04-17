@@ -10,8 +10,8 @@ const access_token = twitchAccessToken();
 
 const chatTemplate = document.querySelector('#chatMessage');
 const chatPaused = document.querySelector('#chatPaused');
-const chatOutput = document.querySelector('#chatOutput');
 const chatTracker = document.querySelector('#chatTracker');
+const chatOutput = document.querySelector('#chatOutput');
 const chatPanel = document.querySelector('#chatPanel');
 const chatRooms = document.querySelector('#chatRooms');
 const chatInput = document.querySelector('#chatInput');

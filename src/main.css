@@ -121,6 +121,22 @@ a:active {
 	z-index: 1;
 }
 
+#chatPaused:hover {
+	filter: brightness(1.25);
+}
+
+#chatTracker {
+	width: 100%;
+	height: 2px;
+	/* avoid shifting content by negating height */
+	margin-top: -2px;
+	/* negative bottom margin messes with scrollbar */
+	margin-bottom: 0;
+
+	background-color: var(--accent-color);
+	z-index: 1;
+}
+
 #chatOutput {
 	display: flex;
 	flex-direction: column;
@@ -153,18 +169,6 @@ a:active {
 #chatOutput > * {
 	display: flex;
 	flex-shrink: 0;
-}
-
-#chatTracker {
-	width: 100%;
-	height: 2px;
-	/* avoid shifting content by negating height */
-	margin-top: -2px;
-	/* negative bottom margin messes with scrollbar */
-	margin-bottom: 0;
-
-	background-color: var(--accent-color);
-	z-index: 1;
 }
 
 #chatPanel {
