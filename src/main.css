@@ -101,6 +101,26 @@ a:active {
 
 /* layout */
 
+#chatPaused {
+	position: absolute;
+	top: 0.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+
+	padding: 2px 8px;
+	font-weight: bold;
+	background-color: var(--background-color);
+	color: var(--disabled-color);
+
+	outline: 2px dashed var(--disabled-color);
+	-webkit-user-select: none;
+	border-radius: 1rem;
+	user-select: none;
+	cursor:pointer;
+
+	z-index: 1;
+}
+
 #chatOutput {
 	display: flex;
 	flex-direction: column;

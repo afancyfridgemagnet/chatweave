@@ -9,6 +9,7 @@ const redirect_uri = pageUrl.protocol + '//' + pageUrl.host + pageUrl.pathname;
 const access_token = twitchAccessToken();
 
 const chatTemplate = document.querySelector('#chatMessage');
+const chatPaused = document.querySelector('#chatPaused');
 const chatOutput = document.querySelector('#chatOutput');
 const chatTracker = document.querySelector('#chatTracker');
 const chatPanel = document.querySelector('#chatPanel');
@@ -47,8 +48,6 @@ let preventDelete = (pageUrl.searchParams.get('nodelete') ?? 'false') === 'true'
 let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 150);
 let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; // ms
 let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 0) * 1000; // ms
-
-window.addEventListener('resize', scrollToBottom);
 
 document.addEventListener('DOMContentLoaded', async () => {
 	window.twitch = new twitchApi(client_id, access_token);
@@ -939,6 +938,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 				scrollToBottom();
 			} break;
 		}
+	});
+
+	window.addEventListener('resize', scrollToBottom);
+	chatPaused.addEventListener('click', scrollToBottom);
+	chatOutput.addEventListener('scroll', () => {
+		const scrolledToBottom = isScrolledToBottom();
+		chatPaused.classList.toggle('invisible', scrolledToBottom);
 	});
 
 }, { once: true });
