@@ -218,9 +218,9 @@ html {
 	order: 4;
 }
 
-/* hide elements (tracker bar, bottom panel, time column, system messages, badges */
+/* hide elements (pause bar, tracker bar, bottom panel, time column, system messages, badges */
 /* optionally add .msg-room to the list to hide channel avatar */
-#chatTracker, #chatPanel, .msg-time, .system, .badge {
+#chatPaused, #chatTracker, #chatPanel, .msg-time, .system, .badge {
 	display: none !important;
 }
 ```
