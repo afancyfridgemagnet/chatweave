@@ -1564,7 +1564,6 @@ function routineMaintenance() {
 	for (let i = 0; i < removeCount; i++) {
 		messages[i].remove();
 	}
-	messages.length = 0;
 
 	// move tracker
 	if (freshMessageTime > 0 && chatTracker) {
