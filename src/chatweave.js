@@ -262,34 +262,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 	twitch.addEventListener('channel.chat.clear', ({ detail: msg }) => {
 		// remove all channel messages
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => {
-			if (preventDelete)
-				el.classList.add('deleted');
-			else
-				el.remove();
-		});
+		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage);
 	});
 
 	twitch.addEventListener('channel.chat.clear_user_messages', ({ detail: msg }) => {
 		// remove all messages from user
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-userid="${msg.target_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => {
-			if (preventDelete)
-				el.classList.add('deleted');
-			else
-				el.remove();
-		});
+		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage);
 	});
 
 	twitch.addEventListener('channel.chat.message_delete', ({ detail: msg }) => {
 		// remove specific message
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-msgid="${msg.message_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => {
-			if (preventDelete)
-				el.classList.add('deleted');
-			else
-				el.remove();
-		});
+		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage);
 	});
 
 	twitch.addEventListener('channel.chat.message', ({ detail: msg }) => {
@@ -338,17 +323,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 							}
 						}
 
-						// sanitize remaining characters
-						return [...text].map(c => {
-							switch (c) {
-								case '&': return '&amp;';
-								case '<': return '&lt;';
-								case '>': return '&gt;';
-								case '"': return '&quot;';
-								case "'": return '&#039;';
-								default: return c;
-							}
-						}).join('');
+						// sanitize string
+						return sanitizeString(text);
 
 						// recombine fragments
 					}).join(' ') + '</span>';
@@ -713,7 +689,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							channelNames.forEach(chan => {
 								const room_state = roomState.get(chan);
 								chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
-									.forEach(el => el.remove());
+									.forEach(el => deleteMessage(el, true));
 							});
 							commitValue();
 						} return;
@@ -721,7 +697,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						case 'PURGEALL': {
 							// clear all messages
 							chatOutput.querySelectorAll('.msg')
-								.forEach(el => el.remove());
+								.forEach(el => deleteMessage(el, true));
 							commitValue();
 						} return;
 
@@ -814,9 +790,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 								userNames.forEach(user => {
 									ignoredUsers.add(user);
 									// remove previous messages
-									const selector = `.msg[data-user=${user}]`;
-									chatOutput.querySelectorAll(selector)
-										.forEach(el => el.remove());
+									chatOutput.querySelectorAll(`.msg[data-user=${user}]`)
+										.forEach(el => deleteMessage(el, true));
 								});
 								updateUrl();
 							}
@@ -864,7 +839,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							if (!preventDelete) {
 								// remove deleted messages
 								chatOutput.querySelectorAll('.msg.deleted')
-									.forEach(el => el.remove());
+									.forEach(el => deleteMessage(el, true));
 							}
 							updateUrl();
 							commitValue();
@@ -1396,7 +1371,7 @@ function toggleMute(channel, state) {
 	// clear messages
 	if (room_state.muted) {
 		chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
-			.forEach(el => el.remove());
+			.forEach(el => deleteMessage(el, true));
 	}
 }
 
@@ -1410,6 +1385,13 @@ function scrollToBottom() {
 		top: chatOutput.scrollHeight,
 		behavior: 'instant'
 	});
+}
+
+function deleteMessage(element, forceDelete = false) {
+	if (preventDelete && !forceDelete)
+		element.classList.add('deleted');
+	else
+		element.remove();
 }
 
 function appendMessage(info) {
@@ -1552,7 +1534,7 @@ function routineMaintenance() {
 		while (true) {
 			const msg = chatOutput.querySelector('.msg');
 			if (msg && msg.dataset.time < pruneTime) {
-				msg.remove();
+				deleteMessage(msg, true);
 				continue;
 			}
 			break;
@@ -1568,7 +1550,7 @@ function routineMaintenance() {
 	);
 
 	for (let i = 0; i < removeCount; i++) {
-		messages[i].remove();
+		deleteMessage(messages[i], true);
 	}
 
 	// move tracker
@@ -1636,6 +1618,21 @@ function updateUrl() {
 	pageUrl.hash = '';
 	pageUrl.search = decodeURIComponent(params.toString());
 	window.history.replaceState({}, '', pageUrl.toString());
+}
+
+function sanitizeString(text) {
+	const arr = [...text];
+	for (let i = 0; i < arr.length; i++)
+	{
+		switch (arr[i]) {
+			case '&':	arr[i] = '&amp;';	break;
+			case '<':	arr[i] = '&lt;';	break;
+			case '>':	arr[i] = '&gt;';	break;
+			case '"':	arr[i] = '&quot;';	break;
+			case "'":	arr[i] = '&#039;';	break;
+		}
+	}
+	return arr.join('');
 }
 
 function hexToHsl(c) {
