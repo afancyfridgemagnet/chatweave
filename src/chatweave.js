@@ -418,8 +418,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 			user: msg.chatter_user_login,
 			name: msg.chatter_user_name,
 			color: msg.color,
-			badge: msg.badge
-				? badgeCache.find(b => msg.badge.includes(b.set_id))?.url
+			badge: msg.badges
+				? badgeCache.find(b => msg.badges.includes(b.set_id))?.url
 				: undefined,
 			// message
 			msgid: msg.message_id,
@@ -1451,7 +1451,7 @@ function appendMessage(info) {
 		const el = document.createElement('a');
 		el.tabIndex = -1;
 		el.href = `https://twitch.tv/${info.source}`;
-		el.title = info.source;
+		//el.title = info.source;
 		//el.textContent = info.source;
 		el.innerHTML = `<img class="avatar" src="${info.avatar}">`;
 		room.appendChild(el);
