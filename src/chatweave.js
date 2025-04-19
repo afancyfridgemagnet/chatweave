@@ -34,11 +34,11 @@ const emoteCache = new Map();		// 'source id' -> emote
 const cheermoteCache = new Map();	// prefix id -> { tier, color, url }
 const badgeCache = [
 	// ordered by priority
-	[ set_id: 'broadcaster',	url:'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2' ],
-	[ set_id: 'admin',			url:'https://static-cdn.jtvnw.net/badges/v1/9ef7e029-4cdf-4d4d-a0d5-e2b3fb2583fe/2' ],
-	[ set_id: 'staff',			url:'https://static-cdn.jtvnw.net/badges/v1/d97c37bd-a6f5-4c38-8f57-4e4bef88af34/2' ],
-	[ set_id: 'global_mod',		url:'https://static-cdn.jtvnw.net/badges/v1/9384c43e-4ce7-4e94-b2a1-b93656896eba/2' ],
-	[ set_id: 'moderator',		url:'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2' ],
+	{ set_id: 'broadcaster',	url:'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2' },
+	{ set_id: 'admin',			url:'https://static-cdn.jtvnw.net/badges/v1/9ef7e029-4cdf-4d4d-a0d5-e2b3fb2583fe/2' },
+	{ set_id: 'staff',			url:'https://static-cdn.jtvnw.net/badges/v1/d97c37bd-a6f5-4c38-8f57-4e4bef88af34/2' },
+	{ set_id: 'global_mod',		url:'https://static-cdn.jtvnw.net/badges/v1/9384c43e-4ce7-4e94-b2a1-b93656896eba/2' },
+	{ set_id: 'moderator',		url:'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2' },
 ];
 
 const commandHistory = [];
