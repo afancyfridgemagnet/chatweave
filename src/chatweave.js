@@ -134,6 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		colorCache.clear();
 		emoteCache.clear();
 		cheermoteCache.clear();
+		badgeCache.length = 0;
 		commandHistory.length = 0;
 		// ui
 		chatOutput.innerHTML = '';
@@ -969,11 +970,11 @@ function twitchAccessToken() {
 	// user may supply an access_token manually to avoid login process
 	const access_token = twitchParams.get('access_token') ?? getConfig('access_token');
 	if (!access_token) {
-		const error = twitchParams.get('error');
+		const error = pageUrl.searchParams.get('error');
 		if (error) {
 			// no token, error (redirected from twitch page w/o authorization)
-			const description = twitchParams.get('error_description');
-			errorMessage(`authorization failed (${description})`);
+			const description = pageUrl.searchParams.get('error_description');
+			errorMessage(`authorization failed (${error} - ${description})`);
 		} else {
 			// no token, no error (not a redirect)
 			twitchAuthorizeRedirect();
