@@ -32,6 +32,15 @@ const MAX_CHANNEL_LIMIT = 100;		// twitch limit
 const colorCache = new Map();		// hex -> adjusted hsl
 const emoteCache = new Map();		// 'source id' -> emote
 const cheermoteCache = new Map();	// prefix id -> { tier, color, url }
+const badgeCache = [
+	// ordered by priority
+	[ set_id: 'broadcaster',	url:'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2' ],
+	[ set_id: 'admin',			url:'https://static-cdn.jtvnw.net/badges/v1/9ef7e029-4cdf-4d4d-a0d5-e2b3fb2583fe/2' ],
+	[ set_id: 'staff',			url:'https://static-cdn.jtvnw.net/badges/v1/d97c37bd-a6f5-4c38-8f57-4e4bef88af34/2' ],
+	[ set_id: 'global_mod',		url:'https://static-cdn.jtvnw.net/badges/v1/9384c43e-4ce7-4e94-b2a1-b93656896eba/2' ],
+	[ set_id: 'moderator',		url:'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/2' ],
+];
+
 const commandHistory = [];
 const MAX_COMMAND_HISTORY = 25;
 const MAX_MESSAGE_LENGTH = 500;		// twitch limit
@@ -50,9 +59,15 @@ let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; 
 let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 0) * 1000; // ms
 
 document.addEventListener('DOMContentLoaded', async () => {
+	if (!access_token) {
+		errorMessage('missing access_token');
+		return;
+	}
+
 	window.twitch = new twitchApi(client_id, access_token);
 	window.routineTimer = setInterval(routineMaintenance, 1_000);
 
+	// TODO: move validation logic into twitchApi class
 	const validateToken = async () => {
 		const result = await twitch.validateToken();
 
@@ -403,7 +418,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			user: msg.chatter_user_login,
 			name: msg.chatter_user_name,
 			color: msg.color,
-			badge: msg.badges?.find(b => ['broadcaster', 'no_audio', 'no_video'].includes(b.set_id))?.set_id,
+			badge: msg.badge
+				? badgeCache.find(b => msg.badge.includes(b.set_id))?.url
+				: undefined,
 			// message
 			msgid: msg.message_id,
 			text: content,
@@ -952,8 +969,16 @@ function twitchAccessToken() {
 	// user may supply an access_token manually to avoid login process
 	const access_token = twitchParams.get('access_token') ?? getConfig('access_token');
 	if (!access_token) {
-		twitchAuthorizeRedirect();
-		throw 'no access_token!';
+		const error = twitchParams.get('error');
+		if (error) {
+			// no token, error (redirected from twitch page w/o authorization)
+			const description = twitchParams.get('error_description');
+			errorMessage(`authorization failed (${description})`);
+		} else {
+			// no token, no error (not a redirect)
+			twitchAuthorizeRedirect();
+			throw 'missing access_token!';
+		}
 	}
 
 	// if state exists then we were redirected from twitch
@@ -1405,10 +1430,10 @@ function appendMessage(info) {
 	if (msg) {
 		msg.dataset.time = now.getTime();
 		// avoiding "undefined" values helps us long term
-		if (info.msgid)
-			msg.dataset.msgid = info.msgid;
 		if (info.roomid)
 			msg.dataset.roomid = info.roomid;
+		if (info.msgid)
+			msg.dataset.msgid = info.msgid;
 		if (info.userid)
 			msg.dataset.userid = info.userid;
 		if (info.user)
@@ -1448,22 +1473,10 @@ function appendMessage(info) {
 			el.href = `https://twitch.tv/${info.user}`;
 			el.title = friendlyName;
 
-			switch (info.badge) {
-				case 'broadcaster':
-					el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2">${friendlyName}`;
-				break;
-
-				//case 'no_audio':
-				//	el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/aef2cd08-f29b-45a1-8c12-d44d7fd5e6f0/2">${friendlyName}`;
-				//break;
-
-				//case 'no_video':
-				//	el.innerHTML = `<img class="badge" src="https://static-cdn.jtvnw.net/badges/v1/199a0dba-58f3-494e-a7fc-1fa0a1001fb8/2">${friendlyName}`;
-				//break;
-
-				default:
-					el.textContent = friendlyName;
-				break;
+			if (info.badge) {
+				el.innerHTML = `<img class="badge" src="${info.badge}">${friendlyName}`;
+			} else {
+				el.textContent = friendlyName;
 			}
 
 			if (info.color) {
