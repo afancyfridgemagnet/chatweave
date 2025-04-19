@@ -969,21 +969,14 @@ function twitchAccessToken() {
 	// attempt to retrieve token from URL, fallback to storage
 	// user may supply an access_token manually to avoid login process
 	const access_token = twitchParams.get('access_token') ?? getConfig('access_token');
-	if (!access_token) {
-		const error = pageUrl.searchParams.get('error');
-		if (error) {
-			// no token, error (redirected from twitch page w/o authorization)
-			const description = pageUrl.searchParams.get('error_description');
-			errorMessage(`authorization failed (${error} - ${description})`);
-		} else {
-			// no token, no error (not a redirect)
-			twitchAuthorizeRedirect();
-			throw 'missing access_token!';
-		}
+	if (!access_token && !pageUrl.searchParams.get('error')) {
+		// no token, no error (not a redirect)
+		twitchAuthorizeRedirect();
+		throw 'missing access_token!';
 	}
 
 	// if state exists then we were redirected from twitch
-	const state_uuid = twitchParams.get('state');
+	const state_uuid = twitchParams.get('state') ?? pageUrl.searchParams.get('state');
 	if (state_uuid) {
 		// SECURITY: clean sensitive data
 		pageUrl.hash = '';
