@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				console.warn('unknown message_type', msg.message_type, msg);
 			break;
 		}
-		
+
 		const badge_ids = msg.badges
 			? new Set(msg.badges.map(b => b.set_id))
 			: undefined;
@@ -1535,33 +1535,35 @@ function errorMessage(text, format) {
 }
 
 function routineMaintenance() {
-	const scrolledToBottom = isScrolledToBottom();
 	const now = new Date().getTime();
-
-	// prune old messages off the top
-	if (pruneMessageTime > 0 && scrolledToBottom) {
-		const pruneTime =  now - pruneMessageTime;
-
-		while (true) {
-			const msg = chatOutput.querySelector('.msg');
-			if (msg && msg.dataset.time < pruneTime) {
-				deleteMessage(msg, true);
-				continue;
-			}
-			break;
-		}
-	}
-
-	// limit history
+	const scrolledToBottom = isScrolledToBottom();
 	const messages = chatOutput.querySelectorAll('.msg');
-	let removeCount = messages.length - (
+
+	// limit message history
+	const removeCount = messages.length - (
 		messageHistory > 0 && scrolledToBottom
 		? messageHistory
 		: Math.max(messageHistory, MAX_MESSAGE_COUNT)
 	);
 
-	for (let i = 0; i < removeCount; i++) {
-		deleteMessage(messages[i], true);
+	let i = 0;
+	for (; i < removeCount; i++) {
+		const msg = messages[i];
+		deleteMessage(msg, true);
+	}
+
+	// prune old messages off the top
+	if (pruneMessageTime > 0 && scrolledToBottom) {
+		const pruneTime =  now - pruneMessageTime;
+
+		// continue from where we left off
+		for (; i < messages.length; i++) {
+			const msg = messages[i];
+			if (msg.dataset.time < pruneTime)
+				deleteMessage(msg, true);
+			else
+				break;
+		}
 	}
 
 	// move tracker
