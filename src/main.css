@@ -104,11 +104,14 @@ a:active {
 #chatPaused {
 	position: absolute;
 	top: 0.5rem;
-	left: 50%;
-	transform: translateX(-50%);
+	left: 0;
+	right: 0;
+	width: fit-content;
 
+	margin-inline: auto;
 	padding: 2px 8px;
 	font-weight: bold;
+	text-align: center;
 	background-color: var(--background-color);
 	color: var(--disabled-color);
 
@@ -126,7 +129,7 @@ a:active {
 }
 
 #chatTracker {
-	width: 100%;
+	/* width: 100%; */
 	height: 2px;
 	/* avoid shifting content by negating height */
 	margin-top: -2px;
@@ -140,7 +143,7 @@ a:active {
 #chatOutput {
 	display: flex;
 	flex-direction: column;
-	width: 100%;
+	/* width: 100%; */
 	/* height: 100%; */
 
 	/* push content to bottom */
@@ -246,7 +249,7 @@ a:active {
 /* messages */
 
 .msg {
-	width: 100%;
+	/* width: 100%; */
 	min-height: 1.75rem;
 	align-content: center;
 }

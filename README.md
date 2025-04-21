@@ -186,7 +186,7 @@ In order to do this you can right-click your Browser source and select Interact.
 After logging in/authorizing ChatWeave it should begin working.  
 
 > [!NOTE]
-> Twitch access tokens are only good for ~45 days. If you see the error "access_token failed validation" or new messages are not appearing, you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
+> Twitch access tokens are only good for ~60 days. If you see the error "access_token failed validation" or new messages are not appearing, you will need to click the button "Refresh cache of currrent page" in the Browser source's properties.
 
 
 ## Custom CSS template

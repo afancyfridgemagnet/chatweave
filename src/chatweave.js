@@ -599,13 +599,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 				{ name: '/unmuteall',			desc: '/unmuteall'},
 			];
 
+			const frag = document.createDocumentFragment();
 			for (const cmd of commands) {
 				const el = document.createElement('option');
 				el.label = cmd.desc;
 				el.value = cmd.name;
 				el.disabled = true;
-				chatCommands.appendChild(el);
+				frag.appendChild(el);
 			}
+			chatCommands.appendChild(frag);
 		}
 
 		// disable options
@@ -941,7 +943,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	chatPaused.addEventListener('click', scrollToBottom);
 	chatOutput.addEventListener('scroll', () => {
 		const scrolledToBottom = isScrolledToBottom();
-		chatPaused.classList.toggle('invisible', scrolledToBottom);
+		chatPaused.classList.toggle('hidden', scrolledToBottom);
 	});
 
 }, { once: true });
