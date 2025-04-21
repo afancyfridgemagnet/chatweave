@@ -1505,7 +1505,7 @@ function appendMessage(info) {
 	const time = clone.querySelector('.msg-time');
 	if (time) {
 		time.title = now.toLocaleString();
-		time.textContent = now.toLocaleTimeString();
+		time.textContent = now.toLocaleTimeString([], {timeStyle: 'short'});
 	}
 
 	// append to dom
