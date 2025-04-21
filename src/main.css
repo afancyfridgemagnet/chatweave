@@ -355,7 +355,8 @@ a:active {
 
 	margin-left: 0;
 	margin-right: 0.25rem;
-    vertical-align: text-top;
+	border-radius: 3px;
+    vertical-align: sub;
 }
 
 .emote {

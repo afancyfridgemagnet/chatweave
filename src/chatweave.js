@@ -1463,6 +1463,9 @@ function appendMessage(info) {
 			user.textContent = info.name;
 		} else {
 			// message from user
+			if (info.badge)
+				user.insertAdjacentHTML('afterbegin', `<img class="badge" src="${info.badge}">`);
+
 			// support localized names
 			const friendlyName = localeEquals(info.name, info.user)
 				? info.name
@@ -1472,12 +1475,8 @@ function appendMessage(info) {
 			el.tabIndex = -1;
 			el.href = `https://twitch.tv/${info.user}`;
 			el.title = friendlyName;
-
-			if (info.badge) {
-				el.innerHTML = `<img class="badge" src="${info.badge}">${friendlyName}`;
-			} else {
-				el.textContent = friendlyName;
-			}
+			el.textContent = friendlyName;
+			user.appendChild(el);
 
 			if (info.color) {
 				let hexColor = colorCache.get(info.color);
@@ -1494,8 +1493,6 @@ function appendMessage(info) {
 				}
 				user.style.color = hexColor;
 			}
-
-			user.appendChild(el);
 		}
 	}
 
