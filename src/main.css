@@ -392,8 +392,9 @@ a:active {
 
 	.msg-user {
 		order: 1;
-		/* allows name to expand */
-		flex: none;
+		/* allows name to expand for narrow layout */
+		/* but super long names can push down date */
+		/*flex: none;*/
 
 		margin-right: auto;
 		text-align: left;
@@ -422,10 +423,4 @@ a:active {
 		padding-left: 0.25rem;
 		padding-right: 0.25rem;
 	}
-
-	/* TODO: flipping badge to right of username would be great
-	.badge {
-		margin-left: 0.25rem;
-		margin-right: 0;
-	}*/
 }
