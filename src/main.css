@@ -299,10 +299,8 @@ a:active {
 	width: 1.125rem;
 	height: 1.125rem;
 
-	margin-left: 0;
-	margin-right: 0.25rem;
 	border-radius: 3px;
-    vertical-align: sub;
+    vertical-align: middle;
 }
 
 .msg-user,
@@ -392,9 +390,7 @@ a:active {
 
 	.msg-user {
 		order: 1;
-		/* allows name to expand for narrow layout */
-		/* but super long names can push down date */
-		/*flex: none;*/
+		flex-grow: 1;
 
 		margin-right: auto;
 		text-align: left;
