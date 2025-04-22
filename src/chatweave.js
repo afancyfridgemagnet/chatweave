@@ -1434,32 +1434,36 @@ function createMessageBuffer() {
 	const buffer = document.createDocumentFragment();
 	const flushInterval = (1 / 30) * 1_000;
 	let timer;
-	
+
 	function resetTimer() {
 		clearTimeout(timer);
-		timer = null;		
+		timer = null;
+	}
+
+	function appendNode(node) {
+		buffer.append(node);
+		timer ??= setTimeout(flushBuffer, flushInterval);
+	}
+
+	function flushBuffer() {
+		if (buffer.hasChildNodes()) {
+			const shouldScroll = isScrolledToBottom();
+			chatOutput.appendChild(buffer);
+			if (shouldScroll) scrollToBottom();
+		}
+		resetTimer();
+	}
+
+	function clearBuffer() {
+		buffer.replaceChildren();
+		resetTimer();
 	}
 
 	return {
-		append:	function(node) {
-			buffer.append(node);
-			timer ??= setTimeout(flush, flushInterval);
-		},
-		querySelectorAll: function(selector) {
-			return buffer.querySelectorAll(selector);
-		},
-		flush: function() {
-			if (buffer.hasChildNodes()) {
-				const shouldScroll = isScrolledToBottom();
-				chatOutput.appendChild(buffer);
-				if (shouldScroll) scrollToBottom();
-			}
-			resetTimer();
-		},
-		clear: function() {
-			buffer.replaceChildren();
-			resetTimer();
-		},
+		append:	appendNode,
+		querySelectorAll: buffer.querySelectorAll,
+		flush: flushBuffer,
+		clear: clearBuffer,
 	};
 }
 
