@@ -1461,7 +1461,7 @@ function createMessageBuffer() {
 
 	return {
 		append:	appendNode,
-		querySelectorAll: buffer.querySelectorAll,
+		querySelectorAll: buffer.querySelectorAll.bind(buffer),
 		flush: flushBuffer,
 		clear: clearBuffer,
 	};
