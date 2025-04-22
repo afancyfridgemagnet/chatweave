@@ -39,10 +39,16 @@
 	</div>
 	<template id="chatMessage">
 		<div class="msg">
-			<div class="msg-room"></div>
-			<div class="msg-user"></div>
+			<div class="msg-room">
+				<a class="msg-room-link" href="" tabindex="-1">
+					<img class="msg-room-avatar avatar" src="">
+				</a>
+			</div>
+			<div class="msg-user" style="">
+				<a class="msg-user-link" href="" title="" tabindex="-1"></a>
+			</div>
 			<div class="msg-body"></div>
-			<div class="msg-time"></div>
+			<div class="msg-time" title=""></div>
 		</div>
 	</template>
 	<script src="twitchapi.js" defer></script>

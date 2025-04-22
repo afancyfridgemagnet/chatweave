@@ -126,6 +126,7 @@ a:active {
 
 #chatPaused:hover {
 	filter: brightness(1.25);
+	will-change: filter;
 }
 
 #chatTracker {
@@ -148,6 +149,8 @@ a:active {
 
 	/* push content to bottom */
 	margin-top: auto;
+	/* space at top for tracker to rest */
+	padding-top: 2px;
 
 	overflow-x: hidden;
 	/* inherit allows us to inherit body overflow (for overlays) */
@@ -169,7 +172,7 @@ a:active {
 	background-color: var(--dark-color);
 }
 
-#chatOutput > * {
+#chatOutput > div {
 	display: flex;
 	flex-shrink: 0;
 }
@@ -223,6 +226,15 @@ a:active {
 	color: var(--disabled-color);
 }
 
+#chatRooms .avatar {
+	width: 1.25rem;
+	height: 1.25rem;
+
+	margin: -0.25rem 0;
+	margin-right: 0.3125rem;
+	border-radius: 50%;
+}
+
 #chatBar {
 	display: flex;
 }
@@ -251,20 +263,28 @@ a:active {
 .msg {
 	/* width: 100%; */
 	min-height: 1.75rem;
-	align-content: center;
 }
 
 .msg:hover {
 	filter: brightness(1.25);
+	will-change: filter;
 }
 
-.msg > * {
+.msg > div {
 	margin: 0.25rem 0.5rem;
-	align-content: inherit;
+	align-content: center;
 }
 
 .msg-room {
 	width: 1.75rem;
+}
+
+.msg-room-avatar {
+	width: 1.75rem;
+	height: 1.75rem;
+
+	margin: -0.5rem 0;
+	border-radius: 50%;
 }
 
 .msg-user {
@@ -273,6 +293,16 @@ a:active {
 	font-weight: bold;
 	text-align: right;
 	text-wrap: nowrap;
+}
+
+.msg-user-badge {
+	width: 1.125rem;
+	height: 1.125rem;
+
+	margin-left: 0;
+	margin-right: 0.25rem;
+	border-radius: 3px;
+    vertical-align: sub;
 }
 
 .msg-user,
@@ -294,6 +324,7 @@ a:active {
 .msg-time {
 	font-size: 0.875rem;
 	font-variant-numeric: tabular-nums;
+	text-wrap: nowrap;
 
 	color: var(--light-color);
 }
@@ -324,39 +355,8 @@ a:active {
 	color: var(--accent-color);
 }
 
-.msg.deleted > * {
+.msg.deleted > div {
 	opacity: 50%;
-}
-
-/* images */
-
-.avatar {
-	width: 1.75rem;
-	height: 1.75rem;
-
-	margin: -0.5rem 0;
-	vertical-align: baseline;
-
-	border-radius: 50%;
-}
-
-#chatRooms .avatar {
-	width: 1.25rem;
-	height: 1.25rem;
-
-	margin-top: -0.25rem;
-	margin-bottom: -0.25rem;
-	margin-right: 0.3125rem;
-}
-
-.badge {
-	width: 1.125rem;
-	height: 1.125rem;
-
-	margin-left: 0;
-	margin-right: 0.25rem;
-	border-radius: 3px;
-    vertical-align: sub;
 }
 
 .emote {

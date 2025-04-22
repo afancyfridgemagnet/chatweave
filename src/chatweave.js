@@ -1420,97 +1420,94 @@ function deleteMessage(element, forceDelete = false) {
 }
 
 function appendMessage(info) {
-	const shouldScroll = isScrolledToBottom();
-
-	// create a message fragment
+	// create a message fragment from template
 	const clone = chatTemplate.content.cloneNode(true);
 	const now = new Date();
 
+	// message
 	const msg = clone.querySelector('.msg');
-	if (msg) {
-		msg.dataset.time = now.getTime();
-		// avoiding "undefined" values helps us long term
-		if (info.roomid)
-			msg.dataset.roomid = info.roomid;
-		if (info.msgid)
-			msg.dataset.msgid = info.msgid;
-		if (info.userid)
-			msg.dataset.userid = info.userid;
-		if (info.user)
-			msg.dataset.user = info.user;
+	msg.dataset.time = now.getTime();
 
-		msg.classList.toggle('system', !!info.system);
-		msg.classList.toggle('event', !!info.event);
-		msg.classList.toggle('action', !!info.action);
-		msg.classList.toggle('ping', !!info.ping);
+	// avoiding "undefined" values helps us long term
+	if (info.roomid)
+		msg.dataset.roomid = info.roomid;
+	if (info.msgid)
+		msg.dataset.msgid = info.msgid;
+	if (info.userid)
+		msg.dataset.userid = info.userid;
+	if (info.user)
+		msg.dataset.user = info.user;
+	if (info.shade)
 		msg.style.backgroundColor = info.shade;
+
+	msg.classList.toggle('system', !!info.system);
+	msg.classList.toggle('event', !!info.event);
+	msg.classList.toggle('action', !!info.action);
+	msg.classList.toggle('ping', !!info.ping);
+
+	// room
+	if (info.source) {
+		const room_link = clone.querySelector('.msg-room-link');
+		room_link.href = `https://twitch.tv/${info.source}`;
+
+		const room_avatar = clone.querySelector('.msg-room-avatar');
+		room_avatar.src = info.avatar;
+	} else {
+		const room = clone.querySelector('.msg-room');
+		room.textContent = '';
 	}
 
-	const room = clone.querySelector('.msg-room');
-	if (room && info.source) {
-		const el = document.createElement('a');
-		el.tabIndex = -1;
-		el.href = `https://twitch.tv/${info.source}`;
-		//el.title = info.source;
-		//el.textContent = info.source;
-		el.innerHTML = `<img class="avatar" src="${info.avatar}">`;
-		room.appendChild(el);
-	}
-
+	// user
 	const user = clone.querySelector('.msg-user');
-	if (user) {
-		if (info.system) {
-			user.textContent = info.name;
-		} else {
-			// message from user
-			if (info.badge)
-				user.insertAdjacentHTML('afterbegin', `<img class="badge" src="${info.badge}">`);
+	if (info.system) {
+		// override with just text
+		user.textContent = info.name;
+	} else {
+		// message from user
+		if (info.badge)
+			user.insertAdjacentHTML('afterbegin', `<img class="msg-user-badge" src="${info.badge}">`);
 
-			// support localized names
-			const friendlyName = localeEquals(info.name, info.user)
-				? info.name
-				: `${info.name} (${info.user})`;
+		// localized name support
+		const friendlyName = localeEquals(info.name, info.user)
+			? info.name
+			: `${info.name} (${info.user})`;
 
-			const el = document.createElement('a');
-			el.tabIndex = -1;
-			el.href = `https://twitch.tv/${info.user}`;
-			el.title = friendlyName;
-			el.textContent = friendlyName;
-			user.appendChild(el);
+		// update link
+		const link = clone.querySelector('.msg-user-link');
+		link.href = `https://twitch.tv/${info.user}`;
+		link.title = friendlyName;
+		link.textContent = friendlyName;
 
-			if (info.color) {
-				let hexColor = colorCache.get(info.color);
-				if (!hexColor) {
-					// convert to HSL to manipulate color
-					const hslColor = hexToHsl(info.color);
-					// ensure color is not too extreme by clamping values
-					hslColor.s = Math.min(hslColor.s, 80);
-					hslColor.l = Math.max(hslColor.l, 60);
-					// convert back to hex
-					hexColor = hslToHex(hslColor.h, hslColor.s, hslColor.l);
-					// add to cache
-					colorCache.set(info.color, hexColor);
-				}
-				user.style.color = hexColor;
+		// text color style
+		if (info.color) {
+			let hexColor = colorCache.get(info.color);
+			if (!hexColor) {
+				// convert to HSL to manipulate color
+				const hslColor = hexToHsl(info.color);
+				// ensure color is not too extreme by clamping values
+				hslColor.s = Math.min(hslColor.s, 80);
+				hslColor.l = Math.max(hslColor.l, 60);
+				// convert back to hex
+				hexColor = hslToHex(hslColor.h, hslColor.s, hslColor.l);
+				// add to cache
+				colorCache.set(info.color, hexColor);
 			}
+			user.style.color = hexColor;
 		}
 	}
 
+	// body
 	const body = clone.querySelector('.msg-body');
-	if (body) {
-		// NOTE: innerHTML MUST BE SANITIZED!!
-		body.innerHTML = info.text;
-	}
+	body.innerHTML = info.text; // NOTE: MUST BE SANITIZED!!
 
+	// timestamp
 	const time = clone.querySelector('.msg-time');
-	if (time) {
-		time.title = now.toLocaleString();
-		time.textContent = now.toLocaleTimeString([], {timeStyle: 'short'});
-	}
+	time.title = now.toLocaleString();
+	time.textContent = now.toLocaleTimeString([], {timeStyle: 'short'});
 
-	// append to dom
+	// append to output
+	const shouldScroll = isScrolledToBottom();
 	chatOutput.appendChild(clone);
-
 	if (shouldScroll) scrollToBottom();
 }
 
