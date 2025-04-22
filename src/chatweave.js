@@ -1432,7 +1432,7 @@ function deleteMessages(selector, forceDelete = false) {
 
 function createMessageBuffer() {
 	const buffer = document.createDocumentFragment();
-	const flushInterval = (1 / 30) * 1_000;
+	let flushInterval = (1 / 30) * 1_000;
 	let timer;
 
 	function resetTimer() {
@@ -1460,6 +1460,12 @@ function createMessageBuffer() {
 	}
 
 	return {
+		get delay() {
+			return flushInterval;
+		},
+		set delay(value) {
+			flushInterval = parseFloat(value);
+		},
 		append:	appendNode,
 		querySelectorAll: buffer.querySelectorAll.bind(buffer),
 		flush: flushBuffer,
