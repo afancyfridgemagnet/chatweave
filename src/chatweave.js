@@ -637,12 +637,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 					.replace(/\s\s+/g, ' ') // remove excess whitespace
 					.trimEnd();
 
-				if (content.length === 0) {
-					chatInput.blur();
-					return;
-				}
-
-				if (content.length > MAX_MESSAGE_LENGTH) return;
+				if (content.length === 0 || content.length > MAX_MESSAGE_LENGTH) return;
 
 				const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
 				if (!currentChannel) return;
