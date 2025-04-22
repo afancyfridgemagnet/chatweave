@@ -199,9 +199,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 				shade: room_state.color,
 				avatar: room_state.avatar,
 			});
-		} else if (room_state.joined) {
-			// remove subscription if we're still in channel
-			// leaving a channel removes all subscriptions already
+		} else {
+			// remove specific subscription
 			room_state.subscriptions.delete(msg.type);
 			await twitch.deleteSubscription(msg.id);
 		}
@@ -209,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('stream.online', ({ detail: msg }) => {
 		const room_state = roomState(msg.to_broadcaster_user_login);
-		if (!room_state || !room_state.joined || room_state.muted) return;
+		if (!room_state || room_state.muted) return;
 
 		const content = `${msg.broadcaster_user_login} has gone live!`;
 
@@ -231,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('stream.offline', ({ detail: msg }) => {
 		const room_state = roomState(msg.to_broadcaster_user_login);
-		if (!room_state || !room_state.joined || room_state.muted) return;
+		if (!room_state || room_state.muted) return;
 
 		const content = `${msg.broadcaster_user_login} has gone offline!`;
 
@@ -253,7 +252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	twitch.addEventListener('channel.raid', ({ detail: msg }) => {
 		const room_state = roomState(msg.to_broadcaster_user_login);
-		if (!room_state || !room_state.joined || room_state.muted) return;
+		if (!room_state || room_state.muted) return;
 
 		const viewers = parseInt(msg.viewers).toLocaleString();
 		const content = `${msg.from_broadcaster_user_login} is raiding ${msg.to_broadcaster_user_login} with a party of ${viewers}!`;
@@ -304,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		const room_state = roomState.get(msg.broadcaster_user_login);
 
-		if (!room_state || !room_state.joined || room_state.muted)
+		if (!room_state || room_state.muted)
 			return;
 
 		// generate HTML from fragments
@@ -441,12 +440,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 		if (room) {
 			e.stopPropagation();
 			activateChannel(room);
+			chatInput.focus();
 		}
 	});
 
 	document.addEventListener('keydown', (e) => {
 		switch (e.key) {
 			case 'Tab':
+			case 'Enter':
 				e.preventDefault();
 				chatInput.focus();
 			break;
@@ -636,7 +637,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 					.replace(/\s\s+/g, ' ') // remove excess whitespace
 					.trimEnd();
 
-				if (content.length === 0 || content.length > MAX_MESSAGE_LENGTH) return;
+				if (content.length === 0) {
+					chatInput.blur();
+					return;
+				}
+
+				if (content.length > MAX_MESSAGE_LENGTH) return;
 
 				const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
 				if (!currentChannel) return;
@@ -647,6 +653,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						commandHistory.shift();
 					chatInput.dataset.historyIndex = commandHistory.length;
 					chatInput.value = '';
+					chatInput.blur();
 					refreshCommands();
 				};
 
@@ -904,7 +911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				// any commands reaching this point will be sent to twitch
 				if (twitch.connected) {
 					const room_state = roomState.get(currentChannel);
-					if (!room_state.joined || room_state.muted) return;
+					if (room_state.muted) return;
 
 					// hold onto message until confirmation
 					chatInput.readOnly = true;
@@ -1262,6 +1269,8 @@ async function joinChannels(...channels) {
 			continue;
 		}
 
+		// message management
+
 		await subscribe({
 			type: 'channel.chat.message_delete', // cost 0, user:read:chat
 			version: '1',
@@ -1289,6 +1298,11 @@ async function joinChannels(...channels) {
 			},
 		});
 
+		// now able to handle messages
+		toggleMute(room_state.login, false);
+		loadThirdPartyChannelEmotes(room_state);
+
+		// continue with optional subscriptions
 		// TODO: when there's a cost we need to throttle subscriptions
 
 		// event only for self
@@ -1318,10 +1332,8 @@ async function joinChannels(...channels) {
 		//	},
 		//});
 
+		// finalize joining
 		room_state.joined = true;
-		toggleMute(room_state.login, false);
-
-		loadThirdPartyChannelEmotes(room_state);
 	}
 
 	updateUrl();
@@ -1361,13 +1373,12 @@ async function partChannels(...channels) {
 		}
 
 		// finalize
-		if (room_state.joined) {
-			noticeMessage(`left #${channel}`, {
-				source: channel,
-				shade: room_state.color,
-				avatar: room_state.avatar,
-			});
-		}
+		noticeMessage(`left #${channel}`, {
+			source: channel,
+			shade: room_state.color,
+			avatar: room_state.avatar,
+		});
+
 		room_state.joined = false;
 		roomState.delete(channel);
 	}
@@ -1387,7 +1398,7 @@ function activateChannel(channel) {
 
 function toggleMute(channel, state) {
 	const room_state = roomState.get(channel);
-	if (!room_state || !room_state.joined || room_state.muted === state) return;
+	if (!room_state || room_state.muted === state) return;
 
 	// toggle mute
 	room_state.muted = state;
