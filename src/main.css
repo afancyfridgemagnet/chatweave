@@ -300,7 +300,7 @@ a:active {
 	height: 1.125rem;
 
 	border-radius: 3px;
-    vertical-align: middle;
+    vertical-align: text-top;
 }
 
 .msg-user,
