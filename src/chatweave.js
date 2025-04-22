@@ -278,19 +278,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 	twitch.addEventListener('channel.chat.clear', ({ detail: msg }) => {
 		// remove all channel messages
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage);
+		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage(el));
 	});
 
 	twitch.addEventListener('channel.chat.clear_user_messages', ({ detail: msg }) => {
 		// remove all messages from user
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-userid="${msg.target_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage);
+		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage(el));
 	});
 
 	twitch.addEventListener('channel.chat.message_delete', ({ detail: msg }) => {
 		// remove specific message
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-msgid="${msg.message_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage);
+		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage(el));
 	});
 
 	twitch.addEventListener('channel.chat.message', ({ detail: msg }) => {
