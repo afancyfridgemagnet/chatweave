@@ -1161,7 +1161,10 @@ function staticEmoteLoadError(img, chan) {
 	const emote = emoteCache.get(key);
 	// replace img src with default url
 	img.src = emote.url;
-	// remove all references to static url to avoid using it
+	// correct messages in buffer
+	messageBuffer.querySelectorAll(`img[src="${emote.url_static}"]`)
+		.forEach(el => el.src = emote.url);
+	// remove all references to static url to avoid using it again
 	[...emoteCache.values()]
 		.filter(e => e.url_static === emote.url_static)
 		.forEach(e => e.url_static = null);
@@ -1465,6 +1468,7 @@ function createMessageBuffer() {
 		},
 		set delay(value) {
 			flushInterval = parseFloat(value);
+			flushBuffer();
 		},
 		append:	appendNode,
 		querySelectorAll: buffer.querySelectorAll.bind(buffer),
