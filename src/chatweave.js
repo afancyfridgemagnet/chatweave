@@ -16,6 +16,7 @@ const chatPanel = document.querySelector('#chatPanel');
 const chatRooms = document.querySelector('#chatRooms');
 const chatInput = document.querySelector('#chatInput');
 const chatCommands = document.querySelector('#chatCommands');
+const messageBuffer = createMessageBuffer();
 
 const cleanName = (s) => s?.trim().replace(/^(@|#)/,'').toLowerCase();
 const cleanHex = (s) => s?.trim().replace(/^#/,'').toLowerCase();
@@ -136,6 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		cheermoteCache.clear();
 		badgeCache.length = 0;
 		commandHistory.length = 0;
+		messageBuffer.clear();
 		// ui
 		chatOutput.innerHTML = '';
 		chatRooms.innerHTML = '';
@@ -277,19 +279,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 	twitch.addEventListener('channel.chat.clear', ({ detail: msg }) => {
 		// remove all channel messages
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage(el));
+		deleteMessages(selector);
 	});
 
 	twitch.addEventListener('channel.chat.clear_user_messages', ({ detail: msg }) => {
 		// remove all messages from user
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-userid="${msg.target_user_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage(el));
+		deleteMessages(selector);
 	});
 
 	twitch.addEventListener('channel.chat.message_delete', ({ detail: msg }) => {
 		// remove specific message
 		const selector = `.msg[data-roomid="${msg.broadcaster_user_id}"][data-msgid="${msg.message_id}"]`;
-		chatOutput.querySelectorAll(selector).forEach(el => deleteMessage(el));
+		deleteMessages(selector);
 	});
 
 	twitch.addEventListener('channel.chat.message', ({ detail: msg }) => {
@@ -714,16 +716,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 							channelNames.forEach(chan => {
 								const room_state = roomState.get(chan);
-								chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
-									.forEach(el => deleteMessage(el, true));
+								const selector = `.msg[data-roomid="${room_state.id}"]`;
+								deleteMessages(selector, true);
 							});
 							commitValue();
 						} return;
 
 						case 'PURGEALL': {
 							// clear all messages
-							chatOutput.querySelectorAll('.msg')
-								.forEach(el => deleteMessage(el, true));
+							const selector = '.msg';
+							deleteMessages(selector, true);
 							commitValue();
 						} return;
 
@@ -816,8 +818,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 								userNames.forEach(user => {
 									ignoredUsers.add(user);
 									// remove previous messages
-									chatOutput.querySelectorAll(`.msg[data-user=${user}]`)
-										.forEach(el => deleteMessage(el, true));
+									const selector = `.msg[data-user=${user}]`;
+									deleteMessages(selector, true);
 								});
 								updateUrl();
 							}
@@ -864,8 +866,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 							preventDelete = arg === 'true';
 							if (!preventDelete) {
 								// remove deleted messages
-								chatOutput.querySelectorAll('.msg-deleted')
-									.forEach(el => deleteMessage(el, true));
+								const selector = '.msg-deleted';
+								deleteMessages(selector, true);
 							}
 							updateUrl();
 							commitValue();
@@ -1401,8 +1403,8 @@ function toggleMute(channel, state) {
 
 	// clear messages
 	if (room_state.muted) {
-		chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
-			.forEach(el => deleteMessage(el, true));
+		const selector = `.msg[data-roomid="${room_state.id}"]`;
+		deleteMessages(selector, true);
 	}
 }
 
@@ -1418,11 +1420,47 @@ function scrollToBottom() {
 	});
 }
 
-function deleteMessage(element, forceDelete = false) {
-	if (preventDelete && !forceDelete)
-		element.classList.add('msg-deleted');
-	else
-		element.remove();
+function deleteMessages(selector, forceDelete = false) {
+	if (preventDelete && !forceDelete) {
+		chatOutput.querySelectorAll(selector).forEach(el => el.classList.add('msg-deleted'));
+		messageBuffer.querySelectorAll(selector).forEach(el => el.classList.add('msg-deleted'));
+	} else {
+		chatOutput.querySelectorAll(selector).forEach(el => el.remove());
+		messageBuffer.querySelectorAll(selector).forEach(el => el.remove());
+	}
+}
+
+function createMessageBuffer() {
+	const buffer = document.createDocumentFragment();
+	const flushInterval = (1 / 30) * 1_000;
+	let timer;
+	
+	function resetTimer() {
+		clearTimeout(timer);
+		timer = null;		
+	}
+
+	return {
+		append:	function(node) {
+			buffer.append(node);
+			timer ??= setTimeout(flush, flushInterval);
+		},
+		querySelectorAll: function(selector) {
+			return buffer.querySelectorAll(selector);
+		},
+		flush: function() {
+			if (buffer.hasChildNodes()) {
+				const shouldScroll = isScrolledToBottom();
+				chatOutput.appendChild(buffer);
+				if (shouldScroll) scrollToBottom();
+			}
+			resetTimer();
+		},
+		clear: function() {
+			buffer.replaceChildren();
+			resetTimer();
+		},
+	};
 }
 
 function appendMessage(info) {
@@ -1511,10 +1549,8 @@ function appendMessage(info) {
 	time.title = now.toLocaleString();
 	time.textContent = now.toLocaleTimeString([], {timeStyle: 'short'});
 
-	// append to output
-	const shouldScroll = isScrolledToBottom();
-	chatOutput.appendChild(clone);
-	if (shouldScroll) scrollToBottom();
+	// write to buffer
+	messageBuffer.append(clone);
 }
 
 function noticeMessage(text, format) {
@@ -1551,7 +1587,7 @@ function routineMaintenance() {
 	let i = 0;
 	for (; i < removeCount; i++) {
 		const msg = messages[i];
-		deleteMessage(msg, true);
+		msg.remove();
 	}
 
 	// prune old messages off the top
@@ -1562,7 +1598,7 @@ function routineMaintenance() {
 		for (; i < messages.length; i++) {
 			const msg = messages[i];
 			if (msg.dataset.time < pruneTime)
-				deleteMessage(msg, true);
+				msg.remove();
 			else
 				break;
 		}
