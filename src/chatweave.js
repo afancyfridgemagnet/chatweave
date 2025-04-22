@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 					// get recent chatters for channel, ignoring self and deleted msg
 					const room_state = roomState.get(currentChannel);
-					const selector = `.msg[data-user][data-roomid="${room_state.id}"]:not([data-userid="${userState.id}"]):not(.deleted)`;
+					const selector = `.msg[data-user][data-roomid="${room_state.id}"]:not([data-userid="${userState.id}"]):not(.msg-deleted)`;
 					const users = [...chatOutput.querySelectorAll(selector)]
 						.map(el => el.dataset.user)
 						.reverse();	// prioritize by most recent
@@ -862,7 +862,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							preventDelete = arg === 'true';
 							if (!preventDelete) {
 								// remove deleted messages
-								chatOutput.querySelectorAll('.msg.deleted')
+								chatOutput.querySelectorAll('.msg-deleted')
 									.forEach(el => deleteMessage(el, true));
 							}
 							updateUrl();
@@ -1414,7 +1414,7 @@ function scrollToBottom() {
 
 function deleteMessage(element, forceDelete = false) {
 	if (preventDelete && !forceDelete)
-		element.classList.add('deleted');
+		element.classList.add('msg-deleted');
 	else
 		element.remove();
 }
@@ -1440,10 +1440,10 @@ function appendMessage(info) {
 	if (info.shade)
 		msg.style.backgroundColor = info.shade;
 
-	msg.classList.toggle('system', !!info.system);
-	msg.classList.toggle('event', !!info.event);
-	msg.classList.toggle('action', !!info.action);
-	msg.classList.toggle('ping', !!info.ping);
+	msg.classList.toggle('msg-system', !!info.system);
+	msg.classList.toggle('msg-event', !!info.event);
+	msg.classList.toggle('msg-action', !!info.action);
+	msg.classList.toggle('msg-ping', !!info.ping);
 
 	// room
 	if (info.source) {

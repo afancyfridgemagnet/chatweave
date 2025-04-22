@@ -172,7 +172,7 @@ a:active {
 	background-color: var(--dark-color);
 }
 
-#chatOutput > div {
+#chatOutput > * {
 	display: flex;
 	flex-shrink: 0;
 }
@@ -270,7 +270,7 @@ a:active {
 	will-change: filter;
 }
 
-.msg > div {
+.msg > * {
 	margin: 0.25rem 0.5rem;
 	align-content: center;
 }
@@ -329,19 +329,19 @@ a:active {
 
 /* unique message styles */
 
-.msg.system .msg-body {
+.msg-system .msg-body {
 
 }
 
-.msg.event .msg-body {
+.msg-event .msg-body {
 	font-weight: bold;
 }
 
-.msg.action .msg-body {
+.msg-action .msg-body {
 	font-style: italic;
 }
 
-.msg.ping .msg-body {
+.msg-ping .msg-body {
 	/* adjust for added border */
 	margin-left: -0.1875rem;
 	padding-left: 0.3125rem;
@@ -349,12 +349,12 @@ a:active {
 	border-left: 0.25rem dotted #fff;
 }
 
-.msg-body .mention {
-	color: var(--accent-color);
+.msg-deleted > * {
+	opacity: 50%;
 }
 
-.msg.deleted > div {
-	opacity: 50%;
+.mention {
+	color: var(--accent-color);
 }
 
 .emote {
@@ -413,7 +413,7 @@ a:active {
 		margin-right: 1rem;
 	}
 
-	.msg.ping .msg-body {
+	.msg-ping .msg-body {
 		margin-left: 0.5rem;
 		margin-right: 0.5rem;
 		padding-left: 0.25rem;

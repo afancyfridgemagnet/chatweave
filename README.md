@@ -220,7 +220,7 @@ html {
 
 /* hide elements (pause bar, tracker bar, bottom panel, system messages, time column, badges */
 /* optionally add .msg-room to the list to hide channel avatar */
-#chatPaused, #chatTracker, #chatPanel, .system, .msg-time, .msg-user-badge {
+#chatPaused, #chatTracker, #chatPanel, .msg-system, .msg-time, .msg-user-badge {
 	display: none !important;
 }
 ```
