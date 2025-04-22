@@ -158,6 +158,8 @@ a:active {
 
 	/* fix scrollbar behavior in FF */
 	overflow-anchor: none;
+	/* improve perf during scroll */
+	will-change: transform;
 }
 
 #chatOutput {
