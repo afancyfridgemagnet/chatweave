@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		if (room) {
 			e.stopPropagation();
 			activateChannel(room);
-			chatInput.focus();
+			/*chatInput.focus();*/
 		}
 	});
 
@@ -650,7 +650,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						commandHistory.shift();
 					chatInput.dataset.historyIndex = commandHistory.length;
 					chatInput.value = '';
-					chatInput.blur();
+					/*chatInput.blur();*/
 					refreshCommands();
 				};
 

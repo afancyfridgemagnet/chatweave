@@ -8,6 +8,7 @@
 	--background-color: #18181b;
 	--text-color: #ffffff;
 	--accent-color: #bf94ff;
+	--warning-color: #ffff00;
 	--disabled-color: #b41b1b;
 
 	--dark-color: #18181b;
@@ -113,9 +114,9 @@ a:active {
 	font-weight: bold;
 	text-align: center;
 	background-color: var(--background-color);
-	color: var(--disabled-color);
+	color: var(--warning-color);
 
-	outline: 2px dashed var(--disabled-color);
+	outline: 2px solid var(--warning-color);
 	-webkit-user-select: none;
 	border-radius: 1rem;
 	user-select: none;
@@ -155,9 +156,10 @@ a:active {
 	overflow-x: hidden;
 	/* inherit allows us to inherit body overflow (for overlays) */
 	overflow-y: inherit;
-
 	/* fix scrollbar behavior in FF */
-	overflow-anchor: none;
+	/* overflow-anchor: none; */
+	/* snap to edge of message */
+	scroll-snap-type: y mandatory;
 	/* improve perf during scroll */
 	will-change: transform;
 }
@@ -265,6 +267,8 @@ a:active {
 .msg {
 	/* width: 100%; */
 	min-height: 1.75rem;
+	/* message snapping */
+	scroll-snap-align: end;
 }
 
 .msg:hover {
