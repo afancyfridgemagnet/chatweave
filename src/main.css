@@ -117,8 +117,8 @@ a:active {
 	color: var(--warning-color);
 
 	outline: 2px solid var(--warning-color);
-	-webkit-user-select: none;
 	border-radius: 1rem;
+	-webkit-user-select: none;
 	user-select: none;
 	cursor:pointer;
 
@@ -156,10 +156,6 @@ a:active {
 	overflow-x: hidden;
 	/* inherit allows us to inherit body overflow (for overlays) */
 	overflow-y: inherit;
-	/* fix scrollbar behavior in FF */
-	/* overflow-anchor: none; */
-	/* snap to edge of message */
-	scroll-snap-type: y mandatory;
 	/* improve perf during scroll */
 	will-change: transform;
 }
@@ -267,8 +263,6 @@ a:active {
 .msg {
 	/* width: 100%; */
 	min-height: 1.75rem;
-	/* message snapping */
-	scroll-snap-align: end;
 }
 
 .msg:hover {
@@ -283,6 +277,8 @@ a:active {
 
 .msg-room {
 	width: 1.75rem;
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 .msg-room-avatar {
