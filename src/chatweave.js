@@ -1505,9 +1505,6 @@ function appendMessage(info) {
 
 	// room
 	if (info.source) {
-		const room_link = clone.querySelector('.msg-room-link');
-		room_link.href = `https://twitch.tv/${info.source}`;
-
 		const room_avatar = clone.querySelector('.msg-room-avatar');
 		room_avatar.src = info.avatar;
 	} else {

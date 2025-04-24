@@ -61,7 +61,7 @@ body {
 
 /* general */
 
-input, button, textarea, select {
+button, input, select, textarea {
 	font: inherit;
 }
 
@@ -69,20 +69,12 @@ input::-webkit-calendar-picker-indicator {
 	display: none !important;
 }
 
-img[src=""], img:not([src]) {
-	/* hides but allows tooltip */
-	opacity: 0;
-}
-
 /* links */
-
-a {
-	text-decoration-line: none;
-}
 
 a:link,
 a:visited {
 	color: var(--accent-color);
+	text-decoration-line: none;
 }
 
 a:hover,
@@ -131,11 +123,12 @@ a:active {
 }
 
 #chatTracker {
-	/* width: 100%; */
-	height: 2px;
+	display: flex;
+	flex: 0 0 2px;
+
 	/* avoid shifting content by negating height */
 	margin-top: -2px;
-	/* negative bottom margin messes with scrollbar */
+	/* bottom margin messes with scrollbar */
 	margin-bottom: 0;
 
 	background-color: var(--accent-color);
@@ -154,7 +147,7 @@ a:active {
 	padding-top: 2px;
 
 	overflow-x: hidden;
-	/* inherit allows us to inherit body overflow (for overlays) */
+	/* inherit body overflow (for overlays) */
 	overflow-y: inherit;
 	/* improve perf during scroll */
 	will-change: transform;
@@ -170,11 +163,6 @@ a:active {
 
 #chatOutput::-webkit-scrollbar-track {
 	background-color: var(--dark-color);
-}
-
-#chatOutput > * {
-	display: flex;
-	flex-shrink: 0;
 }
 
 #chatPanel {
@@ -236,12 +224,12 @@ a:active {
 }
 
 #chatBar {
-	display: flex;
+	margin-top: 0.25rem;
 }
 
 #chatInput {
 	width: 100%;
-	margin-top: 0.25rem;
+	/* adjust text position */
 	padding-left: 0.5rem;
 	padding-right: 0.5rem;
 
@@ -261,8 +249,10 @@ a:active {
 /* messages */
 
 .msg {
+	display: flex;
+	flex: 1 0 auto;
 	/* width: 100%; */
-	min-height: 1.75rem;
+	/* min-height: 1.75rem; */
 }
 
 .msg:hover {
@@ -276,7 +266,8 @@ a:active {
 }
 
 .msg-room {
-	width: 1.75rem;
+	flex: 0 0 1.75rem;
+
 	-webkit-user-select: none;
 	user-select: none;
 }
@@ -295,6 +286,13 @@ a:active {
 	font-weight: bold;
 	text-align: right;
 	text-wrap: nowrap;
+
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+.msg-user a {
+	color: inherit;
 }
 
 .msg-user-badge {
@@ -305,15 +303,8 @@ a:active {
     vertical-align: text-top;
 }
 
-.msg-user,
-.msg-user a {
-	color: inherit;
-	overflow-x: hidden;
-	text-overflow: ellipsis;
-}
-
 .msg-body {
-	flex: 1;
+	flex: 1 1 100%;
 
 	margin-left: 0.375rem;
 	margin-right: 0.375rem;
@@ -324,12 +315,20 @@ a:active {
 .msg-time {
 	font-size: 0.875rem;
 	font-variant-numeric: tabular-nums;
+	text-align: right;
 	text-wrap: nowrap;
 
 	color: var(--light-color);
 }
 
 /* unique message styles */
+
+.msg-deleted > * {
+	/* avoid setting opacity on msg directly */
+	/* in order to preserve background-color */
+	opacity: 50%;
+	will-change: opacity;
+}
 
 .msg-system .msg-body {
 
@@ -349,10 +348,6 @@ a:active {
 	padding-left: 0.3125rem;
 
 	border-left: 0.25rem dotted #fff;
-}
-
-.msg-deleted > * {
-	opacity: 50%;
 }
 
 .mention {
@@ -386,6 +381,7 @@ a:active {
 @media (max-width: 36rem) /*or (orientation: portrait)*/ {
 	.msg {
 		flex-wrap: wrap;
+
 		padding-top: 0.125rem;
 		padding-bottom: 0.125rem;
 	}
@@ -408,7 +404,6 @@ a:active {
 
 	.msg-body {
 		order: 4;
-		flex: 1 1 100%;
 
 		margin-top: 0;
 		margin-left: 1rem;
