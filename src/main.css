@@ -30,8 +30,6 @@ html {
 	font-size: 16px;
 	line-height: 1.5;
 	text-rendering: optimizeSpeed;
-	/* disable pull to refresh on mobile */
-	overscroll-behavior: none;
 }
 
 body {
@@ -43,6 +41,9 @@ body {
 
 	background-color: var(--background-color);
 	color: var(--text-color);
+
+	/* disable pull to refresh on mobile */
+	overscroll-behavior: none;
 }
 
 /* highlight */
