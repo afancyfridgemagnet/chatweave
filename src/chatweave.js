@@ -986,7 +986,6 @@ document.querySelectorAll('.menu').forEach(modal => {
 		const menu = e.currentTarget;
 		const channel = menu.querySelector('.menu-title').textContent;
 		const action = e.target.closest('[data-action]')?.dataset.action;
-		console.log(e.target, action);
 
 		switch (action) {
 			case 'twitch':
