@@ -38,7 +38,7 @@
 		</div>
 	</div>
 	<template id="chatRoom">
-		<li class="room-list-item muted" data-room="" data-menu="#roomMenu"></li>
+		<li class="room-list-item muted" data-room="" data-menu="roomMenu"></li>
 	</template>
 	<template id="chatMessage">
 		<div class="msg">
@@ -46,19 +46,19 @@
 				<img class="msg-room-avatar" src="">
 			</div>
 			<div class="msg-user" style="">
-				<span class="msg-user-name" title="" data-menu="#userMenu"></span>
+				<span class="msg-user-name" title="" data-menu="userMenu"></span>
 			</div>
 			<div class="msg-body"></div>
 			<div class="msg-time" title=""></div>
 		</div>
 	</template>
-	<menu id="userMenu" class="invisible" tabindex="-1">
+	<menu id="userMenu" class="menu invisible" tabindex="-1">
 		<li class="menu-title"></li>
 		<li class="menu-item"><button data-action="twitch">Twitch Channel</button></li>
 		<li class="menu-item"><button data-action="ignore">Ignore User</button></li>
 		<li class="menu-item"><button data-action="join">Join Chat</button></li>
 	</menu>
-	<menu id="roomMenu" class="invisible" tabindex="-1">
+	<menu id="roomMenu" class="menu invisible" tabindex="-1">
 		<li class="menu-title"></li>
 		<li class="menu-item"><button data-action="twitch">Twitch Channel</button></li>
 		<li class="menu-item"><button data-action="mute">Toggle Mute</button></li>
