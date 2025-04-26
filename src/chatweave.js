@@ -937,7 +937,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 	window.addEventListener('resize', scrollToBottom);
 	chatPaused.addEventListener('click', scrollToBottom);
 	chatOutput.addEventListener('scroll', () => {
-		chatAutoScroll = null;
+		chatAutoScroll = isScrolledToBottom();
+		chatPaused.classList.toggle('hidden', chatAutoScroll);
 	});
 
 }, { once: true });
@@ -964,6 +965,11 @@ chatRooms.addEventListener('contextmenu', (e) => {
 });
 
 document.querySelectorAll('.menu').forEach(modal => {
+	modal.addEventListener('contextmenu', (e) => {
+		e.preventDefault();
+		e.currentTarget.classList.add('invisible');
+	});
+	
 	modal.addEventListener('focusout', (e) => {
 		e.currentTarget.classList.add('invisible');
 	});
@@ -980,6 +986,7 @@ document.querySelectorAll('.menu').forEach(modal => {
 	});
 
 	modal.addEventListener('click', (e) => {
+		console.log('menu click', e);
 		e.preventDefault();
 		e.stopPropagation();
 
@@ -1749,9 +1756,6 @@ function routineMaintenance() {
 			chatTracker.nextElementSibling.after(chatTracker);
 		}
 	}
-	
-	// toggle pause alert
-	chatPaused.classList.toggle('hidden', chatAutoScroll);
 }
 
 function parseChannelString(data) {
