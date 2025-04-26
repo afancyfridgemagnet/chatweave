@@ -965,12 +965,17 @@ chatRooms.addEventListener('contextmenu', (e) => {
 });
 
 document.querySelectorAll('.menu').forEach(modal => {
+	modal.addEventListener('mousedown', (e) => {
+		/* fixes issue where button inside menu is not clickable */
+		e.preventDefault();
+	});
+
 	modal.addEventListener('contextmenu', (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		e.currentTarget.classList.add('hidden');
 	});
-	
+
 	modal.addEventListener('focusout', (e) => {
 		e.currentTarget.classList.add('hidden');
 	});
