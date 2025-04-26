@@ -58,17 +58,21 @@ body {
 
 /* general */
 
+html, body, #chatOutput {
+	/* disable pull to refresh on mobile */
+	overscroll-behavior: none;
+}
+
+hr {
+	border: 1px solid var(--medium-color);
+}
+
 button, input, select, textarea {
 	font: inherit;
 }
 
 input::-webkit-calendar-picker-indicator {
 	display: none !important;
-}
-
-html, body, #chatOutput {
-	/* disable pull to refresh on mobile */
-	overscroll-behavior: none;
 }
 
 /* links */
@@ -95,38 +99,6 @@ a:active {
 }
 
 /* layout */
-
-#roomMenu {
-	position: absolute;
-	padding: 0.5rem;
-
-	text-align: center;
-	background-color: var(--background-color);
-	border: 1px solid var(--accent-color);
-
-	outline: none;
-	-webkit-user-select: none;
-	user-select: none;
-	z-index: 2;
-}
-
-.room-menu-title {
-	margin-bottom: 0.25rem;
-	color: var(--accent-color);
-}
-
-.room-menu-list {
-	list-style-type: none;
-}
-
-.room-menu-item {
-	padding: 0.25rem;
-}
-
-.room-menu-item:hover {
-	color: var(--background-color);
-	background-color: var(--accent-color);
-}
 
 #chatPaused {
 	position: absolute;
@@ -321,8 +293,8 @@ a:active {
 	text-overflow: ellipsis;
 }
 
-.msg-user a {
-	color: inherit;
+.msg-user-name {
+	color: var(--accent-color);
 }
 
 .msg-user-badge {
@@ -402,6 +374,40 @@ a:active {
 
 .cheermote:not(:last-child) {
 	margin-right: 0.375rem;
+}
+
+/* menus */
+
+menu {
+	position: absolute;
+	padding: 0.5rem;
+
+	text-align: center;
+	background-color: var(--background-color);
+	border: 1px solid var(--accent-color);
+
+	outline: none;
+	-webkit-user-select: none;
+	user-select: none;
+	z-index: 2;
+}
+
+menu button {
+	
+}
+
+.menu-title {
+	margin-bottom: 0.25rem;
+	color: var(--accent-color);
+}
+
+.menu-item {
+	padding: 0.25rem;
+}
+
+.menu-item:hover {
+	color: var(--background-color);
+	background-color: var(--accent-color);
 }
 
 /* responsive layout */

@@ -8,8 +8,6 @@ const client_scope = 'user:read:chat user:write:chat';
 const redirect_uri = pageUrl.protocol + '//' + pageUrl.host + pageUrl.pathname;
 const access_token = twitchAccessToken();
 
-const roomMenu = document.querySelector('#roomMenu');
-const chatTemplate = document.querySelector('#chatMessage');
 const chatPaused = document.querySelector('#chatPaused');
 const chatTracker = document.querySelector('#chatTracker');
 const chatOutput = document.querySelector('#chatOutput');
@@ -18,6 +16,10 @@ const chatRooms = document.querySelector('#chatRooms');
 const chatInput = document.querySelector('#chatInput');
 const chatCommands = document.querySelector('#chatCommands');
 const messageBuffer = createMessageBuffer();
+const messageTemplate = document.querySelector('#chatMessage');
+const roomTemplate = document.querySelector('#chatRoom');
+const userMenu = document.querySelector('#userMenu');
+const roomMenu = document.querySelector('#roomMenu');
 
 const cleanName = (s) => s?.trim().replace(/^(@|#)/,'').toLowerCase();
 const cleanHex = (s) => s?.trim().replace(/^#/,'').toLowerCase();
@@ -476,12 +478,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 	});
 
 	chatInput.addEventListener('keydown', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
 		if (chatInput.readOnly) return;
 
 		switch (e.key) {
 			case 'Escape': {
-				e.preventDefault();
-
 				if (chatInput.value.length > 0) {
 					chatInput.dataset.historyIndex = commandHistory.length;
 					chatInput.value = '';
@@ -492,8 +494,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 			} break;
 
 			case 'Tab': {
-				e.preventDefault();
-
 				const text = chatInput.value;
 
 				// interacting with command list
@@ -550,7 +550,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 			case 'ArrowUp': {
 				if (chatCommands.querySelector('option:not([disabled])')) return;
-				e.preventDefault();
 
 				const index = Math.max(0, parseInt(chatInput.dataset.historyIndex ?? commandHistory.length) - 1);
 				chatInput.dataset.historyIndex = index;
@@ -560,7 +559,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 			case 'ArrowDown': {
 				if (chatCommands.querySelector('option:not([disabled])')) return;
-				e.preventDefault();
 
 				const index = Math.min(commandHistory.length, parseInt(chatInput.dataset.historyIndex) + 1);
 				chatInput.dataset.historyIndex = index;
@@ -632,10 +630,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	chatInput.addEventListener('keyup', async (e) => {
+		e.preventDefault();
+		e.stopPropagation();
 		switch (e.key) {
 			case 'Enter': {
-				e.preventDefault();
-
 				let content = chatInput.value
 					.replace(/\s\s+/g, ' ') // remove excess whitespace
 					.trimEnd();
@@ -815,29 +813,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 						case 'IGNORE': {
 							if (arg) {
 								const userNames = arg.split(/[ ,]+/).map(cleanName).filter(isValidTwitchAccount);
-
-								userNames.forEach(user => {
-									ignoredUsers.add(user);
-									// remove previous messages
-									const selector = `.msg[data-user=${user}]`;
-									deleteMessages(selector, true);
-								});
-								updateUrl();
+								toggleIgnore(userNames, true);
+							} else {
+								noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
 							}
-
-							noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
 							commitValue();
 						} return;
 
 						case 'UNIGNORE': {
 							if (arg) {
 								const userNames = arg.split(/[ ,]+/).map(cleanName).filter(isValidTwitchAccount);
-
-								userNames.forEach(user => ignoredUsers.delete(user));
-								updateUrl();
+								toggleIgnore(userNames, false);
+							} else {
+								noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
 							}
-
-							noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
 							commitValue();
 						} return;
 
@@ -953,49 +942,105 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 }, { once: true });
 
+chatOutput.addEventListener('contextmenu', (e) => {
+	const target = e.target;
+	if (target.dataset.menu !== userMenu.id) return;
+	e.preventDefault();
+	e.stopPropagation();
+	
+	const channel = target.closest('[data-user]').dataset.user;
+	userMenu.querySelector('.menu-title').textContent = channel;	
+	showMenu(userMenu, target);
+});
+
 chatRooms.addEventListener('contextmenu', (e) => {
 	const target = e.target;
-	if (!target.matches('.room-list-item')) return;
-
+	if (target.dataset.menu !== roomMenu.id) return;
 	e.preventDefault();
-
-	const title = roomMenu.querySelector('.room-menu-title');
-	title.textContent = target.dataset.room;
-
-	positionMenu(roomMenu, target);
-	roomMenu.classList.remove('invisible');
-	roomMenu.focus();
+	e.stopPropagation();
+	
+	roomMenu.querySelector('.menu-title').textContent = target.dataset.room;
+	showMenu(roomMenu, target);
 });
 
-roomMenu.addEventListener('blur', () => {
-	roomMenu.classList.add('invisible');
-});
+document.querySelectorAll('.menu').forEach(modal => {
+	modal.addEventListener('blur', (e) => {
+		e.currentTarget.classList.add('invisible');
+	});
 
-roomMenu.addEventListener('keyup', (e) => {
-	switch (e.key) {
-		case 'Escape':
-		roomMenu.blur();
-		break;
+	modal.addEventListener('keyup', (e) => {
+		switch (e.key) {
+			case 'Escape':
+				e.currentTarget.blur();
+				break;
+			
+			default: return;
+		}
+		e.stopPropagation();
+	});
+
+	modal.addEventListener('click', (e) => {
+		e.stopPropagation();
+
+		const target = e.target;
+		if (!target.matches('.menu-item')) return;
+
+		const menu = e.currentTarget;
+		const channel = menu.querySelector('.menu-title').textContent;
+
+		switch (target.dataset.action) {
+			case 'twitch':
+				window.open(`https://twitch.tv/${channel}`, '_blank');
+				break;
+
+			case 'join':
+				joinChannels(channel);
+				break;
+
+			case 'leave':
+				partChannels(channel);
+				break;
+
+			case 'mute':
+				toggleMute(channel);
+				break;
+			
+			case 'ignore':
+				toggleIgnore(channel);
+				break;
+			
+			default:
+				console.warn(`${menu.id} unhandled action ${target.dataset.action}`);
+		}
+
+		menu.classList.add('invisible');
+	});
+}, { once: true });
+
+function showMenu(modal, target) {
+	// position menu relative to target
+	const menuRect = modal.getBoundingClientRect();
+	const triggerRect = trigger.getBoundingClientRect();
+	const viewportWidth = window.innerWidth;
+	const viewportHeight = window.innerHeight;
+
+	let top = triggerRect.bottom;
+	if (top + menuRect.height > viewportHeight) {
+		top = triggerRect.top - menuRect.height;
 	}
-});
 
-roomMenu.addEventListener('click', (e) => {
-	const target = e.target;
-	if (!target.matches('.room-menu-item')) return;
-
-	const channel = roomMenu.querySelector('.room-menu-title').textContent;
-	switch (target.dataset.action) {
-		case 'channel':
-		window.open(`https://twitch.tv/${channel}`, '_blank');
-		break;
-
-		case 'mute':
-		toggleMute(channel);
-		break;
+	let left = triggerRect.left;
+	if (left + menuRect.width > viewportWidth) {
+		left = triggerRect.right - menuRect.width;
 	}
 
-	roomMenu.classList.add('invisible');
-});
+	modal.style.top = `${top}px`;
+	modal.style.left = `${left}px`;
+
+	// trigger
+	modal.classList.remove('invisible');
+	modal.focus();
+}
 
 function twitchAuthorizeRedirect() {
 	// persist settings to temp storage to retrieve after twitch redirect
@@ -1249,22 +1294,21 @@ async function joinChannels(...channels) {
 		roomState.set(user.login, room_state);
 
 		// update ui
-		const el = document.createElement('li');
-		el.innerHTML = `<img class="room-list-item-avatar" src="${room_state.avatar}">${room_state.login}`;
-		el.dataset.room = room_state.login;
-		el.classList.add('room-list-item', 'muted');
+		const clone = messageTemplate.content.cloneNode(true);
+		clone.dataset.room = room_state.login;
+		clone.innerHTML = `<img class="room-list-item-avatar" src="${room_state.avatar}">${room_state.login}`;
 
 		// set active if none already
 		if (!chatRooms.children.length)
-			el.classList.add('active');
+			clone.classList.add('active');
 
 		// attempt to insert alphabetically
 		const sibling = [...chatRooms.querySelectorAll('[data-room]')]
 			.find(e => room_state.login.localeCompare(e.dataset.room) < 1);
 		if (sibling)
-			chatRooms.insertBefore(el, sibling);
+			chatRooms.insertBefore(clone, sibling);
 		else
-			chatRooms.appendChild(el);
+			chatRooms.appendChild(clone);
 
 		noticeMessage(`joined #${room_state.login}`, {
 			roomid: room_state.id,
@@ -1456,6 +1500,31 @@ function toggleMute(channel, state) {
 	}
 }
 
+function toggleIgnore(...users, state) {
+	if (state === true || state === undefined) {
+		const ignore = users.filter(u => !ignoredUsers.has(u)).sort();
+		if (ignore.length > 0) {
+			ignore.forEach(u => {
+				ignoredUsers.add(user);
+				// remove previous messages
+				const selector = `.msg[data-user=${user}]`;
+				deleteMessages(selector, true);		
+			});
+			noticeMessage(`added to ignore: ${ignore.join(' ')}`);
+		}
+	}
+
+	if (state === false || state === undefined) {
+		const unignore = users.filter(u => ignoredUsers.has(u)).sort();
+		if (unignore.length > 0) {	
+			unignore.forEach(u => ignoredUsers.delete(u));
+			noticeMessage(`removed from ignore: ${unignore.join(' ')}`);
+		}
+	}
+
+	updateUrl();
+}
+
 function isScrolledToBottom() {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
 	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 1;
@@ -1523,8 +1592,7 @@ function createMessageBuffer() {
 }
 
 function appendMessage(info) {
-	// create a message fragment from template
-	const clone = chatTemplate.content.cloneNode(true);
+	const clone = messageTemplate.content.cloneNode(true);
 	const now = new Date();
 
 	// message
@@ -1573,10 +1641,9 @@ function appendMessage(info) {
 			: `${info.name} (${info.user})`;
 
 		// update link
-		const link = clone.querySelector('.msg-user-link');
-		link.href = `https://twitch.tv/${info.user}`;
-		link.title = friendlyName;
-		link.textContent = friendlyName;
+		const name = clone.querySelector('.msg-user-name');
+		name.title = friendlyName;
+		name.textContent = friendlyName;
 
 		// text color style
 		if (info.color) {
@@ -1725,26 +1792,6 @@ function updateUrl() {
 	pageUrl.hash = '';
 	pageUrl.search = decodeURIComponent(params.toString());
 	window.history.replaceState({}, '', pageUrl.toString());
-}
-
-function positionMenu(menu, trigger) {
-	const menuRect = menu.getBoundingClientRect();
-	const triggerRect = trigger.getBoundingClientRect();
-	const viewportWidth = window.innerWidth;
-	const viewportHeight = window.innerHeight;
-
-	let top = triggerRect.bottom;
-	if (top + menuRect.height > viewportHeight) {
-		top = triggerRect.top - menuRect.height;
-	}
-
-	let left = triggerRect.left;
-	if (left + menuRect.width > viewportWidth) {
-		left = triggerRect.right - menuRect.width;
-	}
-
-	menu.style.top = `${top}px`;
-	menu.style.left = `${left}px`;
 }
 
 function sanitizeString(text) {

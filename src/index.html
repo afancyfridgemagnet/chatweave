@@ -26,36 +26,44 @@
 		<h2>JavaScript disabled or not supported!</h2>
 		<p>JavaScript is required for this page to function.</p>
 	</noscript>
-	<div id="roomMenu" class="invisible" tabindex="-1">
-		<div class="room-menu-title"></div>
-		<ul class="room-menu-list">
-			<li class="room-menu-item" data-action="channel">Open Channel</li>
-			<li class="room-menu-item" data-action="mute">Toggle Mute</li>
-		</ul>
-	</div>
 	<div id="chatPaused" class="hidden">Chat paused due to scroll</div>
 	<div id="chatOutput">
 		<div id="chatTracker" class="invisible"></div>
 	</div>
 	<div id="chatPanel" class="hidden">
-		<ul id="chatRooms"></ul>
+		<menu id="chatRooms"></menu>
 		<div id="chatBar">
 			<datalist id="chatCommands"></datalist>
 			<input type="text" id="chatInput" list="chatCommands" minlength="1" maxlength="500" spellcheck="true" autocomplete="off" placeholder="Send a message" readonly disabled>
 		</div>
 	</div>
+	<template id="chatRoom">
+		<li class="room-list-item muted" data-room="" data-menu="#roomMenu"></li>
+	</template>
 	<template id="chatMessage">
 		<div class="msg">
 			<div class="msg-room">
 				<img class="msg-room-avatar" src="">
 			</div>
 			<div class="msg-user" style="">
-				<a class="msg-user-link" href="" title="" tabindex="-1"></a>
+				<span class="msg-user-name" title="" data-menu="#userMenu"></span>
 			</div>
 			<div class="msg-body"></div>
 			<div class="msg-time" title=""></div>
 		</div>
 	</template>
+	<menu id="userMenu" class="invisible" tabindex="-1">
+		<li class="menu-title"></li>
+		<li class="menu-item"><button data-action="twitch">Twitch Channel</button></li>
+		<li class="menu-item"><button data-action="ignore">Ignore User</button></li>
+		<li class="menu-item"><button data-action="join">Join Chat</button></li>
+	</menu>
+	<menu id="roomMenu" class="invisible" tabindex="-1">
+		<li class="menu-title"></li>
+		<li class="menu-item"><button data-action="twitch">Twitch Channel</button></li>
+		<li class="menu-item"><button data-action="mute">Toggle Mute</button></li>
+		<li class="menu-item"><button data-action="leave">Leave Chat</button></li>
+	</menu>
 	<script src="twitchapi.js" defer></script>
 	<script src="chatweave.js" defer></script>
 </body>
