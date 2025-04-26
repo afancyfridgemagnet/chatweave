@@ -963,12 +963,12 @@ chatRooms.addEventListener('contextmenu', (e) => {
 	title.textContent = target.dataset.room;
 
 	positionMenu(roomMenu, target);
-	roomMenu.classList.remove('hidden');
+	roomMenu.classList.remove('invisible');
 	roomMenu.focus();
 });
 
 roomMenu.addEventListener('blur', () => {
-	roomMenu.classList.add('hidden');
+	roomMenu.classList.add('invisible');
 });
 
 roomMenu.addEventListener('keyup', (e) => {
@@ -994,7 +994,7 @@ roomMenu.addEventListener('click', (e) => {
 		break;
 	}
 
-	roomMenu.classList.add('hidden');
+	roomMenu.classList.add('invisible');
 });
 
 function twitchAuthorizeRedirect() {

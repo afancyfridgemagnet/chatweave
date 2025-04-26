@@ -104,6 +104,9 @@ a:active {
 	text-align: center;
 	background-color: var(--background-color);
 	border: 1px solid var(--accent-color);
+
+	outline: none;
+	-webkit-user-select: none;
 	user-select: none;
 	z-index: 2;
 }
