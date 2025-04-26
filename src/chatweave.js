@@ -983,13 +983,11 @@ document.querySelectorAll('.menu').forEach(modal => {
 	modal.addEventListener('click', (e) => {
 		e.stopPropagation();
 
-		const target = e.target;
-		if (!target.matches('.menu-item')) return;
-
 		const menu = e.currentTarget;
 		const channel = menu.querySelector('.menu-title').textContent;
+		const action = e.target.closest('[data-action]')?.dataset.action;
 
-		switch (target.dataset.action) {
+		switch (action) {
 			case 'twitch':
 				window.open(`https://twitch.tv/${channel}`, '_blank');
 				break;
@@ -1011,7 +1009,7 @@ document.querySelectorAll('.menu').forEach(modal => {
 				break;
 			
 			default:
-				console.warn(`${menu.id} unhandled action ${target.dataset.action}`);
+				console.warn(`${menu.id} unhandled action ${action}`);
 		}
 
 		menu.classList.add('invisible');
@@ -1021,24 +1019,24 @@ document.querySelectorAll('.menu').forEach(modal => {
 function showMenu(modal, target) {
 	// position menu relative to target
 	const menuRect = modal.getBoundingClientRect();
-	const triggerRect = trigger.getBoundingClientRect();
+	const targetRect = target.getBoundingClientRect();
 	const viewportWidth = window.innerWidth;
 	const viewportHeight = window.innerHeight;
 
-	let top = triggerRect.bottom;
+	let top = targetRect.bottom;
 	if (top + menuRect.height > viewportHeight) {
-		top = triggerRect.top - menuRect.height;
+		top = targetRect.top - menuRect.height;
 	}
 
-	let left = triggerRect.left;
+	let left = targetRect.left;
 	if (left + menuRect.width > viewportWidth) {
-		left = triggerRect.right - menuRect.width;
+		left = targetRect.right - menuRect.width;
 	}
 
 	modal.style.top = `${top}px`;
 	modal.style.left = `${left}px`;
 
-	// trigger
+	// popup
 	modal.classList.remove('invisible');
 	modal.focus();
 }

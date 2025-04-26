@@ -386,6 +386,7 @@ a:active {
 	background-color: var(--background-color);
 	border: 1px solid var(--accent-color);
 
+	list-style-type: none;
 	outline: none;
 	-webkit-user-select: none;
 	user-select: none;
@@ -393,7 +394,9 @@ a:active {
 }
 
 .menu button {
-	
+	color: inherit;
+	background: none;
+	border: none;
 }
 
 .menu-title {
