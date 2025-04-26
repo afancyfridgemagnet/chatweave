@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		// parse channel list from URL
 		// if empty, default to self
-		const channels = parseChannelString(pageUrl.searchParams.get('channels')) 
+		const channels = parseChannelString(pageUrl.searchParams.get('channels'))
 			?? { name: userState.login, color: undefined };
 		joinChannels(channels);
 	});
@@ -947,9 +947,9 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	if (target.dataset.menu !== userMenu.id) return;
 	e.preventDefault();
 	e.stopPropagation();
-	
+
 	const channel = target.closest('[data-user]').dataset.user;
-	userMenu.querySelector('.menu-title').textContent = channel;	
+	userMenu.querySelector('.menu-title').textContent = channel;
 	showMenu(userMenu, target);
 });
 
@@ -958,7 +958,7 @@ chatRooms.addEventListener('contextmenu', (e) => {
 	if (target.dataset.menu !== roomMenu.id) return;
 	e.preventDefault();
 	e.stopPropagation();
-	
+
 	roomMenu.querySelector('.menu-title').textContent = target.dataset.room;
 	showMenu(roomMenu, target);
 });
@@ -973,20 +973,21 @@ document.querySelectorAll('.menu').forEach(modal => {
 			case 'Escape':
 				e.currentTarget.blur();
 				break;
-			
+
 			default: return;
 		}
 		e.stopPropagation();
 	});
 
 	modal.addEventListener('click', (e) => {
+		console.log('click', e);
 		e.preventDefault();
 		e.stopPropagation();
 
 		const menu = e.currentTarget;
 		const channel = menu.querySelector('.menu-title').textContent;
 		const action = e.target.closest('[data-action]')?.dataset.action;
-
+		console.log('click', menu, channel, action);
 		switch (action) {
 			case 'twitch':
 				window.open(`https://twitch.tv/${channel}`, '_blank');
@@ -1003,11 +1004,11 @@ document.querySelectorAll('.menu').forEach(modal => {
 			case 'mute':
 				toggleMute(channel);
 				break;
-			
+
 			case 'ignore':
 				toggleIgnore(channel);
 				break;
-			
+
 			default: return;
 		}
 
@@ -1294,7 +1295,7 @@ async function joinChannels(channels) {
 
 		// update ui
 		const clone = roomTemplate.content.cloneNode(true);
-		
+
 		const room = clone.querySelector('.room-list-item');
 		room.dataset.room = room_state.login;
 		room.innerHTML = `<img class="room-list-item-avatar" src="${room_state.avatar}">${room_state.login}`;
@@ -1513,7 +1514,7 @@ function toggleIgnore(users, state) {
 				ignoredUsers.add(user);
 				// remove previous messages
 				const selector = `.msg[data-user=${user}]`;
-				deleteMessages(selector, true);		
+				deleteMessages(selector, true);
 			});
 			noticeMessage(`added ignore: ${ignore.join(' ')}`);
 		}
@@ -1521,7 +1522,7 @@ function toggleIgnore(users, state) {
 
 	if (state === false || state === undefined) {
 		const unignore = users.filter(user => ignoredUsers.has(user)).sort();
-		if (unignore.length > 0) {	
+		if (unignore.length > 0) {
 			unignore.forEach(user => ignoredUsers.delete(user));
 			noticeMessage(`removed ignore: ${unignore.join(' ')}`);
 		}
@@ -1536,6 +1537,7 @@ function isScrolledToBottom() {
 }
 
 function scrollToBottom() {
+	scrollLock
 	chatOutput.scrollTo({
 		top: chatOutput.scrollHeight,
 		behavior: 'instant'
