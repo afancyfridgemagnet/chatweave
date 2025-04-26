@@ -964,7 +964,7 @@ chatRooms.addEventListener('contextmenu', (e) => {
 });
 
 document.querySelectorAll('.menu').forEach(modal => {
-	modal.addEventListener('blur', (e) => {
+	modal.addEventListener('focusout', (e) => {
 		e.currentTarget.classList.add('invisible');
 	});
 
@@ -980,14 +980,13 @@ document.querySelectorAll('.menu').forEach(modal => {
 	});
 
 	modal.addEventListener('click', (e) => {
-		console.log('click', e);
 		e.preventDefault();
 		e.stopPropagation();
 
 		const menu = e.currentTarget;
 		const channel = menu.querySelector('.menu-title').textContent;
 		const action = e.target.closest('[data-action]')?.dataset.action;
-		console.log('click', menu, channel, action);
+
 		switch (action) {
 			case 'twitch':
 				window.open(`https://twitch.tv/${channel}`, '_blank');

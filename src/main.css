@@ -401,6 +401,7 @@ a:active {
 
 .menu-title {
 	margin-bottom: 0.25rem;
+	font-weight: bold;
 	color: var(--accent-color);
 }
 
