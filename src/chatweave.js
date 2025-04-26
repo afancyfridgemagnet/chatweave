@@ -61,6 +61,7 @@ let preventDelete = (pageUrl.searchParams.get('nodelete') ?? 'false') === 'true'
 let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 150);
 let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; // ms
 let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 0) * 1000; // ms
+let chatAutoScroll = true;
 
 document.addEventListener('DOMContentLoaded', async () => {
 	if (!access_token) {
@@ -936,8 +937,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	window.addEventListener('resize', scrollToBottom);
 	chatPaused.addEventListener('click', scrollToBottom);
 	chatOutput.addEventListener('scroll', () => {
-		const scrolledToBottom = isScrolledToBottom();
-		chatPaused.classList.toggle('hidden', scrolledToBottom);
+		chatAutoScroll = null;
 	});
 
 }, { once: true });
@@ -1536,7 +1536,7 @@ function isScrolledToBottom() {
 }
 
 function scrollToBottom() {
-	scrollLock
+	chatAutoScroll = true;
 	chatOutput.scrollTo({
 		top: chatOutput.scrollHeight,
 		behavior: 'instant'
@@ -1570,9 +1570,9 @@ function createMessageBuffer() {
 
 	function flushBuffer() {
 		if (buffer.hasChildNodes()) {
-			const shouldScroll = isScrolledToBottom();
+			chatAutoScroll ??= isScrolledToBottom();
 			chatOutput.appendChild(buffer);
-			if (shouldScroll) scrollToBottom();
+			if (chatAutoScroll) scrollToBottom();
 		}
 		resetTimer();
 	}
@@ -1749,6 +1749,9 @@ function routineMaintenance() {
 			chatTracker.nextElementSibling.after(chatTracker);
 		}
 	}
+	
+	// toggle pause alert
+	chatPaused.classList.toggle('hidden', chatAutoScroll);
 }
 
 function parseChannelString(data) {
