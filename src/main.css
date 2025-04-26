@@ -378,7 +378,19 @@ a:active {
 
 /* menus */
 
-.menu {
+menu {
+	list-style-type: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+menu button {
+	color: inherit;
+	background: none;
+	border: none;
+}
+
+.context {
 	position: absolute;
 	padding: 0.5rem;
 
@@ -386,30 +398,21 @@ a:active {
 	background-color: var(--background-color);
 	border: 1px solid var(--accent-color);
 
-	list-style-type: none;
 	outline: none;
-	-webkit-user-select: none;
-	user-select: none;
 	z-index: 2;
 }
 
-.menu button {
-	color: inherit;
-	background: none;
-	border: none;
-}
-
-.menu-title {
+.context-title {
 	margin-bottom: 0.25rem;
 	font-weight: bold;
 	color: var(--accent-color);
 }
 
-.menu-item {
+.context-item {
 	padding: 0.25rem;
 }
 
-.menu-item:hover {
+.context-item:hover {
 	color: var(--background-color);
 	background-color: var(--accent-color);
 }

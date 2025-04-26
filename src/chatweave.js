@@ -950,7 +950,7 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	e.stopPropagation();
 
 	const channel = target.closest('[data-user]').dataset.user;
-	userMenu.querySelector('.menu-title').textContent = channel;
+	userMenu.querySelector('.context-title').textContent = channel;
 	showMenu(userMenu, target);
 });
 
@@ -960,11 +960,11 @@ chatRooms.addEventListener('contextmenu', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 
-	roomMenu.querySelector('.menu-title').textContent = target.dataset.room;
+	roomMenu.querySelector('.context-title').textContent = target.dataset.room;
 	showMenu(roomMenu, target);
 });
 
-document.querySelectorAll('.menu').forEach(modal => {
+document.querySelectorAll('.context').forEach(modal => {
 	modal.addEventListener('mousedown', (e) => {
 		/* fixes issue where button inside menu is not clickable */
 		e.preventDefault();
@@ -984,7 +984,7 @@ document.querySelectorAll('.menu').forEach(modal => {
 		switch (e.key) {
 			case 'Escape':
 				e.currentTarget.blur();
-				break;
+			break;
 
 			default: return;
 		}
@@ -992,34 +992,33 @@ document.querySelectorAll('.menu').forEach(modal => {
 	});
 
 	modal.addEventListener('click', (e) => {
-		console.log('menu click', e);
 		e.preventDefault();
 		e.stopPropagation();
 
 		const menu = e.currentTarget;
-		const channel = menu.querySelector('.menu-title').textContent;
+		const channel = menu.querySelector('.context-title').textContent;
 		const action = e.target.closest('[data-action]')?.dataset.action;
 
 		switch (action) {
 			case 'twitch':
-				window.open(`https://twitch.tv/${channel}`, '_blank');
-				break;
+				window.open(`https://twitch.tv/${channel}`, '_blank', 'noopener,noreferrer');
+			break;
 
 			case 'join':
-				joinChannels(channel);
-				break;
+				joinChannels({ name: channel, color: undefined });
+			break;
 
 			case 'leave':
 				partChannels(channel);
-				break;
+			break;
 
 			case 'mute':
 				toggleMute(channel);
-				break;
+			break;
 
 			case 'ignore':
 				toggleIgnore(channel);
-				break;
+			break;
 
 			default: return;
 		}
@@ -1517,9 +1516,11 @@ function toggleMute(channel, state) {
 
 function toggleIgnore(users, state) {
 	users = [].concat(users);
+	// determine states before they change
+	const ignore = users.filter(user => !ignoredUsers.has(user)).sort();
+	const unignore = users.filter(user => ignoredUsers.has(user)).sort();
 
 	if (state === true || state === undefined) {
-		const ignore = users.filter(user => !ignoredUsers.has(user)).sort();
 		if (ignore.length > 0) {
 			ignore.forEach(user => {
 				ignoredUsers.add(user);
@@ -1532,7 +1533,6 @@ function toggleIgnore(users, state) {
 	}
 
 	if (state === false || state === undefined) {
-		const unignore = users.filter(user => ignoredUsers.has(user)).sort();
 		if (unignore.length > 0) {
 			unignore.forEach(user => ignoredUsers.delete(user));
 			noticeMessage(`removed ignore: ${unignore.join(' ')}`);
