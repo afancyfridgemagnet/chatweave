@@ -99,8 +99,17 @@ a:active {
 
 #roomMenu {
 	position: absolute;
+	max-width: 100%;
 
+	padding: 0.5rem;
+	border: 1px solid var(--accent-color);
+	text-align: center;
 	user-select: none;
+}
+
+.room-menu-title {
+	margin-bottom: 0.25rem;
+	color: var(--accent-color);
 }
 
 .room-menu-list {
@@ -108,11 +117,12 @@ a:active {
 }
 
 .room-menu-item {
-
+	margin: 0.25rem;
 }
 
 .room-menu-item:hover {
-	background-color: var(--medium-color);
+	color: var(--background-color);
+	background-color: var(--accent-color);
 }
 
 #chatPaused {

@@ -961,16 +961,19 @@ chatRooms.addEventListener('contextmenu', (e) => {
 
 	const title = roomMenu.querySelector('.room-menu-title');
 	title.textContent = target.dataset.room;
-	roomMenu.style.left = target.style.left;
-	roomMenu.style.bottom = target.style.top;
+	
+	const targetRect = target.getBoundingClientRect();
+	roomMenu.style.left = `${targetRect.left}px`;
+	roomMenu.style.bottom = `${targetRect.top}px`;
 	roomMenu.classList.remove('hidden');
+	roomMenu.focus();
 });
 
 roomMenu.addEventListener('blur', () => {
 	roomMenu.classList.add('hidden');
 });
 
-roomMenu.addEventListener('click', () => {
+roomMenu.addEventListener('click', (e) => {
 	const target = e.target;
 	if (!target.matches('.room-menu-item')) return;
 
