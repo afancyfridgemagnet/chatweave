@@ -986,6 +986,7 @@ document.querySelectorAll('.menu').forEach(modal => {
 		const menu = e.currentTarget;
 		const channel = menu.querySelector('.menu-title').textContent;
 		const action = e.target.closest('[data-action]')?.dataset.action;
+		console.log(e.target, action);
 
 		switch (action) {
 			case 'twitch':
@@ -1515,7 +1516,7 @@ function toggleIgnore(users, state) {
 				const selector = `.msg[data-user=${user}]`;
 				deleteMessages(selector, true);		
 			});
-			noticeMessage(`added to ignore: ${ignore.join(' ')}`);
+			noticeMessage(`added ignore: ${ignore.join(' ')}`);
 		}
 	}
 
@@ -1523,7 +1524,7 @@ function toggleIgnore(users, state) {
 		const unignore = users.filter(user => ignoredUsers.has(user)).sort();
 		if (unignore.length > 0) {	
 			unignore.forEach(user => ignoredUsers.delete(user));
-			noticeMessage(`removed from ignore: ${unignore.join(' ')}`);
+			noticeMessage(`removed ignore: ${unignore.join(' ')}`);
 		}
 	}
 
@@ -1665,6 +1666,8 @@ function appendMessage(info) {
 				colorCache.set(info.color, hexColor);
 			}
 			user.style.color = hexColor;
+		} else {
+			user.style.color = 'var(--accent-color);';
 		}
 	}
 
