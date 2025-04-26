@@ -8,6 +8,7 @@ const client_scope = 'user:read:chat user:write:chat';
 const redirect_uri = pageUrl.protocol + '//' + pageUrl.host + pageUrl.pathname;
 const access_token = twitchAccessToken();
 
+const roomMenu = document.querySelector('#roomMenu');
 const chatTemplate = document.querySelector('#chatMessage');
 const chatPaused = document.querySelector('#chatPaused');
 const chatTracker = document.querySelector('#chatTracker');
@@ -952,6 +953,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 }, { once: true });
 
+chatRooms.addEventListener('contextmenu', (e) => {
+	const target = e.target;
+	if (!target.matches('.room-list-item')) return;
+
+	e.preventDefault();
+
+	const title = roomMenu.querySelector('.room-menu-title');
+	title.textContent = target.dataset.room;
+	roomMenu.style.left = target.style.left;
+	roomMenu.style.bottom = target.style.top;
+	roomMenu.classList.remove('hidden');
+});
+
+roomMenu.addEventListener('blur', () => {
+	roomMenu.classList.add('hidden');
+});
+
+roomMenu.addEventListener('click', () => {
+	const target = e.target;
+	if (!target.matches('.room-menu-item')) return;
+
+	const channel = roomMenu.querySelector('.room-menu-title');
+	switch (target.dataset.action) {
+		case 'channel':
+		window.open(`https://twitch.tv/${channel}`, '_blank');
+		break;
+
+		case 'mute':
+		toggleMute(channel);
+		break;
+	}
+
+	roomMenu.classList.add('hidden');
+});
+
 function twitchAuthorizeRedirect() {
 	// persist settings to temp storage to retrieve after twitch redirect
 	const state_uuid = self.crypto.randomUUID();
@@ -1205,9 +1241,9 @@ async function joinChannels(...channels) {
 
 		// update ui
 		const el = document.createElement('li');
-		el.innerHTML = `<img class="avatar" src="${room_state.avatar}">${room_state.login}`;
+		el.innerHTML = `<img class="room-list-item-avatar" src="${room_state.avatar}">${room_state.login}`;
 		el.dataset.room = room_state.login;
-		el.classList.add('muted');
+		el.classList.add('room-list-item', 'muted');
 
 		// set active if none already
 		if (!chatRooms.children.length)
@@ -1401,7 +1437,7 @@ function toggleMute(channel, state) {
 	if (!room_state || room_state.muted === state) return;
 
 	// toggle mute
-	room_state.muted = state;
+	room_state.muted = state ?? !room_state.muted;
 	chatRooms.querySelector(`[data-room="${room_state.login}"]`)?.classList.toggle('muted', room_state.muted);
 
 	// clear messages

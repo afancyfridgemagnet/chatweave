@@ -97,6 +97,24 @@ a:active {
 
 /* layout */
 
+#roomMenu {
+	position: absolute;
+
+	user-select: none;
+}
+
+.room-menu-list {
+	list-style-type: none;
+}
+
+.room-menu-item {
+
+}
+
+.room-menu-item:hover {
+	background-color: var(--medium-color);
+}
+
 #chatPaused {
 	position: absolute;
 	top: 0.5rem;
@@ -115,7 +133,7 @@ a:active {
 	border-radius: 1rem;
 	-webkit-user-select: none;
 	user-select: none;
-	cursor:pointer;
+	cursor: pointer;
 
 	z-index: 1;
 }
@@ -178,7 +196,7 @@ a:active {
 	counter-reset: channel-number;
 }
 
-#chatRooms > li {
+.room-list-item {
 	display: inline-block;
 
 	margin: 1px;
@@ -192,7 +210,7 @@ a:active {
 	counter-increment: channel-number;
 }
 
-#chatRooms > li::after {
+.room-list-item::after {
 	content: counter(channel-number);
 	margin-left: 0.125rem;
 
@@ -200,7 +218,7 @@ a:active {
 	vertical-align: top;
 }
 
-#chatRooms > li.active {
+.room-list-item.active {
 	/* margin replaced by border */
 	margin: 0;
 
@@ -210,17 +228,19 @@ a:active {
 	color: var(--accent-color);
 }
 
-#chatRooms > li.muted {
+.room-list-item.muted {
 	color: var(--disabled-color);
 }
 
-#chatRooms .avatar {
+.room-list-item-avatar {
 	width: 1.25rem;
 	height: 1.25rem;
 
 	margin: -0.25rem 0;
 	margin-right: 0.3125rem;
 	border-radius: 50%;
+
+	pointer-events: none;
 }
 
 #chatBar {
