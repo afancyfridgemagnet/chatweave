@@ -172,8 +172,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		// parse channel list from URL
 		// if empty, default to self
-		const channels = parseChannelString(pageUrl.searchParams.get('channels')) ?? [{ name: userState.login, color: undefined }];
-		joinChannels(...channels);
+		const channels = parseChannelString(pageUrl.searchParams.get('channels')) 
+			?? { name: userState.login, color: undefined };
+		joinChannels(channels);
 	});
 
 	twitch.addEventListener('revocation', async ({ detail: msg }) => {
@@ -735,7 +736,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 							if (!channels || channels.length === 0) return;
 
-							joinChannels(...channels);
+							joinChannels(channels);
 							commitValue();
 						} return;
 
@@ -748,7 +749,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 							if (channelNames.length === 0) return;
 
-							partChannels(...channelNames);
+							partChannels(channelNames);
 							commitValue();
 						} return;
 
@@ -1260,7 +1261,8 @@ function staticEmoteLoadError(img, chan) {
 		.forEach(e => e.url_static = null);
 }
 
-async function joinChannels(...channels) {
+async function joinChannels(channels) {
+	channels = [].concat(channels);
 	// ignore already loaded channels
 	channels = channels?.filter(chan => !roomState.has(chan.name));
 	// enforce channel limit
@@ -1270,7 +1272,7 @@ async function joinChannels(...channels) {
 	if (!channels || channels.length === 0) return;
 
 	// verify remaining channels and return details
-	const data = await twitch.getUsers(...channels.map(chan => chan.name));
+	const data = await twitch.getUsers(channels.map(chan => chan.name));
 
 	// enforce a specific join order
 	data.sort((a, b) => a.login.localeCompare(b.login));
@@ -1428,7 +1430,9 @@ async function joinChannels(...channels) {
 	updateUrl();
 }
 
-async function partChannels(...channels) {
+async function partChannels(channels) {
+	channels = [].concat(channels);
+
 	for (const channel of channels) {
 		const room_state = roomState.get(channel);
 		if (!room_state || !room_state.joined) continue;
@@ -1500,7 +1504,9 @@ function toggleMute(channel, state) {
 	}
 }
 
-function toggleIgnore(...users, state) {
+function toggleIgnore(users, state) {
+	users = [].concat(users);
+
 	if (state === true || state === undefined) {
 		const ignore = users.filter(u => !ignoredUsers.has(u)).sort();
 		if (ignore.length > 0) {

@@ -278,7 +278,8 @@ class twitchApi extends EventTarget {
 		}
 	}
 
-	async getUsers(...users) {
+	async getUsers(users) {
+		users = [].concat(users);
 		const url = new URL('https://api.twitch.tv/helix/users');
 
 		for (const user of users) {
@@ -303,7 +304,8 @@ class twitchApi extends EventTarget {
 		}
 	}
 
-	async getStreams(...users) {
+	async getStreams(users) {
+		users = [].concat(users);
 		const url = new URL('https://api.twitch.tv/helix/streams');
 
 		for (const user of users) {
