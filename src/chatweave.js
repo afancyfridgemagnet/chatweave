@@ -479,7 +479,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	});
 
 	chatInput.addEventListener('keydown', (e) => {
-		e.preventDefault();
 		e.stopPropagation();
 		if (chatInput.readOnly) return;
 
@@ -495,6 +494,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			} break;
 
 			case 'Tab': {
+				e.preventDefault();
 				const text = chatInput.value;
 
 				// interacting with command list
@@ -631,7 +631,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	chatInput.addEventListener('keyup', async (e) => {
-		e.preventDefault();
 		e.stopPropagation();
 		switch (e.key) {
 			case 'Enter': {
