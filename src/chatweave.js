@@ -980,6 +980,7 @@ document.querySelectorAll('.menu').forEach(modal => {
 	});
 
 	modal.addEventListener('click', (e) => {
+		e.preventDefault();
 		e.stopPropagation();
 
 		const menu = e.currentTarget;
@@ -1007,8 +1008,7 @@ document.querySelectorAll('.menu').forEach(modal => {
 				toggleIgnore(channel);
 				break;
 			
-			default:
-				console.warn(`${menu.id} unhandled action ${action}`);
+			default: return;
 		}
 
 		menu.classList.add('invisible');
@@ -1507,9 +1507,9 @@ function toggleIgnore(users, state) {
 	users = [].concat(users);
 
 	if (state === true || state === undefined) {
-		const ignore = users.filter(u => !ignoredUsers.has(u)).sort();
+		const ignore = users.filter(user => !ignoredUsers.has(user)).sort();
 		if (ignore.length > 0) {
-			ignore.forEach(u => {
+			ignore.forEach(user => {
 				ignoredUsers.add(user);
 				// remove previous messages
 				const selector = `.msg[data-user=${user}]`;
@@ -1520,9 +1520,9 @@ function toggleIgnore(users, state) {
 	}
 
 	if (state === false || state === undefined) {
-		const unignore = users.filter(u => ignoredUsers.has(u)).sort();
+		const unignore = users.filter(user => ignoredUsers.has(user)).sort();
 		if (unignore.length > 0) {	
-			unignore.forEach(u => ignoredUsers.delete(u));
+			unignore.forEach(user => ignoredUsers.delete(user));
 			noticeMessage(`removed from ignore: ${unignore.join(' ')}`);
 		}
 	}
