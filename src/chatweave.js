@@ -1296,7 +1296,7 @@ async function joinChannels(channels) {
 		roomState.set(user.login, room_state);
 
 		// update ui
-		const clone = messageTemplate.content.cloneNode(true);
+		const clone = roomTemplate.content.cloneNode(true);
 		
 		const room = clone.querySelector('.room-list-item');
 		room.dataset.room = room_state.login;
