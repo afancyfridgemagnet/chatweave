@@ -961,10 +961,8 @@ chatRooms.addEventListener('contextmenu', (e) => {
 
 	const title = roomMenu.querySelector('.room-menu-title');
 	title.textContent = target.dataset.room;
-	
-	const targetRect = target.getBoundingClientRect();
-	roomMenu.style.left = `${targetRect.left}px`;
-	roomMenu.style.bottom = `${targetRect.top}px`;
+
+	positionMenu(roomMenu, target);
 	roomMenu.classList.remove('hidden');
 	roomMenu.focus();
 });
@@ -973,11 +971,19 @@ roomMenu.addEventListener('blur', () => {
 	roomMenu.classList.add('hidden');
 });
 
+roomMenu.addEventListener('keyup', (e) => {
+	switch (e.key) {
+		case 'Escape':
+		roomMenu.blur();
+		break;
+	}
+});
+
 roomMenu.addEventListener('click', (e) => {
 	const target = e.target;
 	if (!target.matches('.room-menu-item')) return;
 
-	const channel = roomMenu.querySelector('.room-menu-title');
+	const channel = roomMenu.querySelector('.room-menu-title').textContent;
 	switch (target.dataset.action) {
 		case 'channel':
 		window.open(`https://twitch.tv/${channel}`, '_blank');
@@ -1719,6 +1725,26 @@ function updateUrl() {
 	pageUrl.hash = '';
 	pageUrl.search = decodeURIComponent(params.toString());
 	window.history.replaceState({}, '', pageUrl.toString());
+}
+
+function positionMenu(menu, trigger) {
+	const menuRect = menu.getBoundingClientRect();
+	const triggerRect = trigger.getBoundingClientRect();
+	const viewportWidth = window.innerWidth;
+	const viewportHeight = window.innerHeight;
+
+	let top = triggerRect.bottom;
+	if (top + menuRect.height > viewportHeight) {
+		top = triggerRect.top - menuRect.height;
+	}
+
+	let left = triggerRect.left;
+	if (left + menuRect.width > viewportWidth) {
+		left = triggerRect.right - menuRect.width;
+	}
+
+	menu.style.top = `${top}px`;
+	menu.style.left = `${left}px`;
 }
 
 function sanitizeString(text) {

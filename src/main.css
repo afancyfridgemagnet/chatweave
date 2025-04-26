@@ -99,12 +99,13 @@ a:active {
 
 #roomMenu {
 	position: absolute;
-	max-width: 100%;
-
 	padding: 0.5rem;
-	border: 1px solid var(--accent-color);
+
 	text-align: center;
+	background-color: var(--background-color);
+	border: 1px solid var(--accent-color);
 	user-select: none;
+	z-index: 2;
 }
 
 .room-menu-title {
@@ -117,7 +118,7 @@ a:active {
 }
 
 .room-menu-item {
-	margin: 0.25rem;
+	padding: 0.25rem;
 }
 
 .room-menu-item:hover {
@@ -136,8 +137,8 @@ a:active {
 	padding: 2px 8px;
 	font-weight: bold;
 	text-align: center;
-	background-color: var(--background-color);
 	color: var(--warning-color);
+	background-color: var(--background-color);
 
 	outline: 2px solid var(--warning-color);
 	border-radius: 1rem;
