@@ -967,11 +967,12 @@ chatRooms.addEventListener('contextmenu', (e) => {
 document.querySelectorAll('.menu').forEach(modal => {
 	modal.addEventListener('contextmenu', (e) => {
 		e.preventDefault();
-		e.currentTarget.classList.add('invisible');
+		e.stopPropagation();
+		e.currentTarget.classList.add('hidden');
 	});
 	
 	modal.addEventListener('focusout', (e) => {
-		e.currentTarget.classList.add('invisible');
+		e.currentTarget.classList.add('hidden');
 	});
 
 	modal.addEventListener('keyup', (e) => {
@@ -1018,11 +1019,14 @@ document.querySelectorAll('.menu').forEach(modal => {
 			default: return;
 		}
 
-		menu.classList.add('invisible');
+		menu.classList.add('hidden');
 	});
 }, { once: true });
 
 function showMenu(modal, target) {
+	modal.classList.remove('hidden');
+	modal.focus();
+
 	// position menu relative to target
 	const menuRect = modal.getBoundingClientRect();
 	const targetRect = target.getBoundingClientRect();
@@ -1041,10 +1045,6 @@ function showMenu(modal, target) {
 
 	modal.style.top = `${top}px`;
 	modal.style.left = `${left}px`;
-
-	// popup
-	modal.classList.remove('invisible');
-	modal.focus();
 }
 
 function twitchAuthorizeRedirect() {
