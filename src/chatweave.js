@@ -1297,12 +1297,14 @@ async function joinChannels(channels) {
 
 		// update ui
 		const clone = messageTemplate.content.cloneNode(true);
-		clone.dataset.room = room_state.login;
-		clone.innerHTML = `<img class="room-list-item-avatar" src="${room_state.avatar}">${room_state.login}`;
+		
+		const room = clone.querySelector('.room-list-item');
+		room.dataset.room = room_state.login;
+		room.innerHTML = `<img class="room-list-item-avatar" src="${room_state.avatar}">${room_state.login}`;
 
 		// set active if none already
 		if (!chatRooms.children.length)
-			clone.classList.add('active');
+			room.classList.add('active');
 
 		// attempt to insert alphabetically
 		const sibling = [...chatRooms.querySelectorAll('[data-room]')]
