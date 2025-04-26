@@ -214,8 +214,7 @@ a:active {
 	display: inline-block;
 
 	margin: 1px;
-	padding-left: 0.5rem;
-	padding-right: 0.5rem;
+	padding: 0.125rem 0.5rem;
 
 	color: var(--light-color);
 	-webkit-user-select: none;
