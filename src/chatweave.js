@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				}
 
 				case 'mention': // @username, lowercase for stylistic choice
-					return `<span class="mention">${frag.text.toLowerCase()}</span>`;
+					return `<span class="mention replyto">${frag.text.toLowerCase()}</span>`;
 
 				case 'emote': {
 					const type = staticEmotes ? 'static' : 'default';
@@ -943,6 +943,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 }, { once: true });
 
+chatOutput.addEventListener('click', (e) => {
+	const target = e.target;
+	if (!target.matches('.replyto')) return;
+	e.preventDefault();
+	e.stopPropagation();
+
+	if (chatInput.disabled || chatInput.readonly) return;
+
+	const username = cleanName(target.textContent);
+	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
+		? ` @${username} `
+		: `@${username} `
+	chatInput.focus();
+	chatInput.selectionStart = chatInput.selectionEnd = chatInput.value.length;
+});
+
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
 	if (target.dataset.menu !== userMenu.id) return;
@@ -951,7 +967,7 @@ chatOutput.addEventListener('contextmenu', (e) => {
 
 	const channel = target.closest('[data-user]').dataset.user;
 	userMenu.querySelector('.context-title').textContent = channel;
-	showMenu(userMenu, target);
+	showMenu(userMenu, e.clientX, e.clientY);
 });
 
 chatRooms.addEventListener('contextmenu', (e) => {
@@ -961,7 +977,7 @@ chatRooms.addEventListener('contextmenu', (e) => {
 	e.stopPropagation();
 
 	roomMenu.querySelector('.context-title').textContent = target.dataset.room;
-	showMenu(roomMenu, target);
+	showMenu(roomMenu, e.clientX, e.clientY);
 });
 
 document.querySelectorAll('.context').forEach(modal => {
@@ -1027,25 +1043,18 @@ document.querySelectorAll('.context').forEach(modal => {
 	});
 }, { once: true });
 
-function showMenu(modal, target) {
+function showMenu(modal, mouseX, mouseY) {
 	modal.classList.remove('hidden');
 	modal.focus();
 
-	// position menu relative to target
-	const menuRect = modal.getBoundingClientRect();
-	const targetRect = target.getBoundingClientRect();
-	const viewportWidth = window.innerWidth;
-	const viewportHeight = window.innerHeight;
+	// set menu position
+	const menuWidth = modal.offsetWidth;
+	const menuHeight = modal.offsetHeight;
+	const viewWidth = window.innerWidth;
+	const viewHeight = window.innerHeight;
 
-	let top = targetRect.bottom;
-	if (top + menuRect.height > viewportHeight) {
-		top = targetRect.top - menuRect.height;
-	}
-
-	let left = targetRect.left;
-	if (left + menuRect.width > viewportWidth) {
-		left = targetRect.right - menuRect.width;
-	}
+	const top = Math.max(0, Math.min(mouseY, viewHeight - menuHeight));
+	const left = Math.max(0, Math.min(mouseX, viewWidth - menuWidth));
 
 	modal.style.top = `${top}px`;
 	modal.style.left = `${left}px`;
