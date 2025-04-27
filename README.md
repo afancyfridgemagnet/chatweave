@@ -55,7 +55,19 @@ By default it will automatically join your Twitch Account's chat channel, but yo
 Configuration changes will update the page's current URL, which can then be bookmarked for future use, or shared with other people.  
 
 
+## Mouse Shortcuts
+
+Left-click a username or @mention to switch active channel and add @username to chat box.  
+
+Right-click a username, @mention, or chat channel (at bottom) to open a context menu with options.  
+
+Hover over username or timestamp to show full (non-truncated) text in a tooltip.  
+
+
 ## Keyboard Shortcuts
+
+`@username`  
+Tab-completion for usernames of recent chatters.  
 
 `# keys`  
 Sets active chat channel by channel index.
