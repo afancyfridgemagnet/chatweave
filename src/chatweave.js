@@ -352,8 +352,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 					}).join(' ') + '</span>';
 				}
 
-				case 'mention': // @username, lowercase for stylistic choice
-					return `<span class="mention" data-menu="userMenu">${frag.text}</span>`;
+				case 'mention': {
+					// @username
+					const username = cleanName(frag.text);
+					return `<span class="mention" data-user="${username}" data-menu="userMenu">${frag.text}</span>`;
+				}
 
 				case 'emote': {
 					const type = staticEmotes ? 'static' : 'default';
@@ -957,7 +960,7 @@ chatOutput.addEventListener('click', (e) => {
 	if (!activateChannel(channel)) return;
 
 	// replyto @username
-	const username = cleanName(target.textContent);
+	const username = target.dataset.user;
 	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
 		? ` @${username} `
 		: `@${username} `
@@ -971,8 +974,7 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 
-	const username = cleanName(target.textContent);
-	userMenu.querySelector('.context-title').textContent = username;
+	userMenu.querySelector('.context-title').textContent = target.dataset.user;
 	showMenu(userMenu, e.clientX, e.clientY);
 });
 
@@ -1681,6 +1683,7 @@ function appendMessage(info) {
 
 		// update link
 		const name = clone.querySelector('.msg-user-name');
+		name.dataset.user = info.user;
 		name.title = friendlyName;
 		name.textContent = friendlyName;
 
