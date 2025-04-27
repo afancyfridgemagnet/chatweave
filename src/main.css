@@ -352,6 +352,7 @@ a:active {
 }
 
 .mention {
+	text-transform: lowercase;
 	color: var(--accent-color);
 }
 

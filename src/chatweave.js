@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				}
 
 				case 'mention': // @username, lowercase for stylistic choice
-					return `<span class="mention replyto">${frag.text.toLowerCase()}</span>`;
+					return `<span class="mention" data-menu="userMenu">${frag.text}</span>`;
 
 				case 'emote': {
 					const type = staticEmotes ? 'static' : 'default';
@@ -945,12 +945,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 chatOutput.addEventListener('click', (e) => {
 	const target = e.target;
-	if (!target.matches('.replyto')) return;
+	if (target.dataset.menu !== userMenu.id) return;
 	e.preventDefault();
 	e.stopPropagation();
 
 	if (chatInput.disabled || chatInput.readonly) return;
 
+	// switch to message's channel
+	const roomid = target.closest('[data-roomid]')?.dataset.roomid;
+	const channel = roomState.values().find(r => r.id === roomid)?.login;
+	if (!activateChannel(channel)) return;
+
+	// replyto @username
 	const username = cleanName(target.textContent);
 	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
 		? ` @${username} `
@@ -965,8 +971,8 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 
-	const channel = target.closest('[data-user]').dataset.user;
-	userMenu.querySelector('.context-title').textContent = channel;
+	const username = cleanName(target.textContent);
+	userMenu.querySelector('.context-title').textContent = username;
 	showMenu(userMenu, e.clientX, e.clientY);
 });
 
@@ -1499,13 +1505,18 @@ async function partChannels(channels) {
 }
 
 function activateChannel(channel) {
-	if (!channel) return;
+	if (!channel) return false;
+
+	// ensure new channel exists before switching
+	const newChannel = chatRooms.querySelector(`[data-room="${channel}"]`);
+	if (!newChannel) return false;
 
 	// deactivate old
 	chatRooms.querySelector('.active')?.classList.remove('active');
 
 	// activate new
-	chatRooms.querySelector(`[data-room="${channel}"]`)?.classList.add('active');
+	newChannel.classList.add('active');
+	return true;
 }
 
 function toggleMute(channel, state) {
