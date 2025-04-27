@@ -1059,7 +1059,8 @@ function showMenu(modal, mouseX, mouseY) {
 	const viewWidth = window.innerWidth;
 	const viewHeight = window.innerHeight;
 
-	const top = Math.max(0, Math.min(mouseY, viewHeight - menuHeight));
+	// attempt to show up and to the right of mouse
+	const top = Math.max(0, mouseY - menuHeight);
 	const left = Math.max(0, Math.min(mouseX, viewWidth - menuWidth));
 
 	modal.style.top = `${top}px`;
