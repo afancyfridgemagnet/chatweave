@@ -20,6 +20,7 @@ const messageTemplate = document.querySelector('#chatMessage');
 const roomTemplate = document.querySelector('#chatRoom');
 const userMenu = document.querySelector('#userMenu');
 const roomMenu = document.querySelector('#roomMenu');
+const emoteMenu = document.querySelector('#emoteMenu');
 
 const cleanName = (s) => s?.trim().replace(/^(@|#)/,'').toLowerCase();
 const cleanHex = (s) => s?.trim().replace(/^#/,'').toLowerCase();
@@ -332,18 +333,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 							const chanEmote = emoteCache.get(`${room_state.login} ${text}`);
 							if (chanEmote) {
 								if (staticEmotes && chanEmote.url_static)
-									return `<img class="emote" src="${chanEmote.url_static}" title="${chanEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,'${room_state.login}')">`;
+									return `<img class="emote" src="${chanEmote.url_static}" alt="${text}" data-source="${chanEmote.set}" data-menu="emoteMenu" onerror="staticEmoteLoadError(this,'${room_state.login}')">`;
 								else
-									return `<img class="emote" src="${chanEmote.url}" title="${chanEmote.set}: ${text}" alt="${text}">`;
+									return `<img class="emote" src="${chanEmote.url}" alt="${text}" data-source="${chanEmote.set}" data-menu="emoteMenu">`;
 							}
 
 							// global emotes
 							const gblEmote = emoteCache.get(`* ${text}`);
 							if (gblEmote) {
 								if (staticEmotes && gblEmote.url_static)
-									return `<img class="emote" src="${gblEmote.url_static}" title="${gblEmote.set}: ${text}" alt="${text}" onerror="staticEmoteLoadError(this,null)">`;
+									return `<img class="emote" src="${gblEmote.url_static}" alt="${text}" data-source="${gblEmote.set}" data-menu="emoteMenu" onerror="staticEmoteLoadError(this,null)">`;
 								else
-									return `<img class="emote" src="${gblEmote.url}" title="${gblEmote.set}: ${text}" alt="${text}">`;
+									return `<img class="emote" src="${gblEmote.url}" alt="${text}" data-source="${gblEmote.set}" data-menu="emoteMenu">`;
 							}
 						}
 
@@ -363,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				case 'emote': {
 					const type = staticEmotes ? 'static' : 'default';
 					// NOTE: always grab 2x size
-					return `<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${frag.emote.id}/${type}/dark/2.0" title="TTV: ${frag.text}" alt="${frag.text}">`;
+					return `<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${frag.emote.id}/${type}/dark/2.0" alt="${frag.text}" data-source="TTV" data-menu="emoteMenu">`;
 				}
 
 				case 'cheermote': {
@@ -386,7 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						url = `https://static-cdn.jtvnw.net/bits/dark/${type}/${tier}/2`;
 					}
 
-					return `<span class="cheermote" title="${frag.text}" style="color: ${color}"><img class="emote" src="${url}" alt="Cheer-"><sup>${frag.cheermote.bits}</sup></span>`;
+					return `<span class="cheermote" style="color: ${color}"><img class="emote" src="${url}" alt="Cheer-"><sup>${frag.cheermote.bits}</sup></span>`;
 				}
 
 				default:
@@ -1011,6 +1012,18 @@ chatRooms.addEventListener('contextmenu', (e) => {
 
 	roomMenu.querySelector('.context-title').textContent = target.dataset.room;
 	showMenu(roomMenu, e.clientX, e.clientY);
+});
+
+chatOutput.addEventListener('contextmenu', (e) => {
+	const target = e.target;
+	if (target.dataset.menu !== emoteInfo.id) return;
+	e.preventDefault();
+	e.stopPropagation();
+
+	emoteMenu.querySelector('.emote-img').src = target.src;
+	emoteMenu.querySelector('.emote-name').textContent = target.alt;
+	emoteMenu.querySelector('.emote-source').textContent = target.dataset.source;
+	showMenu(emoteMenu, e.clientX, e.clientY);
 });
 
 document.querySelectorAll('.context').forEach(modal => {
