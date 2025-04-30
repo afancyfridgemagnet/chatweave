@@ -288,13 +288,14 @@ a:active {
 	font-weight: bold;
 	text-align: right;
 	text-wrap: nowrap;
+	color: var(--accent-color);
 
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 }
 
 .msg-user-name {
-
+	color: inherit;
 }
 
 .msg-user-badge {
@@ -329,6 +330,10 @@ a:active {
 	/* avoid setting opacity on msg directly */
 	/* in order to preserve background-color */
 	filter: opacity(50%);
+}
+
+.msg-system .msg-user {
+	color: #fff;
 }
 
 .msg-system .msg-body {

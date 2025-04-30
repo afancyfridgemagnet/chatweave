@@ -1738,8 +1738,6 @@ function appendMessage(info) {
 				colorCache.set(info.color, hexColor);
 			}
 			user.style.color = hexColor;
-		} else {
-			user.style.color = 'var(--accent-color);';
 		}
 	}
 
