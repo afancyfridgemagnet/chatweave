@@ -48,7 +48,7 @@ const badgeCache = [
 const commandHistory = [];
 const MAX_COMMAND_HISTORY = 25;
 const MAX_MESSAGE_LENGTH = 500;		// twitch limit
-const MAX_MESSAGE_COUNT = 1500;
+const MAX_MESSAGE_COUNT = 1000;
 
 const ignoredUsers = new Set(
 	pageUrl.searchParams.get('ignore')?.split(',').map(cleanName).filter(isValidTwitchAccount)
@@ -61,7 +61,9 @@ let preventDelete = (pageUrl.searchParams.get('nodelete') ?? 'false') === 'true'
 let messageHistory = parseInt(pageUrl.searchParams.get('history') ?? 150);
 let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; // ms
 let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 0) * 1000; // ms
+let messageDelay = parseInt(pageUrl.searchParams.get('delay') ?? 50); // ms
 let chatAutoScroll = true;
+let programmaticScroll = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
 	if (!access_token) {
@@ -584,6 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				{ name: '/background',			desc: '/background <channel name/number> <hex color>'},
 				{ name: '/botcommands',			desc: '/botcommands <true|false>'},
 				{ name: '/channel',				desc: '/channel <channel name/number>'},
+				{ name: '/delay',				desc: '/delay <# milliseconds>'},
 				{ name: '/fresh',				desc: '/fresh <# seconds>'},
 				{ name: '/history',				desc: '/history <# messages>'},
 				{ name: '/ignore',				desc: '/ignore <user names>'},
@@ -869,27 +872,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 						case 'HISTORY': {
 							const val = parseInt(arg);
-							if (isNaN(val)) return;
+							if (isNaN(val) || val < 0) return;
 
-							messageHistory = Math.max(val, 0);
+							messageHistory = val;
 							updateUrl();
 							commitValue();
 						} return;
 
 						case 'PRUNE': {
 							const val = parseInt(arg) * 1000;
-							if (isNaN(val)) return;
+							if (isNaN(val) || val < 0) return;
 
-							pruneMessageTime = Math.max(val, 0);
+							pruneMessageTime = val;
 							updateUrl();
 							commitValue();
 						} return;
 
 						case 'FRESH': {
 							const val = parseInt(arg) * 1000;
-							if (isNaN(val)) return;
+							if (isNaN(val) || val < 0) return;
 
-							freshMessageTime = Math.max(val, 0);
+							freshMessageTime = val;
+							updateUrl();
+							commitValue();
+						} return;
+
+						case 'DELAY': {
+							const val = parseInt(arg);
+							if (isNaN(val) || val < 0) return;
+
+							messageDelay = val;
+							messageBuffer.flush();
 							updateUrl();
 							commitValue();
 						} return;
@@ -940,8 +953,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 	window.addEventListener('resize', scrollToBottom);
 	chatPaused.addEventListener('click', scrollToBottom);
 	chatOutput.addEventListener('scroll', () => {
-		chatAutoScroll = isScrolledToBottom();
-		chatPaused.classList.toggle('hidden', chatAutoScroll);
+		if (!programmaticScroll) chatAutoScroll = null;
+	});
+	chatOutput.addEventListener('scrollend', () => {
+		chatAutoScroll ??= isScrolledToBottom();
+		chatPaused.classList.toggle('hidden', !!chatAutoScroll);
 	});
 
 }, { once: true });
@@ -1590,7 +1606,6 @@ function deleteMessages(selector, forceDelete = false) {
 
 function createMessageBuffer() {
 	const buffer = document.createDocumentFragment();
-	let flushInterval = (1 / 30) * 1_000;
 	let timer;
 
 	function resetTimer() {
@@ -1600,14 +1615,17 @@ function createMessageBuffer() {
 
 	function appendNode(node) {
 		buffer.append(node);
-		timer ??= setTimeout(flushBuffer, flushInterval);
+		timer ??= setTimeout(flushBuffer, messageBuffer);
 	}
 
 	function flushBuffer() {
 		if (buffer.hasChildNodes()) {
-			chatAutoScroll ??= isScrolledToBottom();
+			programmaticScroll = true;
+
 			chatOutput.appendChild(buffer);
 			if (chatAutoScroll) scrollToBottom();
+
+			programmaticScroll = false;
 		}
 		resetTimer();
 	}
@@ -1618,13 +1636,6 @@ function createMessageBuffer() {
 	}
 
 	return {
-		get delay() {
-			return flushInterval;
-		},
-		set delay(value) {
-			flushInterval = parseFloat(value);
-			flushBuffer();
-		},
 		append:	appendNode,
 		querySelectorAll: buffer.querySelectorAll.bind(buffer),
 		flush: flushBuffer,
@@ -1827,6 +1838,7 @@ function updateUrl() {
 	params.set('history', messageHistory);
 	params.set('prune', pruneMessageTime / 1000);
 	params.set('fresh', freshMessageTime / 1000);
+	params.set('delay', messageDelay);
 	params.set('readonly', chatPanel.classList.contains('hidden'));
 
 	// update page

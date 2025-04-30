@@ -167,6 +167,9 @@ Sets the maximum age of messages to keep available. Messages older than this wil
 `/fresh <# seconds>` (default: 0)  
 Messages older than # seconds will be separated with a 'tracker bar' that may help keep track of new messages. Set to 0 to disable this functionality.  
 
+`/delay <# milliseconds>` (default: 50)  
+Time to buffer/delay messages to the screen which could improve performance for spammy chats by batching multiple messages together. Set to 0 to disable this functionality.  
+
 
 ## Extra Commands
 
