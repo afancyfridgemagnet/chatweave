@@ -1016,7 +1016,7 @@ chatRooms.addEventListener('contextmenu', (e) => {
 
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
-	if (target.dataset.menu !== emoteInfo.id) return;
+	if (target.dataset.menu !== emoteMenu.id) return;
 	e.preventDefault();
 	e.stopPropagation();
 
