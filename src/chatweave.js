@@ -961,7 +961,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 	});
 	chatOutput.addEventListener('scrollend', scrollUpdate);
-	
+
 	function scrollUpdate() {
 		clearTimeout(window.scrollTimer);
 		window.scrollTimer = null;
@@ -1080,6 +1080,9 @@ document.querySelectorAll('.context').forEach(modal => {
 
 			case 'ignore':
 				toggleIgnore(channel);
+			break;
+
+			case 'close':
 			break;
 
 			default: return;

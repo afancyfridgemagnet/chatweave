@@ -54,20 +54,23 @@
 	</template>
 	<menu id="userMenu" class="context hidden" tabindex="-1">
 		<li class="context-title"></li>
-		<li class="context-item"><button data-action="twitch">Twitch Channel</button></li>
-		<li class="context-item"><button data-action="ignore">Ignore User</button></li>
-		<li class="context-item"><button data-action="join">Join Chat</button></li>
+		<li class="context-item" data-action="twitch">Twitch Channel</li>
+		<li class="context-item" data-action="ignore">Ignore User</li>
+		<li class="context-item" data-action="join">Join Chat</li>
+		<li class="context-item" data-action="close">Close</li>
 	</menu>
 	<menu id="roomMenu" class="context hidden" tabindex="-1">
 		<li class="context-title"></li>
-		<li class="context-item"><button data-action="twitch">Twitch Channel</button></li>
-		<li class="context-item"><button data-action="mute">Toggle Mute</button></li>
-		<li class="context-item"><button data-action="leave">Leave Chat</button></li>
+		<li class="context-item" data-action="twitch">Twitch Channel</li>
+		<li class="context-item" data-action="mute">Toggle Mute</li>
+		<li class="context-item" data-action="leave">Leave Chat</li>
+		<li class="context-item" data-action="close">Close</li>
 	</menu>
 	<menu id="emoteMenu" class="context hidden" tabindex="-1">
 		<li class="context-item"><img class="emote-img" src=""></li>
 		<li class="context-title emote-name"></li>
 		<li class="context-item emote-source"></li>
+		<li class="context-item" data-action="close">Close</li>
 	</menu>
 	<script src="twitchapi.js" defer></script>
 	<script src="chatweave.js" defer></script>
