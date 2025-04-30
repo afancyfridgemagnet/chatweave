@@ -63,7 +63,7 @@ let pruneMessageTime = parseInt(pageUrl.searchParams.get('prune') ?? 0) * 1000; 
 let freshMessageTime = parseInt(pageUrl.searchParams.get('fresh') ?? 0) * 1000; // ms
 let messageDelay = parseInt(pageUrl.searchParams.get('delay') ?? 50); // ms
 let chatAutoScroll = true;
-let programmaticScroll = false;
+let programmaticScrolling = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
 	if (!access_token) {
@@ -953,12 +953,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 	window.addEventListener('resize', scrollToBottom);
 	chatPaused.addEventListener('click', scrollToBottom);
 	chatOutput.addEventListener('scroll', () => {
-		if (!programmaticScroll) chatAutoScroll = null;
+		if (!programmaticScrolling) {
+			chatAutoScroll = null;
+			// fix for scrollend not always triggering
+			window.scrollTimer ??= setTimeout(scrollUpdate, 100);
+		}
 	});
-	chatOutput.addEventListener('scrollend', () => {
+	chatOutput.addEventListener('scrollend', scrollUpdate);
+	
+	function scrollUpdate() {
+		clearTimeout(window.scrollTimer);
+		window.scrollTimer = null;
+
 		chatAutoScroll ??= isScrolledToBottom();
 		chatPaused.classList.toggle('hidden', !!chatAutoScroll);
-	});
+	}
 
 }, { once: true });
 
@@ -1620,12 +1629,12 @@ function createMessageBuffer() {
 
 	function flushBuffer() {
 		if (buffer.hasChildNodes()) {
-			programmaticScroll = true;
+			programmaticScrolling = true;
 
 			chatOutput.appendChild(buffer);
 			if (chatAutoScroll) scrollToBottom();
 
-			programmaticScroll = false;
+			programmaticScrolling = false;
 		}
 		resetTimer();
 	}
