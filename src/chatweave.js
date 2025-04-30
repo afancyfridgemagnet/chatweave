@@ -1624,7 +1624,7 @@ function createMessageBuffer() {
 
 	function appendNode(node) {
 		buffer.append(node);
-		timer ??= setTimeout(flushBuffer, messageBuffer);
+		timer ??= setTimeout(flushBuffer, messageDelay);
 	}
 
 	function flushBuffer() {
