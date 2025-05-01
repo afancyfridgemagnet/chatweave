@@ -447,560 +447,575 @@ document.addEventListener('DOMContentLoaded', async () => {
 		});
 	});
 
-	chatRooms.addEventListener('click', (e) => {
-		if (chatInput.readOnly) return;
+}, { once: true });
 
-		const room = e.target.closest('[data-room]')?.dataset.room;
-		if (room) {
-			e.stopPropagation();
-			activateChannel(room);
-			/*chatInput.focus();*/
-		}
-	});
+document.addEventListener('keydown', (e) => {
+	switch (e.key) {
+		case 'Tab':
+		case 'Enter':
+			e.preventDefault();
+			chatInput.focus();
+		break;
 
-	document.addEventListener('keydown', (e) => {
-		switch (e.key) {
-			case 'Tab':
-			case 'Enter':
-				e.preventDefault();
-				chatInput.focus();
-			break;
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '0':
+			// allow typing
+			if (document.activeElement === chatInput) return;
 
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-			case '0':
-				// allow typing
-				if (document.activeElement === chatInput) return;
-
-				const index = e.key.charCodeAt() - 49;
-				const el = chatRooms.children[index];
-				activateChannel(el?.dataset.room);
-			break;
-		}
-	});
-
-	chatInput.addEventListener('keydown', (e) => {
-		e.stopPropagation();
-		if (chatInput.readOnly) return;
-
-		switch (e.key) {
-			case 'Escape': {
-				if (chatInput.value.length > 0) {
-					chatInputReset();
-				} else {
-					chatInput.blur();
-				}
-			} break;
-
-			case 'Tab': {
-				e.preventDefault();
-				const text = chatInput.value;
-
-				// interacting with command list
-				if (text.startsWith('/') && text.indexOf(' ') < 0) return;
-
-				// @username tab completion
-				let wordStart = text.lastIndexOf(' ', chatInput.selectionStart - 1) + 1;
-
-				if (text.charAt(wordStart) === '@') {
-					wordStart++;
-					let wordEnd = text.indexOf(' ', chatInput.selectionStart);
-					if (wordEnd < 0) wordEnd = text.length;
-					let word = text.substring(wordStart, wordEnd);
-
-					const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
-					if (!currentChannel) return;
-
-					// get recent chatters for channel, ignoring self and deleted msg
-					const room_state = roomState.get(currentChannel);
-					const selector = `.msg[data-user][data-roomid="${room_state.id}"]:not([data-userid="${userState.id}"]):not(.msg-deleted)`;
-					const users = [...chatOutput.querySelectorAll(selector)]
-						.map(el => el.dataset.user)
-						.reverse();	// prioritize by most recent
-
-					// add current channel as a fallback
-					users.push(currentChannel);
-
-					const username = !word // just "@"
-						? users.shift() // first username
-						: users.find(user => localeEquals(user.substring(0, word.length), word));
-
-					if (username) {
-						// replace input
-						chatInput.value = text.substring(0, wordStart) + username + text.substring(wordEnd);
-						chatInput.selectionStart = chatInput.selectionEnd = wordStart + username.length;
-					}
-
-					return;
-				}
-
-				// cycling channels
-				const current = chatRooms.querySelector('.active');
-				current?.classList.remove('active');
-
-				const cycleElement = !!e.shiftKey
-					? current?.previousElementSibling ?? chatRooms.querySelector(':scope > :last-child') // backwards
-					: current?.nextElementSibling ?? chatRooms.querySelector(':scope > :first-child'); // forwards
-
-				if (cycleElement) {
-					activateChannel(cycleElement.dataset.room);
-					chatInput.focus();
-				}
-			} break;
-
-			case 'ArrowUp': {
-				if (chatCommands.querySelector('option:not([disabled])')) return;
-
-				const index = Math.max(0, parseInt(chatInput.dataset.historyIndex ?? commandHistory.length) - 1);
-				chatInput.dataset.historyIndex = index;
-				chatInput.value = commandHistory[index] ?? '';
-				chatInput.setSelectionRange(-1, -1);
-			} break;
-
-			case 'ArrowDown': {
-				if (chatCommands.querySelector('option:not([disabled])')) return;
-
-				const index = Math.min(commandHistory.length, parseInt(chatInput.dataset.historyIndex) + 1);
-				chatInput.dataset.historyIndex = index;
-				chatInput.value = commandHistory[index] ?? '';
-				chatInput.setSelectionRange(-1, -1);
-			} break;
-		}
-	});
-
-	chatInput.addEventListener('input', () => {
-		refreshCommands();
-	});
-
-	function refreshCommands() {
-		// populate options
-		if (chatCommands.childElementCount === 0) {
-			const commands = [
-				{ name: '/background',			desc: '/background <channel name/number> <hex color>'},
-				{ name: '/botcommands',			desc: '/botcommands <true|false>'},
-				{ name: '/channel',				desc: '/channel <channel name/number>'},
-				{ name: '/delay',				desc: '/delay <# milliseconds>'},
-				{ name: '/fresh',				desc: '/fresh <# seconds>'},
-				{ name: '/history',				desc: '/history <# messages>'},
-				{ name: '/ignore',				desc: '/ignore <user names>'},
-				{ name: '/join',				desc: '/join <channel names>'},
-				{ name: '/leave',				desc: '/leave <channel names/numbers>'},
-				{ name: '/logout',				desc: '/logout'},
-				{ name: '/lurk',				desc: '/lurk'},
-				{ name: '/me',					desc: '/me <action>'},
-				{ name: '/mute',				desc: '/mute <channel names/numbers>'},
-				{ name: '/nodelete',			desc: '/nodelete <true|false>'},
-				{ name: '/prune',				desc: '/prune <# seconds>'},
-				{ name: '/purge',				desc: '/purge <channel names/numbers>'},
-				{ name: '/purgeall',			desc: '/purgeall'},
-				{ name: '/shrug',				desc: '/shrug <message>'},
-				{ name: '/solo',				desc: '/solo <channel names/numbers>'},
-				{ name: '/staticemotes',		desc: '/staticemotes <true|false>'},
-				{ name: '/thirdpartyemotes',	desc: '/thirdpartyemotes <true|false>'},
-				{ name: '/unignore',			desc: '/unignore <user>'},
-				{ name: '/unmute',				desc: '/unmute <channel names/numbers>'},
-				{ name: '/unmuteall',			desc: '/unmuteall'},
-			];
-
-			const frag = document.createDocumentFragment();
-			for (const cmd of commands) {
-				const el = document.createElement('option');
-				el.label = cmd.desc;
-				el.value = cmd.name;
-				el.disabled = true;
-				frag.appendChild(el);
-			}
-			chatCommands.appendChild(frag);
-		}
-
-		// disable options
-		chatCommands.querySelectorAll('option:not([disabled])')
-			.forEach(opt => opt.disabled = true);
-
-		// commands must start with /
-		if (!chatInput.value.startsWith('/'))
-			return;
-
-		// find exact match (don't enable option because it prevents ENTER key on Chrome)
-		if (chatCommands.querySelector(`option[value="${chatInput.value}" i]`))
-			return;
-
-		// find partial matches (enable potential options)
-		chatCommands.querySelectorAll(`option[value^="${chatInput.value}" i]`)
-			.forEach(opt => opt.disabled = false);
+			const index = e.key.charCodeAt() - 49;
+			const el = chatRooms.children[index];
+			activateChannel(el?.dataset.room);
+		break;
 	}
+});
 
-	chatInput.addEventListener('keyup', async (e) => {
-		e.stopPropagation();
-		switch (e.key) {
-			case 'Enter': {
-				let content = chatInput.value
-					.replace(/\s\s+/g, ' ') // remove excess whitespace
-					.trimEnd();
+chatInput.addEventListener('keydown', (e) => {
+	e.stopPropagation();
+	if (chatInput.readOnly) return;
 
-				if (content.length === 0 || content.length > MAX_MESSAGE_LENGTH) return;
+	switch (e.key) {
+		case 'Escape': {
+			if (chatInput.value.length > 0) {
+				chatInputReset();
+			} else {
+				chatInput.blur();
+			}
+		} break;
+
+		case 'Tab': {
+			e.preventDefault();
+			const text = chatInput.value;
+
+			// interacting with command list
+			if (text.startsWith('/') && text.indexOf(' ') < 0) return;
+
+			// @username tab completion
+			let wordStart = text.lastIndexOf(' ', chatInput.selectionStart - 1) + 1;
+
+			if (text.charAt(wordStart) === '@') {
+				wordStart++;
+				let wordEnd = text.indexOf(' ', chatInput.selectionStart);
+				if (wordEnd < 0) wordEnd = text.length;
+				let word = text.substring(wordStart, wordEnd);
 
 				const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
 				if (!currentChannel) return;
 
-				const commitValue = () => {
-					commandHistory.push(chatInput.value);
-					if (commandHistory.length > MAX_COMMAND_HISTORY)
-						commandHistory.shift();
-					chatInputReset();
-					/*chatInput.blur();*/
+				// get recent chatters for channel, ignoring self and deleted msg
+				const room_state = roomState.get(currentChannel);
+				const selector = `.msg[data-user][data-roomid="${room_state.id}"]:not([data-userid="${userState.id}"]):not(.msg-deleted)`;
+				const users = [...chatOutput.querySelectorAll(selector)]
+					.map(el => el.dataset.user)
+					.reverse();	// prioritize by most recent
+
+				// add current channel as a fallback
+				users.push(currentChannel);
+
+				const username = !word // just "@"
+					? users.shift() // first username
+					: users.find(user => localeEquals(user.substring(0, word.length), word));
+
+				if (username) {
+					// replace input
+					chatInput.value = text.substring(0, wordStart) + username + text.substring(wordEnd);
+					chatInput.selectionStart = chatInput.selectionEnd = wordStart + username.length;
+				}
+
+				return;
+			}
+
+			// cycling channels
+			const current = chatRooms.querySelector('.active');
+			current?.classList.remove('active');
+
+			const cycleElement = !!e.shiftKey
+				? current?.previousElementSibling ?? chatRooms.querySelector(':scope > :last-child') // backwards
+				: current?.nextElementSibling ?? chatRooms.querySelector(':scope > :first-child'); // forwards
+
+			if (cycleElement) {
+				activateChannel(cycleElement.dataset.room);
+				chatInput.focus();
+			}
+		} break;
+
+		case 'ArrowUp': {
+			if (chatCommands.querySelector('option:not([disabled])')) return;
+
+			const index = Math.max(0, parseInt(chatInput.dataset.historyIndex ?? commandHistory.length) - 1);
+			chatInput.dataset.historyIndex = index;
+			chatInput.value = commandHistory[index] ?? '';
+			chatInput.setSelectionRange(-1, -1);
+		} break;
+
+		case 'ArrowDown': {
+			if (chatCommands.querySelector('option:not([disabled])')) return;
+
+			const index = Math.min(commandHistory.length, parseInt(chatInput.dataset.historyIndex) + 1);
+			chatInput.dataset.historyIndex = index;
+			chatInput.value = commandHistory[index] ?? '';
+			chatInput.setSelectionRange(-1, -1);
+		} break;
+	}
+});
+
+chatInput.addEventListener('input', () => {
+	refreshCommands();
+});
+
+function refreshCommands() {
+	// populate options
+	if (chatCommands.childElementCount === 0) {
+		const commands = [
+			{ name: '/background',			desc: '/background <channel name/number> <hex color>'},
+			{ name: '/botcommands',			desc: '/botcommands <true|false>'},
+			{ name: '/channel',				desc: '/channel <channel name/number>'},
+			{ name: '/delay',				desc: '/delay <# milliseconds>'},
+			{ name: '/fresh',				desc: '/fresh <# seconds>'},
+			{ name: '/history',				desc: '/history <# messages>'},
+			{ name: '/ignore',				desc: '/ignore <user names>'},
+			{ name: '/join',				desc: '/join <channel names>'},
+			{ name: '/leave',				desc: '/leave <channel names/numbers>'},
+			{ name: '/logout',				desc: '/logout'},
+			{ name: '/lurk',				desc: '/lurk'},
+			{ name: '/me',					desc: '/me <action>'},
+			{ name: '/mute',				desc: '/mute <channel names/numbers>'},
+			{ name: '/nodelete',			desc: '/nodelete <true|false>'},
+			{ name: '/prune',				desc: '/prune <# seconds>'},
+			{ name: '/purge',				desc: '/purge <channel names/numbers>'},
+			{ name: '/purgeall',			desc: '/purgeall'},
+			{ name: '/shrug',				desc: '/shrug <message>'},
+			{ name: '/solo',				desc: '/solo <channel names/numbers>'},
+			{ name: '/staticemotes',		desc: '/staticemotes <true|false>'},
+			{ name: '/thirdpartyemotes',	desc: '/thirdpartyemotes <true|false>'},
+			{ name: '/unignore',			desc: '/unignore <user>'},
+			{ name: '/unmute',				desc: '/unmute <channel names/numbers>'},
+			{ name: '/unmuteall',			desc: '/unmuteall'},
+		];
+
+		const frag = document.createDocumentFragment();
+		for (const cmd of commands) {
+			const el = document.createElement('option');
+			el.label = cmd.desc;
+			el.value = cmd.name;
+			el.disabled = true;
+			frag.appendChild(el);
+		}
+		chatCommands.appendChild(frag);
+	}
+
+	// disable options
+	chatCommands.querySelectorAll('option:not([disabled])')
+		.forEach(opt => opt.disabled = true);
+
+	// commands must start with /
+	if (!chatInput.value.startsWith('/'))
+		return;
+
+	// find exact match (don't enable option because it prevents ENTER key on Chrome)
+	if (chatCommands.querySelector(`option[value="${chatInput.value}" i]`))
+		return;
+
+	// find partial matches (enable potential options)
+	chatCommands.querySelectorAll(`option[value^="${chatInput.value}" i]`)
+		.forEach(opt => opt.disabled = false);
+}
+
+chatInput.addEventListener('keyup', async (e) => {
+	e.stopPropagation();
+	switch (e.key) {
+		case 'Enter': {
+			let content = chatInput.value
+				.replace(/\s\s+/g, ' ') // remove excess whitespace
+				.trimEnd();
+
+			if (content.length === 0 || content.length > MAX_MESSAGE_LENGTH) return;
+
+			const currentChannel = chatRooms.querySelector('.active')?.dataset.room;
+			if (!currentChannel) return;
+
+			const commitValue = () => {
+				commandHistory.push(chatInput.value);
+				if (commandHistory.length > MAX_COMMAND_HISTORY)
+					commandHistory.shift();
+				chatInputReset();
+				/*chatInput.blur();*/
+			};
+
+			if (chatInput.value.startsWith('/')) {
+				let delimIndex = content.indexOf(' ');
+				if (delimIndex < 0) delimIndex = content.length;
+
+				const cmd = content.substring(1, delimIndex).toUpperCase();
+				const arg = content.substring(delimIndex + 1);
+
+				// returns name from index or partial match
+				const channelFromArg = (arg) => {
+					if (!arg)
+						return null;
+
+					arg = cleanName(arg);
+
+					if (!isNaN(arg))
+						return chatRooms.querySelector(`:nth-child(${arg})`)?.dataset.room;
+
+					return chatRooms.querySelector(`[data-room*="${arg}"]`)?.dataset.room;
 				};
 
-				if (chatInput.value.startsWith('/')) {
-					let delimIndex = content.indexOf(' ');
-					if (delimIndex < 0) delimIndex = content.length;
+				// handle /commands
+				switch (cmd) {
+					case 'ME': {
+						// do nothing, allow command as is
+					} break;
 
-					const cmd = content.substring(1, delimIndex).toUpperCase();
-					const arg = content.substring(delimIndex + 1);
+					case 'LURK': {
+						content = '/me is now lurking';
+					} break;
 
-					// returns name from index or partial match
-					const channelFromArg = (arg) => {
-						if (!arg)
-							return null;
+					case 'SHRUG': {
+						if (arg.length + 10 > MAX_MESSAGE_LENGTH) return;
+						content = arg + ' ¯\\_(ツ)_/¯';
+					} break;
 
-						arg = cleanName(arg);
+					/* === LOCAL COMMANDS === */
 
-						if (!isNaN(arg))
-							return chatRooms.querySelector(`:nth-child(${arg})`)?.dataset.room;
+					case 'LOGOUT': {
+						twitch.revokeAccessToken();
+						deleteConfig('access_token');
+					} return;
 
-						return chatRooms.querySelector(`[data-room*="${arg}"]`)?.dataset.room;
-					};
+					case 'C':
+					case 'CHAN':
+					case 'CHANNEL': {
+						const channelName = channelFromArg(arg);
+						if (!channelName) return;
 
-					// handle /commands
-					switch (cmd) {
-						case 'ME': {
-							// do nothing, allow command as is
-						} break;
-
-						case 'LURK': {
-							content = '/me is now lurking';
-						} break;
-
-						case 'SHRUG': {
-							if (arg.length + 10 > MAX_MESSAGE_LENGTH) return;
-							content = arg + ' ¯\\_(ツ)_/¯';
-						} break;
-
-						/* === LOCAL COMMANDS === */
-
-						case 'LOGOUT': {
-							twitch.revokeAccessToken();
-							deleteConfig('access_token');
-						} return;
-
-						case 'C':
-						case 'CHAN':
-						case 'CHANNEL': {
-							const channelName = channelFromArg(arg);
-							if (!channelName) return;
-
-							activateChannel(channelName);
-							commitValue();
-						} return;
-
-						case 'PURGE': {
-							// remove messages from one or more channels
-							const channelNames = arg.length === 0
-								? [currentChannel]
-								: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
-
-							if (channelNames.length === 0) return;
-
-							channelNames.forEach(chan => {
-								const room_state = roomState.get(chan);
-								const selector = `.msg[data-roomid="${room_state.id}"]`;
-								deleteMessages(selector, true);
-							});
-							commitValue();
-						} return;
-
-						case 'PURGEALL': {
-							// clear all messages
-							const selector = '.msg';
-							deleteMessages(selector, true);
-							commitValue();
-						} return;
-
-						case 'J':
-						case 'JOIN': {
-							// NOTE: user may specify name:color
-							const channels = parseChannelString(arg);
-
-							if (!channels || channels.length === 0) return;
-
-							joinChannels(channels);
-							commitValue();
-						} return;
-
-						case 'PART':
-						case 'L':
-						case 'LEAVE': {
-							const channelNames = arg.length === 0
-								? [currentChannel]
-								: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
-
-							if (channelNames.length === 0) return;
-
-							partChannels(channelNames);
-							commitValue();
-						} return;
-
-						case 'MUTE': {
-							const channelNames = arg.length === 0
-								? [currentChannel]
-								: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
-
-							if (channelNames.length === 0) return;
-
-							channelNames.forEach(name => toggleMute(name, true));
-							commitValue();
-						} return;
-
-						case 'UNMUTE': {
-							const channelNames = arg.length === 0
-								? [currentChannel]
-								: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
-
-							if (channelNames.length === 0) return;
-
-							channelNames.forEach(name => toggleMute(name, false));
-							commitValue();
-						} return;
-
-						case 'UNMUTEALL': {
-							[...roomState.keys()].forEach(name => toggleMute(name, false));
-							commitValue();
-						} return;
-
-						case 'SOLO': {
-							const channelNames = arg.length === 0
-								? [currentChannel]
-								: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
-
-							if (channelNames.length === 0) return;
-
-							[...roomState.keys()].forEach(name => {
-								const muteState = !channelNames.includes(name);
-								toggleMute(name, muteState)
-							});
-							commitValue();
-						} return;
-
-						case 'BG':
-						case 'BACKGROUND': {
-							const args = arg.split(/[ :]+/, 2);
-							// can specify just a color, or a name and a color
-							const channelName = args.length === 1 ? currentChannel : channelFromArg(args[0]);
-							const hexColor = '#'+cleanHex(args.length === 1 ? args[0] : args[1]);
-
-							const room_state = roomState.get(channelName);
-							if (!room_state) return;
-
-							room_state.color = isValidHexColor(hexColor) ? hexColor : undefined;
-							chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
-								.forEach(el => el.style.backgroundColor = room_state.color);
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'IGNORE': {
-							if (arg) {
-								const userNames = arg.split(/[ ,]+/).map(cleanName).filter(isValidTwitchAccount);
-								toggleIgnore(userNames, true);
-							} else {
-								noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
-							}
-							commitValue();
-						} return;
-
-						case 'UNIGNORE': {
-							if (arg) {
-								const userNames = arg.split(/[ ,]+/).map(cleanName).filter(isValidTwitchAccount);
-								toggleIgnore(userNames, false);
-							} else {
-								noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
-							}
-							commitValue();
-						} return;
-
-						case 'BOTCOMMANDS': {
-							botCommands = arg === 'true';
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'STATICEMOTES': {
-							staticEmotes = arg === 'true';
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'THIRDPARTYEMOTES': {
-							thirdPartyEmotes = arg === 'true';
-							if (thirdPartyEmotes) {
-								loadThirdPartyGlobalEmotes();
-								[...roomState.values()].forEach(room_state => loadThirdPartyChannelEmotes(room_state));
-							}
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'NODELETE': {
-							preventDelete = arg === 'true';
-							if (!preventDelete) {
-								// remove deleted messages
-								const selector = '.msg-deleted';
-								deleteMessages(selector, true);
-							}
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'HISTORY': {
-							const val = parseInt(arg);
-							if (isNaN(val) || val < 0) return;
-
-							messageHistory = val;
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'PRUNE': {
-							const val = parseInt(arg) * 1000;
-							if (isNaN(val) || val < 0) return;
-
-							pruneMessageTime = val;
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'FRESH': {
-							const val = parseInt(arg) * 1000;
-							if (isNaN(val) || val < 0) return;
-
-							freshMessageTime = val;
-							updateUrl();
-							commitValue();
-						} return;
-
-						case 'DELAY': {
-							const val = parseInt(arg);
-							if (isNaN(val) || val < 0) return;
-
-							messageDelay = val;
-							messageBuffer.flush();
-							updateUrl();
-							commitValue();
-						} return;
-
-						// reject everything else
-						default: return;
-					}
-				}
-
-				// any commands reaching this point will be sent to twitch
-				if (twitch.connected) {
-					const room_state = roomState.get(currentChannel);
-					if (room_state.muted) return;
-
-					// hold onto message until confirmation
-					chatInput.readOnly = true;
-
-					// send the message
-					const res = await twitch.sendChatMessage({ // user:write:chat
-						broadcaster_id: room_state.id,
-						sender_id: userState.id,
-						message: content,
-						reply_parent_message_id: chatInput.dataset.msgid,
-					});
-
-					if (res.success && res.data.is_sent && !res.data.drop_reason) {
+						activateChannel(channelName);
 						commitValue();
-					} else {
-						// failure
-						const text = res.success ? res.data.drop_reason.message : res.data.message;
-						noticeMessage(text, {
-							source: currentChannel,
-							shade: room_state.color,
-							avatar: room_state.avatar,
-						});
-					}
+					} return;
 
-					chatInput.readOnly = false;
+					case 'PURGE': {
+						// remove messages from one or more channels
+						const channelNames = arg.length === 0
+							? [currentChannel]
+							: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
+
+						if (channelNames.length === 0) return;
+
+						channelNames.forEach(chan => {
+							const room_state = roomState.get(chan);
+							const selector = `.msg[data-roomid="${room_state.id}"]`;
+							deleteMessages(selector, true);
+						});
+						commitValue();
+					} return;
+
+					case 'PURGEALL': {
+						// clear all messages
+						const selector = '.msg';
+						deleteMessages(selector, true);
+						commitValue();
+					} return;
+
+					case 'J':
+					case 'JOIN': {
+						// NOTE: user may specify name:color
+						const channels = parseChannelString(arg);
+
+						if (!channels || channels.length === 0) return;
+
+						joinChannels(channels);
+						commitValue();
+					} return;
+
+					case 'PART':
+					case 'L':
+					case 'LEAVE': {
+						const channelNames = arg.length === 0
+							? [currentChannel]
+							: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
+
+						if (channelNames.length === 0) return;
+
+						partChannels(channelNames);
+						commitValue();
+					} return;
+
+					case 'MUTE': {
+						const channelNames = arg.length === 0
+							? [currentChannel]
+							: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
+
+						if (channelNames.length === 0) return;
+
+						channelNames.forEach(name => toggleMute(name, true));
+						commitValue();
+					} return;
+
+					case 'UNMUTE': {
+						const channelNames = arg.length === 0
+							? [currentChannel]
+							: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
+
+						if (channelNames.length === 0) return;
+
+						channelNames.forEach(name => toggleMute(name, false));
+						commitValue();
+					} return;
+
+					case 'UNMUTEALL': {
+						[...roomState.keys()].forEach(name => toggleMute(name, false));
+						commitValue();
+					} return;
+
+					case 'SOLO': {
+						const channelNames = arg.length === 0
+							? [currentChannel]
+							: arg.split(/[ ,]+/).map(channelFromArg).filter(isValidTwitchAccount);
+
+						if (channelNames.length === 0) return;
+
+						[...roomState.keys()].forEach(name => {
+							const muteState = !channelNames.includes(name);
+							toggleMute(name, muteState)
+						});
+						commitValue();
+					} return;
+
+					case 'BG':
+					case 'BACKGROUND': {
+						const args = arg.split(/[ :]+/, 2);
+						// can specify just a color, or a name and a color
+						const channelName = args.length === 1 ? currentChannel : channelFromArg(args[0]);
+						const hexColor = '#'+cleanHex(args.length === 1 ? args[0] : args[1]);
+
+						const room_state = roomState.get(channelName);
+						if (!room_state) return;
+
+						room_state.color = isValidHexColor(hexColor) ? hexColor : undefined;
+						chatOutput.querySelectorAll(`.msg[data-roomid="${room_state.id}"]`)
+							.forEach(el => el.style.backgroundColor = room_state.color);
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'IGNORE': {
+						if (arg) {
+							const userNames = arg.split(/[ ,]+/).map(cleanName).filter(isValidTwitchAccount);
+							toggleIgnore(userNames, true);
+						} else {
+							noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
+						}
+						commitValue();
+					} return;
+
+					case 'UNIGNORE': {
+						if (arg) {
+							const userNames = arg.split(/[ ,]+/).map(cleanName).filter(isValidTwitchAccount);
+							toggleIgnore(userNames, false);
+						} else {
+							noticeMessage(`ignoring: ${[...ignoredUsers].join(' ')}`);
+						}
+						commitValue();
+					} return;
+
+					case 'BOTCOMMANDS': {
+						botCommands = arg === 'true';
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'STATICEMOTES': {
+						staticEmotes = arg === 'true';
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'THIRDPARTYEMOTES': {
+						thirdPartyEmotes = arg === 'true';
+						if (thirdPartyEmotes) {
+							loadThirdPartyGlobalEmotes();
+							[...roomState.values()].forEach(room_state => loadThirdPartyChannelEmotes(room_state));
+						}
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'NODELETE': {
+						preventDelete = arg === 'true';
+						if (!preventDelete) {
+							// remove deleted messages
+							const selector = '.msg-deleted';
+							deleteMessages(selector, true);
+						}
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'HISTORY': {
+						const val = parseInt(arg);
+						if (isNaN(val) || val < 0) return;
+
+						messageHistory = val;
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'PRUNE': {
+						const val = parseInt(arg) * 1000;
+						if (isNaN(val) || val < 0) return;
+
+						pruneMessageTime = val;
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'FRESH': {
+						const val = parseInt(arg) * 1000;
+						if (isNaN(val) || val < 0) return;
+
+						freshMessageTime = val;
+						updateUrl();
+						commitValue();
+					} return;
+
+					case 'DELAY': {
+						const val = parseInt(arg);
+						if (isNaN(val) || val < 0) return;
+
+						messageDelay = val;
+						messageBuffer.flush();
+						updateUrl();
+						commitValue();
+					} return;
+
+					// reject everything else
+					default: return;
+				}
+			}
+
+			// any commands reaching this point will be sent to twitch
+			if (twitch.connected) {
+				const room_state = roomState.get(currentChannel);
+				if (room_state.muted) return;
+
+				// hold onto message until confirmation
+				chatInput.readOnly = true;
+
+				// send the message
+				const res = await twitch.sendChatMessage({ // user:write:chat
+					broadcaster_id: room_state.id,
+					sender_id: userState.id,
+					message: content,
+					reply_parent_message_id: chatInput.dataset.msgid,
+				});
+
+				if (res.success && res.data.is_sent && !res.data.drop_reason) {
+					commitValue();
 				} else {
-					errorMessage('failed to send message (invalid connection state)');
+					// failure
+					const text = res.success ? res.data.drop_reason.message : res.data.message;
+					noticeMessage(text, {
+						source: currentChannel,
+						shade: room_state.color,
+						avatar: room_state.avatar,
+					});
 				}
 
-				scrollToBottom();
-			} break;
-		}
-	});
+				chatInput.readOnly = false;
+			} else {
+				errorMessage('failed to send message (invalid connection state)');
+			}
 
-	function chatReply(roomid, user, msgid = undefined) {
-		if (chatInput.disabled || chatInput.readonly) return;
-
-		// switch to message's channel
-		const channel = roomState.values().find(r => r.id === roomid)?.login;
-		if (!activateChannel(channel)) return;
-
-		// lock channel
-		chatRooms.classList.add('disabled');
-
-		// mention @username
-		chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
-			? ` @${user} `
-			: `@${user} `
-
-		// optional specific message reply
-		chatInput.dataset.msgid = msgid;
-
-		// switch focus
-		chatInput.focus();
-		chatInput.selectionStart = chatInput.selectionEnd = chatInput.value.length;
+			scrollToBottom();
+		} break;
 	}
+});
 
-	function chatInputReset() {
-		chatInput.dataset.msgid = undefined;
-		chatInput.dataset.historyIndex = commandHistory.length;
-		chatInput.value = '';
-		refreshCommands();
-		chatRooms.classList.remove('disabled');
+function chatReply(roomid, user, msgid = undefined) {
+	if (chatInput.disabled || chatInput.readonly) return;
+
+	// switch to message's channel
+	const channel = roomState.values().find(r => r.id === roomid)?.login;
+	if (!activateChannel(channel)) return;
+
+	// lock channel
+	chatRooms.classList.add('disabled');
+
+	// mention @username
+	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
+		? ` @${user} `
+		: `@${user} `
+
+	// optional specific message reply
+	chatInput.dataset.msgid = msgid;
+
+	// switch focus
+	chatInput.focus();
+	chatInput.selectionStart = chatInput.selectionEnd = chatInput.value.length;
+}
+
+function chatInputReset() {
+	chatInput.dataset.msgid = undefined;
+	chatInput.dataset.historyIndex = commandHistory.length;
+	chatInput.value = '';
+	refreshCommands();
+	chatRooms.classList.remove('disabled');
+}
+
+chatReset.addEventListener('click', chatInputReset);
+
+window.addEventListener('resize', scrollToBottom);
+
+chatPaused.addEventListener('click', scrollToBottom);
+
+chatOutput.addEventListener('scroll', () => {
+	if (!programmaticScrolling) {
+		chatAutoScroll = null;
+		// fix for scrollend not always triggering
+		window.scrollTimer ??= setTimeout(scrollUpdate, 100);
 	}
+});
 
-	chatReset.addEventListener('click', chatInputReset);
+chatOutput.addEventListener('scrollend', scrollUpdate);
 
-	window.addEventListener('resize', scrollToBottom);
-	chatPaused.addEventListener('click', scrollToBottom);
-	chatOutput.addEventListener('scroll', () => {
-		if (!programmaticScrolling) {
-			chatAutoScroll = null;
-			// fix for scrollend not always triggering
-			window.scrollTimer ??= setTimeout(scrollUpdate, 100);
-		}
-	});
-	chatOutput.addEventListener('scrollend', scrollUpdate);
+function scrollUpdate() {
+	clearTimeout(window.scrollTimer);
+	window.scrollTimer = null;
 
-	function scrollUpdate() {
-		clearTimeout(window.scrollTimer);
-		window.scrollTimer = null;
+	chatAutoScroll ??= isScrolledToBottom();
+	chatPaused.classList.toggle('hidden', !!chatAutoScroll);
+}
 
-		chatAutoScroll ??= isScrolledToBottom();
-		chatPaused.classList.toggle('hidden', !!chatAutoScroll);
+chatRooms.addEventListener('click', (e) => {
+	if (chatInput.readOnly) return;
+
+	const room = e.target.closest('[data-room]')?.dataset.room;
+	if (room) {
+		e.stopPropagation();
+		activateChannel(room);
+		/*chatInput.focus();*/
 	}
+});
 
-}, { once: true });
+chatRooms.addEventListener('contextmenu', (e) => {
+	const target = e.target;
+	if (target.dataset.menu !== roomMenu.id) return;
+	e.preventDefault();
+	e.stopPropagation();
+
+	roomMenu.dataset.user = target.dataset.room;
+	roomMenu.querySelector('.context-title').textContent = target.dataset.room;
+
+	showMenu(roomMenu, e.clientX, e.clientY);
+});
 
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
@@ -1015,18 +1030,6 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	userMenu.querySelector('.context-title').textContent = target.dataset.user;
 
 	showMenu(userMenu, e.clientX, e.clientY);
-});
-
-chatRooms.addEventListener('contextmenu', (e) => {
-	const target = e.target;
-	if (target.dataset.menu !== roomMenu.id) return;
-	e.preventDefault();
-	e.stopPropagation();
-
-	roomMenu.dataset.user = target.dataset.room;
-	roomMenu.querySelector('.context-title').textContent = target.dataset.room;
-
-	showMenu(roomMenu, e.clientX, e.clientY);
 });
 
 chatOutput.addEventListener('contextmenu', (e) => {
@@ -1112,6 +1115,7 @@ document.querySelectorAll('.context').forEach(modal => {
 
 		menu.classList.add('hidden');
 	});
+
 }, { once: true });
 
 function showMenu(modal, mouseX, mouseY) {
