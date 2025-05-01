@@ -483,7 +483,7 @@ chatInput.addEventListener('keydown', (e) => {
 
 	switch (e.key) {
 		case 'Escape': {
-			if (chatInput.value.length > 0) {
+			if (chatInput.value.length > 0 || chatInput.dataset.msgid) {
 				chatInputReset();
 			} else {
 				chatInput.blur();
@@ -954,8 +954,12 @@ function chatReply(roomid, user, msgid = undefined) {
 		? ` @${user} `
 		: `@${user} `
 
-	// optional specific message reply
-	chatInput.dataset.msgid = msgid;
+	// optional reply to specific message
+	if (msgid) {
+		chatInput.dataset.msgid = msgid;
+	} else {
+		chatInput.removeAttribute('data-msgid');
+	}
 
 	// switch focus
 	chatInput.focus();
@@ -963,7 +967,7 @@ function chatReply(roomid, user, msgid = undefined) {
 }
 
 function chatInputReset() {
-	chatInput.dataset.msgid = undefined;
+	chatInput.removeAttribute('data-msgid');
 	chatInput.dataset.historyIndex = commandHistory.length;
 	chatInput.value = '';
 	refreshCommands();
@@ -1024,9 +1028,9 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	e.stopPropagation();
 
 	const msg = target.closest('.msg');
-	userMenu.dataset.roomid = msg?.dataset.roomid
+	userMenu.dataset.roomid = msg.dataset.roomid
 	userMenu.dataset.user = target.dataset.user;
-	userMenu.dataset.msgid = msg?.dataset.msgid;
+	userMenu.dataset.msgid = msg.dataset.msgid;
 	userMenu.querySelector('.context-title').textContent = target.dataset.user;
 
 	showMenu(userMenu, e.clientX, e.clientY);
@@ -1100,7 +1104,7 @@ document.querySelectorAll('.context').forEach(modal => {
 			break;
 
 			case 'mention':
-				chatReply(menu.dataset.roomid, menu.dataset.user);
+				chatReply(menu.dataset.roomid, menu.dataset.user, undefined);
 			break;
 
 			case 'reply':
