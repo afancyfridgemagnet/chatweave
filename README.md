@@ -57,9 +57,7 @@ Configuration changes will update the page's current URL, which can then be book
 
 ## Mouse Shortcuts
 
-Left-click a username or @mention to switch active channel and add @username to chat box.  
-
-Right-click a username, @mention, or chat channel (at bottom) to open a context menu with options.  
+Right-click a username, @mention, emote, or chat channel (at bottom) to open a context menu with options.  
 
 Hover over username or timestamp to show full (non-truncated) text in a tooltip.  
 

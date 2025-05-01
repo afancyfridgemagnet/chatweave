@@ -35,6 +35,7 @@
 		<div id="chatBar">
 			<datalist id="chatCommands"></datalist>
 			<input type="text" id="chatInput" list="chatCommands" minlength="1" maxlength="500" spellcheck="true" autocomplete="off" placeholder="Send a message" readonly disabled>
+			<button id="chatReset">X</button>
 		</div>
 	</div>
 	<template id="chatRoom">
@@ -55,8 +56,10 @@
 	<menu id="userMenu" class="context hidden" tabindex="-1">
 		<li class="context-title"></li>
 		<li class="context-item" data-action="twitch">Twitch Channel</li>
-		<li class="context-item" data-action="ignore">Ignore User</li>
 		<li class="context-item" data-action="join">Join Chat</li>
+		<li class="context-item" data-action="ignore">Ignore User</li>
+		<li class="context-item" data-action="mention">Mention</li>
+		<li class="context-item" data-action="reply">Reply</li>
 		<li class="context-item" data-action="close">Close</li>
 	</menu>
 	<menu id="roomMenu" class="context hidden" tabindex="-1">

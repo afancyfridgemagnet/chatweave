@@ -14,6 +14,7 @@ const chatOutput = document.querySelector('#chatOutput');
 const chatPanel = document.querySelector('#chatPanel');
 const chatRooms = document.querySelector('#chatRooms');
 const chatInput = document.querySelector('#chatInput');
+const chatReset = document.querySelector('#chatReset');
 const chatCommands = document.querySelector('#chatCommands');
 const messageBuffer = createMessageBuffer();
 const messageTemplate = document.querySelector('#chatMessage');
@@ -148,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// ui
 		chatOutput.innerHTML = '';
 		chatRooms.innerHTML = '';
-		chatInput.value = '';
+		chatInputReset();
 		chatInput.placeholder = 'DISCONNECTED';
 		chatInput.readOnly = true;
 		chatInput.disabled = true;
@@ -492,9 +493,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		switch (e.key) {
 			case 'Escape': {
 				if (chatInput.value.length > 0) {
-					chatInput.dataset.historyIndex = commandHistory.length;
-					chatInput.value = '';
-					refreshCommands();
+					chatInputReset();
 				} else {
 					chatInput.blur();
 				}
@@ -655,10 +654,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 					commandHistory.push(chatInput.value);
 					if (commandHistory.length > MAX_COMMAND_HISTORY)
 						commandHistory.shift();
-					chatInput.dataset.historyIndex = commandHistory.length;
-					chatInput.value = '';
+					chatInputReset();
 					/*chatInput.blur();*/
-					refreshCommands();
 				};
 
 				if (chatInput.value.startsWith('/')) {
@@ -926,7 +923,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						broadcaster_id: room_state.id,
 						sender_id: userState.id,
 						message: content,
-						//reply_parent_message_id: '',
+						reply_parent_message_id: chatInput.dataset.msgid,
 					});
 
 					if (res.success && res.data.is_sent && !res.data.drop_reason) {
@@ -951,6 +948,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 	});
 
+	chatReset.addEventListener('click', chatInputReset);
+
 	window.addEventListener('resize', scrollToBottom);
 	chatPaused.addEventListener('click', scrollToBottom);
 	chatOutput.addEventListener('scroll', () => {
@@ -972,35 +971,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 }, { once: true });
 
-chatOutput.addEventListener('click', (e) => {
-	const target = e.target;
-	if (target.dataset.menu !== userMenu.id) return;
-	e.preventDefault();
-	e.stopPropagation();
-
-	if (chatInput.disabled || chatInput.readonly) return;
-
-	// switch to message's channel
-	const roomid = target.closest('[data-roomid]')?.dataset.roomid;
-	const channel = roomState.values().find(r => r.id === roomid)?.login;
-	if (!activateChannel(channel)) return;
-
-	// replyto @username
-	const username = target.dataset.user;
-	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
-		? ` @${username} `
-		: `@${username} `
-	chatInput.focus();
-	chatInput.selectionStart = chatInput.selectionEnd = chatInput.value.length;
-});
-
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
 	if (target.dataset.menu !== userMenu.id) return;
 	e.preventDefault();
 	e.stopPropagation();
 
+	const msg = target.closest('.msg');
+	userMenu.dataset.roomid = msg?.dataset.roomid
+	userMenu.dataset.user = target.dataset.user;
+	userMenu.dataset.msgid = msg?.dataset.msgid;
 	userMenu.querySelector('.context-title').textContent = target.dataset.user;
+
 	showMenu(userMenu, e.clientX, e.clientY);
 });
 
@@ -1010,7 +992,9 @@ chatRooms.addEventListener('contextmenu', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 
+	roomMenu.dataset.user = target.dataset.room;
 	roomMenu.querySelector('.context-title').textContent = target.dataset.room;
+
 	showMenu(roomMenu, e.clientX, e.clientY);
 });
 
@@ -1058,28 +1042,35 @@ document.querySelectorAll('.context').forEach(modal => {
 		e.stopPropagation();
 
 		const menu = e.currentTarget;
-		const channel = menu.querySelector('.context-title').textContent;
 		const action = e.target.closest('[data-action]')?.dataset.action;
 
 		switch (action) {
 			case 'twitch':
-				window.open(`https://twitch.tv/${channel}`, '_blank', 'noopener,noreferrer');
+				window.open(`https://twitch.tv/${menu.dataset.user}`, '_blank', 'noopener,noreferrer');
 			break;
 
 			case 'join':
-				joinChannels({ name: channel, color: undefined });
+				joinChannels({ name: menu.dataset.user, color: undefined });
 			break;
 
 			case 'leave':
-				partChannels(channel);
+				partChannels(menu.dataset.user);
 			break;
 
 			case 'mute':
-				toggleMute(channel);
+				toggleMute(menu.dataset.user);
 			break;
 
 			case 'ignore':
-				toggleIgnore(channel);
+				toggleIgnore(menu.dataset.user);
+			break;
+
+			case 'mention':
+				chatReply(menu.dataset.roomid, menu.dataset.user);
+			break;
+
+			case 'reply':
+				chatReply(menu.dataset.roomid, menu.dataset.user, menu.dataset.msgid);
 			break;
 
 			case 'close':
@@ -1606,6 +1597,37 @@ function toggleIgnore(users, state) {
 	updateUrl();
 }
 
+function chatReply(roomid, user, msgid = undefined) {
+	if (chatInput.disabled || chatInput.readonly) return;
+
+	// switch to message's channel
+	const channel = roomState.values().find(r => r.id === roomid)?.login;
+	if (!activateChannel(channel)) return;
+
+	// lock channel
+	chatRooms.classList.add('disabled');
+
+	// mention @username
+	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
+		? ` @${user} `
+		: `@${user} `
+
+	// optional specific message reply
+	chatInput.dataset.msgid = msgid;
+
+	// switch focus
+	chatInput.focus();
+	chatInput.selectionStart = chatInput.selectionEnd = chatInput.value.length;
+}
+
+function chatInputReset() {
+	chatInput.dataset.msgid = undefined;
+	chatInput.dataset.historyIndex = commandHistory.length;
+	chatInput.value = '';
+	refreshCommands();
+	chatRooms.classList.remove('disabled');
+}
+
 function isScrolledToBottom() {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollHeight
 	return Math.abs(chatOutput.scrollHeight - chatOutput.clientHeight - chatOutput.scrollTop) <= 1;
@@ -1646,10 +1668,11 @@ function createMessageBuffer() {
 	function flushBuffer() {
 		if (buffer.hasChildNodes()) {
 			programmaticScrolling = true;
+			chatAutoScroll ??= isScrolledToBottom();
 
 			chatOutput.appendChild(buffer);
-			if (chatAutoScroll) scrollToBottom();
 
+			if (chatAutoScroll) scrollToBottom();
 			programmaticScrolling = false;
 		}
 		resetTimer();
@@ -1775,12 +1798,12 @@ function errorMessage(text, format) {
 
 function routineMaintenance() {
 	const now = new Date().getTime();
-	const scrolledToBottom = isScrolledToBottom();
 	const messages = chatOutput.querySelectorAll('.msg');
+	chatAutoScroll ??= isScrolledToBottom();
 
 	// limit message history
 	const removeCount = messages.length - (
-		messageHistory > 0 && scrolledToBottom
+		messageHistory > 0 && chatAutoScroll
 		? messageHistory
 		: Math.max(messageHistory, MAX_MESSAGE_COUNT)
 	);
@@ -1792,7 +1815,7 @@ function routineMaintenance() {
 	}
 
 	// prune old messages off the top
-	if (pruneMessageTime > 0 && scrolledToBottom) {
+	if (pruneMessageTime > 0 && chatAutoScroll) {
 		const pruneTime =  now - pruneMessageTime;
 
 		// continue from where we left off

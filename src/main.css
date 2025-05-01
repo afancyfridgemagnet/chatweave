@@ -98,6 +98,10 @@ a:active {
 	visibility: hidden !important;
 }
 
+.disabled {
+	pointer-events: none;
+}
+
 /* layout */
 
 #chatPaused {
@@ -179,6 +183,10 @@ a:active {
 #chatRooms {
 	list-style-type: none;
 	counter-reset: channel-number;
+}
+
+#chatRooms.disabled .room-list-item:not(.active) {
+	filter: grayscale(75%);
 }
 
 .room-list-item {
@@ -389,7 +397,9 @@ a:active {
 }
 
 .emote-img {
-
+	min-width: 4rem;
+	height: 4rem;
+	object-fit: contain;
 }
 
 .emote-name {
