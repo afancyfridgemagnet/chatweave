@@ -948,6 +948,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 	});
 
+	function chatReply(roomid, user, msgid = undefined) {
+		if (chatInput.disabled || chatInput.readonly) return;
+
+		// switch to message's channel
+		const channel = roomState.values().find(r => r.id === roomid)?.login;
+		if (!activateChannel(channel)) return;
+
+		// lock channel
+		chatRooms.classList.add('disabled');
+
+		// mention @username
+		chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
+			? ` @${user} `
+			: `@${user} `
+
+		// optional specific message reply
+		chatInput.dataset.msgid = msgid;
+
+		// switch focus
+		chatInput.focus();
+		chatInput.selectionStart = chatInput.selectionEnd = chatInput.value.length;
+	}
+
+	function chatInputReset() {
+		chatInput.dataset.msgid = undefined;
+		chatInput.dataset.historyIndex = commandHistory.length;
+		chatInput.value = '';
+		refreshCommands();
+		chatRooms.classList.remove('disabled');
+	}
+
 	chatReset.addEventListener('click', chatInputReset);
 
 	window.addEventListener('resize', scrollToBottom);
@@ -1595,37 +1626,6 @@ function toggleIgnore(users, state) {
 	}
 
 	updateUrl();
-}
-
-function chatReply(roomid, user, msgid = undefined) {
-	if (chatInput.disabled || chatInput.readonly) return;
-
-	// switch to message's channel
-	const channel = roomState.values().find(r => r.id === roomid)?.login;
-	if (!activateChannel(channel)) return;
-
-	// lock channel
-	chatRooms.classList.add('disabled');
-
-	// mention @username
-	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
-		? ` @${user} `
-		: `@${user} `
-
-	// optional specific message reply
-	chatInput.dataset.msgid = msgid;
-
-	// switch focus
-	chatInput.focus();
-	chatInput.selectionStart = chatInput.selectionEnd = chatInput.value.length;
-}
-
-function chatInputReset() {
-	chatInput.dataset.msgid = undefined;
-	chatInput.dataset.historyIndex = commandHistory.length;
-	chatInput.value = '';
-	refreshCommands();
-	chatRooms.classList.remove('disabled');
 }
 
 function isScrolledToBottom() {

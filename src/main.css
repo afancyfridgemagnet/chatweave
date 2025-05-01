@@ -6,14 +6,14 @@
 
 :root {
 	--background-color: #18181b;
-	--text-color: #ffffff;
+	--text-color: #fff;
 	--accent-color: #bf94ff;
 	--warning-color: #ffff00;
 	--disabled-color: #b41b1b;
 
 	--dark-color: #18181b;
 	--medium-color: #4f4f4f;
-	--light-color: #999999;
+	--light-color: #999;
 }
 
 * {
@@ -236,14 +236,14 @@ a:active {
 }
 
 #chatBar {
+	display: flex;
 	margin-top: 0.25rem;
 }
 
 #chatInput {
 	width: 100%;
 	/* adjust text position */
-	padding-left: 0.5rem;
-	padding-right: 0.5rem;
+	padding: 0 0.5rem;
 
 	border: 0.125rem solid;
 	border-radius: 0.25rem;
@@ -256,6 +256,18 @@ a:active {
 #chatInput:focus {
 	border-color: var(--accent-color);
 	outline: none;
+}
+
+#chatReset {
+	margin-left: 0.5rem;
+	padding: 0 0.5rem;
+
+	border: 0.125rem solid;
+	border-radius: 0.25rem;
+	border-color: var(--medium-color);
+
+	background-color: var(--background-color);
+	color: var(--light-color);
 }
 
 /* messages */
@@ -341,7 +353,7 @@ a:active {
 }
 
 .msg-system .msg-user {
-	color: #fff;
+	color: var(--text-color);
 }
 
 .msg-system .msg-body {
@@ -361,7 +373,7 @@ a:active {
 	margin-left: -0.1875rem;
 	padding-left: 0.3125rem;
 
-	border-left: 0.25rem dotted #fff;
+	border-left: 0.25rem dotted var(--text-color);
 }
 
 .mention {
