@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// ui
 		chatOutput.innerHTML = '';
 		chatRooms.innerHTML = '';
+		chatRooms.classList.remove('disabled');
 		chatInputReset();
 		chatInput.placeholder = 'DISCONNECTED';
 		chatInput.readOnly = true;
@@ -949,16 +950,15 @@ function chatReply(roomid, user, msgid = undefined) {
 	// lock channel
 	chatRooms.classList.add('disabled');
 
-	// mention @username
-	chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
-		? ` @${user} `
-		: `@${user} `
-
-	// optional reply to specific message
 	if (msgid) {
+		// replying to specific message (no need to @mention)
 		chatInput.dataset.msgid = msgid;
 	} else {
+		// @mention
 		chatInput.removeAttribute('data-msgid');
+		chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
+			? ` @${user} `
+			: `@${user} `
 	}
 
 	// switch focus
@@ -1579,11 +1579,14 @@ async function partChannels(channels) {
 }
 
 function activateChannel(channel) {
-	if (!channel) return false;
+	if (!channel || chatRooms.matches('.disabled')) return false;
 
-	// ensure new channel exists before switching
+	// ensure new channel exists
 	const newChannel = chatRooms.querySelector(`[data-room="${channel}"]`);
 	if (!newChannel) return false;
+	
+	// check if channel is already active
+	if (newChannel.matches('.active')) return true;
 
 	// deactivate old
 	chatRooms.querySelector('.active')?.classList.remove('active');

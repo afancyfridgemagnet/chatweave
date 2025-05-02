@@ -258,6 +258,10 @@ a:active {
 	outline: none;
 }
 
+#chatInput[data-msgid]:focus {
+	border-color: var(--warning-color);
+}
+
 #chatReset {
 	margin-left: 0.5rem;
 	padding: 0 0.5rem;
