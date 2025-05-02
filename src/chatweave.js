@@ -484,7 +484,7 @@ chatInput.addEventListener('keydown', (e) => {
 
 	switch (e.key) {
 		case 'Escape': {
-			if (chatInput.value.length > 0 || chatInput.dataset.msgid) {
+			if (chatInput.value.length > 0 || chatInput.dataset.roomid) {
 				chatInputReset();
 			} else {
 				chatInput.blur();
@@ -535,7 +535,6 @@ chatInput.addEventListener('keydown', (e) => {
 
 			// cycling channels
 			const current = chatRooms.querySelector('.active');
-			current?.classList.remove('active');
 
 			const cycleElement = !!e.shiftKey
 				? current?.previousElementSibling ?? chatRooms.querySelector(':scope > :last-child') // backwards
@@ -949,13 +948,13 @@ function chatReply(roomid, user, msgid = undefined) {
 
 	// lock channel
 	chatRooms.classList.add('disabled');
+	chatInput.dataset.roomid = roomid;
 
 	if (msgid) {
 		// replying to specific message (no need to @mention)
 		chatInput.dataset.msgid = msgid;
 	} else {
 		// @mention
-		chatInput.removeAttribute('data-msgid');
 		chatInput.value += chatInput.value && !chatInput.value.endsWith(' ')
 			? ` @${user} `
 			: `@${user} `
@@ -967,6 +966,7 @@ function chatReply(roomid, user, msgid = undefined) {
 }
 
 function chatInputReset() {
+	chatInput.removeAttribute('data-roomid');
 	chatInput.removeAttribute('data-msgid');
 	chatInput.dataset.historyIndex = commandHistory.length;
 	chatInput.value = '';

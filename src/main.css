@@ -258,7 +258,7 @@ a:active {
 	outline: none;
 }
 
-#chatInput[data-msgid]:focus {
+#chatInput[data-roomid]:focus {
 	border-color: var(--warning-color);
 }
 
