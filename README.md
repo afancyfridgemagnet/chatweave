@@ -40,10 +40,9 @@ Also for users who may want a clean and light-weight chat experience, as the def
 
 ## Potential Future Features (No promises)
 - [ ] Indicator for highlighted messages / message effect redeems
-- [ ] Support message replies
 - [ ] Broadcaster online/offline/raid messages
 - [ ] Basic moderator commands (timeout, ban, etc)
-- [ ] Respect Twitch API request limits
+- [ ] Respect Twitch API request limits (shouldn't be an issue under normal usage)
 - [ ] Allow user choice of permissions (read only, read/send, read/send/mod commands)
 
 
@@ -57,7 +56,7 @@ Configuration changes will update the page's current URL, which can then be book
 
 ## Mouse Shortcuts
 
-Right-click a username, @mention, emote, or chat channel (at bottom) to open a context menu with options.  
+Right-click a username, @mention, emote, or chat channel to open a context menu with options.  
 
 Hover over username or timestamp to show full (non-truncated) text in a tooltip.  
 
@@ -65,7 +64,7 @@ Hover over username or timestamp to show full (non-truncated) text in a tooltip.
 ## Keyboard Shortcuts
 
 `@username`  
-Tab-completion for usernames of recent chatters.  
+Tab-completion for usernames of recent chatters based on current channel.  
 
 `# keys`  
 Sets active chat channel by channel index.

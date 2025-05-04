@@ -305,17 +305,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 	});
 
 	twitch.addEventListener('channel.chat.message', ({ detail: msg }) => {
+		const room_state = roomState.get(msg.broadcaster_user_login);
+
+		if (!room_state || room_state.muted)
+			return;
+
+		// ignore shared chat message if it would appear duplicated
+		const shared_room = roomState.get(msg.source_broadcaster_user_login);
+		if (shared_room && !shared_room.muted)
+			return;
+
 		// ignored accounts
 		if (ignoredUsers.has(msg.chatter_user_login))
 			return;
 
 		// ignore "bot commands" starting with !
 		if (!botCommands && isBotCommand(msg.message.text))
-			return;
-
-		const room_state = roomState.get(msg.broadcaster_user_login);
-
-		if (!room_state || room_state.muted)
 			return;
 
 		// generate HTML from fragments
@@ -1584,7 +1589,7 @@ function activateChannel(channel) {
 	// ensure new channel exists
 	const newChannel = chatRooms.querySelector(`[data-room="${channel}"]`);
 	if (!newChannel) return false;
-	
+
 	// check if channel is already active
 	if (newChannel.matches('.active')) return true;
 
