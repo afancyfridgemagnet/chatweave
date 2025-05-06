@@ -22,8 +22,8 @@ class twitchApi extends EventTarget {
     constructor(clientId, accessToken) {
 		super();
 
-		// NOTE: timeout of >=60s sometimes causes browser disconnects (1006 error)
-		this.#socketUrl = 'wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=15';
+		// NOTE: timeout of >=60s increases chance of browser disconnects (1006 error)
+		this.#socketUrl = 'wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30';
 		this.#clientId = clientId;
 		this.#accessToken = accessToken;
     }
@@ -40,7 +40,7 @@ class twitchApi extends EventTarget {
 	}
 
 	#reconnect(url) {
-		console.warn('reconnecting...', url);
+		console.log('reconnecting...', url);
 
 		// connect new socket
 		const socket = new WebSocket(url);
@@ -217,7 +217,7 @@ class twitchApi extends EventTarget {
 			});
 
 			const json = await res.json();
-			console.log('createSubscription', data.type, json);
+			//console.debug('createSubscription', data.type, json);
 
 			return json;
 		} catch (err) {
@@ -242,7 +242,7 @@ class twitchApi extends EventTarget {
 				method: 'DELETE',
 			});
 
-			console.log('deleteSubscription', id, res.ok);
+			//console.debug('deleteSubscription', id, res.ok);
 
 			return res.ok;
 		} catch (err) {

@@ -16,12 +16,12 @@ const chatRooms = document.querySelector('#chatRooms');
 const chatInput = document.querySelector('#chatInput');
 const chatReset = document.querySelector('#chatReset');
 const chatCommands = document.querySelector('#chatCommands');
-const messageBuffer = createMessageBuffer();
-const messageTemplate = document.querySelector('#chatMessage');
-const roomTemplate = document.querySelector('#chatRoom');
 const userMenu = document.querySelector('#userMenu');
 const roomMenu = document.querySelector('#roomMenu');
 const emoteMenu = document.querySelector('#emoteMenu');
+const roomTemplate = document.querySelector('#chatRoom');
+const messageTemplate = document.querySelector('#chatMessage');
+const messageBuffer = createMessageBuffer(100);
 
 const cleanName = (s) => s?.trim().replace(/^(@|#)/,'').toLowerCase();
 const cleanHex = (s) => s?.trim().replace(/^#/,'').toLowerCase();
@@ -214,7 +214,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		} else {
 			// remove specific subscription
 			room_state.subscriptions.delete(msg.type);
-			await twitch.deleteSubscription(msg.id);
+			const res = await twitch.deleteSubscription(msg.id);
+			console.debug('deleteSubscription', msg.type, res);
 		}
 	});
 
@@ -1429,6 +1430,11 @@ async function joinChannels(channels) {
 			if (room_state.subscriptions.has(data.type)) return;
 
 			const res = await twitch.createSubscription(data);
+			console.debug('createSubscription', data.type,
+				'total', res.total,
+				'cost', res.total_cost,
+				'max_total_cost', res.max_total_cost
+			);
 
 			if (res.data?.[0].status === 'enabled') {
 				room_state.subscriptions.set(res.data[0].type, res.data[0].id);
@@ -1547,7 +1553,8 @@ async function partChannels(channels) {
 		// unsubscribe to twitch events
 		for (const [type, id] of room_state.subscriptions) {
 			room_state.subscriptions.delete(type);
-			await twitch.deleteSubscription(id);
+			const res = await twitch.deleteSubscription(id);
+			console.debug('deleteSubscription', type, res);
 		}
 
 		// update ui
@@ -1667,7 +1674,7 @@ function deleteMessages(selector, forceDelete = false) {
 	}
 }
 
-function createMessageBuffer() {
+function createMessageBuffer(maxMessages) {
 	const buffer = document.createDocumentFragment();
 	let timer;
 
@@ -1678,7 +1685,11 @@ function createMessageBuffer() {
 
 	function appendNode(node) {
 		buffer.append(node);
-		timer ??= setTimeout(flushBuffer, messageDelay);
+		if (buffer.childElementCount >= maxMessages) {
+			flushBuffer();
+		} else {
+			timer ??= setTimeout(flushBuffer, messageDelay);
+		}
 	}
 
 	function flushBuffer() {
