@@ -121,7 +121,7 @@ class twitchApi extends EventTarget {
 		switch (metadata.message_type) {
 			case 'session_welcome': {
 				this.#sessionId = payload.session.id;
-				console.info('session_id', this.#sessionId);
+				console.debug('session_id', this.#sessionId);
 
 				this.dispatchEvent(new CustomEvent('welcome', { detail: payload.session.id }));
 			} break;

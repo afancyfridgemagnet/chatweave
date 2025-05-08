@@ -120,6 +120,7 @@ a:active {
 
 	outline: 2px solid var(--warning-color);
 	border-radius: 1rem;
+
 	-webkit-user-select: none;
 	user-select: none;
 	cursor: pointer;
@@ -178,6 +179,9 @@ a:active {
 
 	border-top: 1px solid var(--medium-color);
 	background-color: var(--background-color);
+
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 #chatRooms {
@@ -196,8 +200,6 @@ a:active {
 	padding: 0.125rem 0.5rem;
 
 	color: var(--light-color);
-	-webkit-user-select: none;
-	user-select: none;
 
 	counter-increment: channel-number;
 }
@@ -287,7 +289,6 @@ a:active {
 }*/
 
 .msg > * {
-	/* TODO: this margin seems to cause body text to repaint during scroll */
 	margin: 0.25rem 0.5rem;
 	align-content: center;
 }
@@ -305,6 +306,8 @@ a:active {
 
 	margin: -0.5rem 0;
 	border-radius: 50%;
+
+	pointer-events: none;
 }
 
 .msg-user {
@@ -432,6 +435,7 @@ a:active {
 
 menu {
 	list-style-type: none;
+
 	-webkit-user-select: none;
 	user-select: none;
 }
