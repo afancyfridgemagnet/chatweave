@@ -1347,7 +1347,7 @@ function parseThirdPartyEmote(emote) {
 }
 
 function staticEmoteLoadError(img, chan) {
-	console.warn('staticEmoteLoadError', chan, img.alt);
+	//console.debug('staticEmoteLoadError', chan, img.alt);
 	// static url failed to load on img
 	img.onerror = null;
 	// get channel (or global) emote from cache
@@ -1356,8 +1356,10 @@ function staticEmoteLoadError(img, chan) {
 	// replace img src with default url
 	img.src = emote.url;
 	// correct messages in buffer
-	messageBuffer.querySelectorAll(`img[src="${emote.url_static}"]`)
-		.forEach(el => el.src = emote.url);
+	messageBuffer.querySelectorAll(`img[src="${emote.url_static}"]`).forEach(el => {
+		el.onerror = null;
+		el.src = emote.url;
+	});
 	// remove all references to static url to avoid using it again
 	[...emoteCache.values()]
 		.filter(e => e.url_static === emote.url_static)
