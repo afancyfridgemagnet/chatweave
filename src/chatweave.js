@@ -18,6 +18,7 @@ const chatReset = document.querySelector('#chatReset');
 const chatCommands = document.querySelector('#chatCommands');
 const userMenu = document.querySelector('#userMenu');
 const roomMenu = document.querySelector('#roomMenu');
+const globalMenu = document.querySelector('#globalMenu');
 const emoteMenu = document.querySelector('#emoteMenu');
 const roomTemplate = document.querySelector('#chatRoom');
 const messageTemplate = document.querySelector('#chatMessage');
@@ -122,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	// token verified
 	const pingRegEx = new RegExp('\\b'+userState.login+'\\b', 'i');
-	chatInput.placeholder += ` as ${userState.login}`;
+	chatInput.placeholder += ` as [${userState.login}] or type / for commands`;
 	chatPanel.classList.toggle('hidden',
 		!userState.scopes.includes('user:write:chat') || pageUrl.searchParams.get('readonly') === 'true'
 	);
@@ -585,6 +586,7 @@ function refreshCommands() {
 			{ name: '/channel',				desc: '/channel <channel name/number>'},
 			{ name: '/delay',				desc: '/delay <# milliseconds>'},
 			{ name: '/fresh',				desc: '/fresh <# seconds>'},
+			{ name: '/help',				desc: '/help'},
 			{ name: '/history',				desc: '/history <# messages>'},
 			{ name: '/ignore',				desc: '/ignore <user names>'},
 			{ name: '/join',				desc: '/join <channel names>'},
@@ -865,6 +867,11 @@ chatInput.addEventListener('keyup', async (e) => {
 						commitValue();
 					} return;
 
+					case 'HELP': {
+						window.open('https://github.com/afancyfridgemagnet/chatweave#usage', '_blank', 'noopener,noreferrer');
+						commitValue();
+					} return;
+
 					case 'HISTORY': {
 						const val = parseInt(arg);
 						if (isNaN(val) || val < 0) return;
@@ -1054,6 +1061,19 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	showMenu(emoteMenu, e.clientX, e.clientY);
 });
 
+document.addEventListener('contextmenu', (e) => {
+	const target = e.target;
+	// don't show if chat box
+	if (document.activeElement === chatInput) return;
+	// don't show if text is selected (allow browser functionality)
+	if (window.getSelection().toString()) return;
+
+	e.preventDefault();
+	e.stopPropagation();
+
+	showMenu(globalMenu, e.clientX, e.clientY);
+});
+
 document.querySelectorAll('.context').forEach(modal => {
 	modal.addEventListener('mousedown', (e) => {
 		/* fixes issue where button inside menu is not clickable */
@@ -1101,6 +1121,13 @@ document.querySelectorAll('.context').forEach(modal => {
 				partChannels(menu.dataset.user);
 			break;
 
+			case 'solo':
+				[...roomState.keys()].forEach(name => {
+					const muteState = menu.dataset.user !== name;
+					toggleMute(name, muteState)
+				});
+			break;
+
 			case 'mute':
 				toggleMute(menu.dataset.user);
 			break;
@@ -1115,6 +1142,40 @@ document.querySelectorAll('.context').forEach(modal => {
 
 			case 'reply':
 				chatReply(menu.dataset.roomid, menu.dataset.user, menu.dataset.msgid);
+			break;
+
+			case 'readonly':
+				chatPanel.classList.toggle('hidden');
+				updateUrl();
+			break;
+
+			case 'botcommands':
+				botCommands = !botCommands;
+				updateUrl();
+			break;
+
+			case 'staticemotes':
+				staticEmotes = !staticEmotes;
+				updateUrl();
+			break;
+
+			case 'thirdpartyemotes':
+				thirdPartyEmotes = !thirdPartyEmotes;
+				updateUrl();
+			break;
+
+			case 'nodelete':
+				preventDelete = !preventDelete;
+				updateUrl();
+			break;
+
+			case 'unmuteall':
+				[...roomState.keys()].forEach(name => toggleMute(name, false));
+			break;
+
+			case 'purgeall':
+				const selector = '.msg';
+				deleteMessages(selector, true);
 			break;
 
 			case 'close':
