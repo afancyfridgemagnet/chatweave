@@ -26,10 +26,11 @@ const messageBuffer = createMessageBuffer(100);
 
 const cleanName = (s) => s?.trim().replace(/^(@|#)/,'').toLowerCase();
 const cleanHex = (s) => s?.trim().replace(/^#/,'').toLowerCase();
-const isValidTwitchAccount = (s) => s && /^[a-zA-Z0-9_]{4,25}$/.test(s);
 const isValidHexColor = (s) => s && /^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(s);
 const isValidUrl = (s) => s && /^((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)$/.test(s);
-const isBotCommand = (s) => s && /^!{1}[a-zA-Z0-9]+/.test(s);
+const isValidTwitchAccount = (s) => s && /^[a-zA-Z0-9_]{4,25}$/.test(s);
+const isValidTwitchMention = (s) => s && s.chatAt(0) === '@' && /^@[a-zA-Z0-9_]{4,25}$/.test(s);
+const isBotCommand = (s) => s && s.chatAt(0) === '!' && /^!{1}[a-zA-Z0-9]+/.test(s);
 const localeEquals = (x, y) => x.localeCompare(y, undefined, { sensitivity: 'base' }) === 0;
 
 const userState = {};				// state properties
@@ -332,10 +333,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				case 'text': {
 					// split sections and process based on content
 					return '<span>' + frag.text.split(' ').map(text => {
-						// linkify URLs
-						if (isValidUrl(text))
-							return `<a tabindex="-1" href="${text}">${text}</a>`;
-
 						// third-party emotes
 						if (thirdPartyEmotes) {
 							// channel emotes
@@ -356,6 +353,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 									return `<img class="emote" src="${gblEmote.url}" alt="${text}" data-source="${gblEmote.set}" data-menu="emoteMenu">`;
 							}
 						}
+
+						// additional mentions (twitch api only tracks first 5 @username as a "mention")
+						if (isValidTwitchMention(text)) {
+							const username = cleanName(text);
+							return `<span class="mention" data-user="${username}" data-menu="userMenu">${text}</span>`;
+						}
+
+						// linkify URLs
+						if (isValidUrl(text))
+							return `<a tabindex="-1" href="${text}">${text}</a>`;
 
 						// sanitize string
 						return sanitizeString(text);
