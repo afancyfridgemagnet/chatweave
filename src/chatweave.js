@@ -29,8 +29,8 @@ const cleanHex = (s) => s?.trim().replace(/^#/,'').toLowerCase();
 const isValidHexColor = (s) => s && /^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(s);
 const isValidUrl = (s) => s && /^((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)$/.test(s);
 const isValidTwitchAccount = (s) => s && /^[a-zA-Z0-9_]{4,25}$/.test(s);
-const isValidTwitchMention = (s) => s && s.chatAt(0) === '@' && /^@[a-zA-Z0-9_]{4,25}$/.test(s);
-const isBotCommand = (s) => s && s.chatAt(0) === '!' && /^!{1}[a-zA-Z0-9]+/.test(s);
+const isValidTwitchMention = (s) => s && s.charAt(0) === '@' && /^@[a-zA-Z0-9_]{4,25}$/.test(s);
+const isBotCommand = (s) => s && s.charAt(0) === '!' && /^!{1}[a-zA-Z0-9]+/.test(s);
 const localeEquals = (x, y) => x.localeCompare(y, undefined, { sensitivity: 'base' }) === 0;
 
 const userState = {};				// state properties
