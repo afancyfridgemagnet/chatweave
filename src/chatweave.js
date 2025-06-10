@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 							}
 						}
 
-						// additional mentions (twitch api only tracks first 5 @username as a "mention")
+						// additional potential mentions (twitch api only tracks first 5 @username as a "mention")
 						if (isValidTwitchMention(text)) {
 							const username = cleanName(text);
 							return `<span class="mention" data-user="${username}" data-menu="userMenu">${text}</span>`;
@@ -373,8 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				case 'mention': {
 					// @username
-					const username = cleanName(frag.text);
-					return `<span class="mention" data-user="${username}" data-menu="userMenu">${frag.text}</span>`;
+					return `<span class="mention" data-user="${frag.mention.user_login}" data-menu="userMenu">${frag.text}</span>`;
 				}
 
 				case 'emote': {
