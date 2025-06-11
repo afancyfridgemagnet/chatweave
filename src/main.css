@@ -56,6 +56,20 @@ body {
 	color: var(--light-color);
 }
 
+/* scrollbar */
+
+* {
+	scrollbar-color: var(--light-color) var(--dark-color);
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: var(--light-color);
+}
+
+::-webkit-scrollbar-track {
+	background-color: var(--dark-color);
+}
+
 /* general */
 
 html, body, #chatOutput {
@@ -159,18 +173,6 @@ a:active {
 	overflow-y: inherit;
 	/* improve perf during scroll */
 	will-change: scroll-position;
-}
-
-#chatOutput {
-	scrollbar-color: var(--light-color) var(--dark-color);
-}
-
-#chatOutput::-webkit-scrollbar-thumb {
-	background-color: var(--light-color);
-}
-
-#chatOutput::-webkit-scrollbar-track {
-	background-color: var(--dark-color);
 }
 
 #chatPanel {
