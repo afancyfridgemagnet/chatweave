@@ -345,6 +345,7 @@ a:active {
 	margin-left: 0.375rem;
 	margin-right: 0.375rem;
 
+	text-wrap: balance;
 	overflow-wrap: anywhere;
 }
 
