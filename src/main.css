@@ -188,6 +188,8 @@ a:active {
 
 #chatRooms {
 	list-style-type: none;
+	text-wrap: balance;
+
 	counter-reset: channel-number;
 }
 
