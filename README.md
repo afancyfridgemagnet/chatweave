@@ -29,13 +29,17 @@ Also for users who may want a clean and light-weight chat experience, as the def
 - [x] Send/receive basic chat messages w/ support for third-party emotes
 - [x] @username tab-completion for recent chatters
 - [x] Ignore messages from specific accounts (such as bots)
-- [x] Temporarily mute channels to stop displaying their messages
+- [x] Temporarily mute channels (stops displaying messages)
 - [x] Proper link parsing, all links open in a new browser tab
 - [x] Scrolling up preserves message history while you catch up
 - [x] Completely client-side
 - [x] Mobile Support
 - [x] Usable as OBS overlay
 - [x] Shareable/bookmarkable configuration via URLs!
+
+
+## Not Supported
+- [ ] Shared Chat messages are ignored due to unintuitive user experience. Manually join any channels you wish to see messages from.
 
 
 ## Potential Future Features (No promises)

@@ -313,10 +313,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 		if (!room_state || room_state.muted)
 			return;
 
-		// ignore shared chat message if it would appear duplicated
-		const shared_room = roomState.get(msg.source_broadcaster_user_login);
-		if (shared_room && !shared_room.muted)
+		// ignore shared chat messages entirely
+		if (msg.source_broadcaster_user_id)
 			return;
+		// attempted to handle shared chat in a friendly way
+		// but they're not intuitive from a user perspective (especially in regards to deletion)
+		// biggest issue is joining channels A & B and both of them receiving a shared message from C
+		//const shared_room = roomState.get(msg.source_broadcaster_user_login);
+		//if (shared_room && !shared_room.muted)
+		//	return;
 
 		// ignored accounts
 		if (ignoredUsers.has(msg.chatter_user_login))
