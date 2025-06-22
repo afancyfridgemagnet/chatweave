@@ -1079,9 +1079,11 @@ chatOutput.addEventListener('contextmenu', (e) => {
 
 document.addEventListener('contextmenu', (e) => {
 	const target = e.target;
-	// don't show if chat box
-	if (document.activeElement === chatInput) return;
-	// don't show if text is selected (allow browser functionality)
+	// prevent showing in certain scenarios to allow browser context menu to be used
+	if (target === chatInput) return;
+	// is link
+	if (target.matches('a')) return;
+	// text is selected
 	if (window.getSelection().toString()) return;
 
 	e.preventDefault();
