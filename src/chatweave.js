@@ -1169,6 +1169,7 @@ document.querySelectorAll('.context').forEach(modal => {
 
 			case 'readonly':
 				chatPanel.classList.toggle('hidden');
+				scrollToBottom();
 				updateUrl();
 			break;
 
