@@ -53,6 +53,12 @@
 			<div class="msg-time" title=""></div>
 		</div>
 	</template>
+	<menu id="emoteMenu" class="context hidden" tabindex="-1">
+		<li class="context-item"><img class="emote-img" src=""></li>
+		<li class="context-title emote-name"></li>
+		<li class="context-item emote-source"></li>
+		<li class="context-item" data-action="close">Close</li>
+	</menu>
 	<menu id="userMenu" class="context hidden" tabindex="-1">
 		<li class="context-title"></li>
 		<li class="context-item" data-action="twitch">Twitch Channel</li>
@@ -80,12 +86,6 @@
 		<li class="context-item"><hr></li>
 		<li class="context-item" data-action="purgeall">Purge Messages</li>
 		<li class="context-item" data-action="unmuteall">Unmute All</li>
-		<li class="context-item" data-action="close">Close</li>
-	</menu>
-	<menu id="emoteMenu" class="context hidden" tabindex="-1">
-		<li class="context-item"><img class="emote-img" src=""></li>
-		<li class="context-title emote-name"></li>
-		<li class="context-item emote-source"></li>
 		<li class="context-item" data-action="close">Close</li>
 	</menu>
 	<script src="twitchapi.js" defer></script>

@@ -1037,16 +1037,15 @@ chatRooms.addEventListener('click', (e) => {
 
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
-	if (target.dataset.menu !== roomMenu.id) return;
+	if (target.dataset.menu !== emoteMenu.id) return;
 
 	e.preventDefault();
 	e.stopPropagation();
 
-	const room = target.closest('[data-room]').dataset.room;
-	roomMenu.dataset.user = room;
-	roomMenu.querySelector('.context-title').textContent = room;
-
-	showMenu(roomMenu, e.clientX, e.clientY);
+	emoteMenu.querySelector('.emote-img').src = target.src;
+	emoteMenu.querySelector('.emote-name').textContent = target.alt;
+	emoteMenu.querySelector('.emote-source').textContent = target.dataset.source;
+	showMenu(emoteMenu, e.clientX, e.clientY);
 });
 
 chatOutput.addEventListener('contextmenu', (e) => {
@@ -1067,21 +1066,24 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	showMenu(userMenu, e.clientX, e.clientY);
 });
 
-chatOutput.addEventListener('contextmenu', (e) => {
+document.addEventListener('contextmenu', (e) => {
 	const target = e.target;
-	if (target.dataset.menu !== emoteMenu.id) return;
+	if (target.dataset.menu !== roomMenu.id) return;
 
 	e.preventDefault();
 	e.stopPropagation();
 
-	emoteMenu.querySelector('.emote-img').src = target.src;
-	emoteMenu.querySelector('.emote-name').textContent = target.alt;
-	emoteMenu.querySelector('.emote-source').textContent = target.dataset.source;
-	showMenu(emoteMenu, e.clientX, e.clientY);
+	const room = target.closest('[data-room]').dataset.room;
+	roomMenu.dataset.user = room;
+	roomMenu.querySelector('.context-title').textContent = room;
+
+	showMenu(roomMenu, e.clientX, e.clientY);
 });
 
 document.addEventListener('contextmenu', (e) => {
 	const target = e.target;
+	if (target.dataset.menu) return;
+
 	// prevent showing in certain scenarios to allow browser context menu to be used
 	if (target === chatInput) return;
 	// is link
