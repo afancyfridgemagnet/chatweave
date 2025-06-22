@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			// display after leaving so the message isn't removed
 			noticeMessage(`kicked from #${room_state.login} (${msg.status})`, {
 				roomid: room_state.id,
-				source: room_state.login,
+				room: room_state.login,
 				shade: room_state.color,
 				avatar: room_state.avatar,
 			});
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		noticeMessage(content, {
 			// channel
 			roomid: msg.broadcaster_user_id,
-			source: msg.broadcaster_user_login,
+			room: msg.broadcaster_user_login,
 			shade: room_state.color,
 			avatar: room_state.avatar,
 			// user
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		noticeMessage(content, {
 			// channel
 			roomid: msg.broadcaster_user_id,
-			source: msg.broadcaster_user_login,
+			room: msg.broadcaster_user_login,
 			shade: room_state.color,
 			avatar: room_state.avatar,
 			// user
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		noticeMessage(content, {
 			// channel
 			roomid: msg.to_broadcaster_user_id,
-			source: msg.to_broadcaster_user_login,
+			room: msg.to_broadcaster_user_login,
 			shade: room_state.color,
 			avatar: room_state.avatar,
 			// user
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		appendMessage({
 			// channel
 			roomid: msg.broadcaster_user_id,
-			source: msg.broadcaster_user_login,
+			room: msg.broadcaster_user_login,
 			shade: room_state.color,
 			avatar: room_state.avatar,
 			// user
@@ -730,6 +730,8 @@ chatInput.addEventListener('keyup', async (e) => {
 
 						channelNames.forEach(chan => {
 							const room_state = roomState.get(chan);
+							if (!room_state) return;
+
 							const selector = `.msg[data-roomid="${room_state.id}"]`;
 							deleteMessages(selector, true);
 						});
@@ -947,7 +949,7 @@ chatInput.addEventListener('keyup', async (e) => {
 					// failure
 					const text = res.success ? res.data.drop_reason.message : res.data.message;
 					noticeMessage(text, {
-						source: currentChannel,
+						room: currentChannel,
 						shade: room_state.color,
 						avatar: room_state.avatar,
 					});
@@ -963,16 +965,16 @@ chatInput.addEventListener('keyup', async (e) => {
 	}
 });
 
-function chatReply(roomid, user, msgid = undefined) {
+function chatReply(room, user, msgid = undefined) {
 	if (chatInput.disabled || chatInput.readonly) return;
 
 	// switch to message's channel
-	const channel = roomState.values().find(r => r.id === roomid)?.login;
+	const channel = roomState.get(room);
 	if (!activateChannel(channel)) return;
 
 	// lock channel
 	chatRooms.classList.add('disabled');
-	chatInput.dataset.roomid = roomid;
+	chatInput.dataset.roomid = channel.id;
 
 	if (msgid) {
 		// replying to specific message (no need to @mention)
@@ -1039,8 +1041,9 @@ chatRooms.addEventListener('contextmenu', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 
-	roomMenu.dataset.user = target.dataset.room;
-	roomMenu.querySelector('.context-title').textContent = target.dataset.room;
+	const room = target.closest('[data-room]').dataset.room;
+	roomMenu.dataset.user = room;
+	roomMenu.querySelector('.context-title').textContent = room;
 
 	showMenu(roomMenu, e.clientX, e.clientY);
 });
@@ -1052,10 +1055,12 @@ chatOutput.addEventListener('contextmenu', (e) => {
 	e.stopPropagation();
 
 	const msg = target.closest('.msg');
-	userMenu.dataset.roomid = msg.dataset.roomid
-	userMenu.dataset.user = target.dataset.user;
+	userMenu.dataset.room = msg.dataset.room;
 	userMenu.dataset.msgid = msg.dataset.msgid;
-	userMenu.querySelector('.context-title').textContent = target.dataset.user;
+
+	const user = target.closest('[data-user]').dataset.user;
+	userMenu.dataset.user = user;
+	userMenu.querySelector('.context-title').textContent = user;
 
 	showMenu(userMenu, e.clientX, e.clientY);
 });
@@ -1148,11 +1153,11 @@ document.querySelectorAll('.context').forEach(modal => {
 			break;
 
 			case 'mention':
-				chatReply(menu.dataset.roomid, menu.dataset.user, undefined);
+				chatReply(menu.dataset.room, menu.dataset.user, undefined);
 			break;
 
 			case 'reply':
-				chatReply(menu.dataset.roomid, menu.dataset.user, menu.dataset.msgid);
+				chatReply(menu.dataset.room, menu.dataset.user, menu.dataset.msgid);
 			break;
 
 			case 'readonly':
@@ -1476,6 +1481,7 @@ async function joinChannels(channels) {
 		const clone = roomTemplate.content.cloneNode(true);
 
 		const room = clone.querySelector('.room-list-item');
+		room.dataset.roomid = room_state.id;
 		room.dataset.room = room_state.login;
 		room.innerHTML = `<img class="room-list-item-avatar" src="${room_state.avatar}">${room_state.login}`;
 
@@ -1493,7 +1499,7 @@ async function joinChannels(channels) {
 
 		noticeMessage(`joined #${room_state.login}`, {
 			roomid: room_state.id,
-			source: room_state.login,
+			room: room_state.login,
 			shade: room_state.color,
 			avatar: room_state.avatar,
 		});
@@ -1536,7 +1542,7 @@ async function joinChannels(channels) {
 
 			noticeMessage(`failed to join #${room_state.login} (${result.error} - ${result.message})`, {
 				roomid: room_state.id,
-				source: room_state.login,
+				room: room_state.login,
 				shade: room_state.color,
 				avatar: room_state.avatar,
 			});
@@ -1632,7 +1638,7 @@ async function partChannels(channels) {
 		}
 
 		// update ui
-		const el = chatRooms.querySelector(`[data-room="${channel}"]`);
+		const el = chatRooms.querySelector(`[data-roomid="${channel.id}"]`);
 		if (el) {
 			// set new active channel if this was active
 			if (el.classList.contains('active')) {
@@ -1652,7 +1658,7 @@ async function partChannels(channels) {
 
 		// finalize
 		noticeMessage(`left #${channel}`, {
-			source: channel,
+			room: channel,
 			shade: room_state.color,
 			avatar: room_state.avatar,
 		});
@@ -1688,7 +1694,7 @@ function toggleMute(channel, state) {
 
 	// toggle mute
 	room_state.muted = state ?? !room_state.muted;
-	chatRooms.querySelector(`[data-room="${room_state.login}"]`)?.classList.toggle('muted', room_state.muted);
+	chatRooms.querySelector(`[data-roomid="${room_state.id}"]`)?.classList.toggle('muted', room_state.muted);
 
 	// clear messages
 	if (room_state.muted) {
@@ -1803,6 +1809,8 @@ function appendMessage(info) {
 	// avoiding "undefined" values helps us long term
 	if (info.roomid)
 		msg.dataset.roomid = info.roomid;
+	if (info.room)
+		msg.dataset.room = info.room;
 	if (info.msgid)
 		msg.dataset.msgid = info.msgid;
 	if (info.userid)
@@ -1818,7 +1826,7 @@ function appendMessage(info) {
 	msg.classList.toggle('msg-ping', !!info.ping);
 
 	// room
-	if (info.source) {
+	if (info.room) {
 		const room_avatar = clone.querySelector('.msg-room-avatar');
 		room_avatar.src = info.avatar;
 	} else {
