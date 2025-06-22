@@ -969,12 +969,12 @@ function chatReply(room, user, msgid = undefined) {
 	if (chatInput.disabled || chatInput.readonly) return;
 
 	// switch to message's channel
-	const channel = roomState.get(room);
-	if (!activateChannel(channel)) return;
+	const room_state = roomState.get(room);
+	if (!room_state || !activateChannel(room)) return;
 
 	// lock channel
 	chatRooms.classList.add('disabled');
-	chatInput.dataset.roomid = channel.id;
+	chatInput.dataset.roomid = room_state.id;
 
 	if (msgid) {
 		// replying to specific message (no need to @mention)
@@ -1035,7 +1035,7 @@ chatRooms.addEventListener('click', (e) => {
 	}
 });
 
-chatRooms.addEventListener('contextmenu', (e) => {
+chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
 	if (target.dataset.menu !== roomMenu.id) return;
 	e.preventDefault();
@@ -1640,7 +1640,7 @@ async function partChannels(channels) {
 		}
 
 		// update ui
-		const el = chatRooms.querySelector(`[data-roomid="${channel.id}"]`);
+		const el = chatRooms.querySelector(`[data-roomid="${room_state.id}"]`);
 		if (el) {
 			// set new active channel if this was active
 			if (el.classList.contains('active')) {
