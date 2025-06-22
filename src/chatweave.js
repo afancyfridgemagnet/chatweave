@@ -1038,6 +1038,7 @@ chatRooms.addEventListener('click', (e) => {
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
 	if (target.dataset.menu !== roomMenu.id) return;
+
 	e.preventDefault();
 	e.stopPropagation();
 
@@ -1051,6 +1052,7 @@ chatOutput.addEventListener('contextmenu', (e) => {
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
 	if (target.dataset.menu !== userMenu.id) return;
+
 	e.preventDefault();
 	e.stopPropagation();
 
@@ -1068,6 +1070,7 @@ chatOutput.addEventListener('contextmenu', (e) => {
 chatOutput.addEventListener('contextmenu', (e) => {
 	const target = e.target;
 	if (target.dataset.menu !== emoteMenu.id) return;
+
 	e.preventDefault();
 	e.stopPropagation();
 
@@ -1843,19 +1846,17 @@ function appendMessage(info) {
 		user.textContent = info.name;
 	} else {
 		// message from user
-		if (info.badge)
-			user.insertAdjacentHTML('afterbegin', `<img class="msg-user-badge" src="${info.badge}">`);
-
+		const name = clone.querySelector('.msg-user-name');
+		name.dataset.user = info.user;
 		// localized name support
 		const friendlyName = localeEquals(info.name, info.user)
 			? info.name
 			: `${info.name} (${info.user})`;
-
-		// update link
-		const name = clone.querySelector('.msg-user-name');
-		name.dataset.user = info.user;
 		name.title = friendlyName;
 		name.textContent = friendlyName;
+
+		if (info.badge)
+			name.insertAdjacentHTML('beforebegin', `<img class="msg-user-badge" src="${info.badge}">`);
 
 		// text color style
 		if (info.color) {
