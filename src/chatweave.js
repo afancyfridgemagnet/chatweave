@@ -1086,9 +1086,9 @@ document.addEventListener('contextmenu', (e) => {
 
 	// prevent showing in certain scenarios to allow browser context menu to be used
 	if (target === chatInput) return;
-	// is link
 	if (target.matches('a')) return;
-	// text is selected
+	if (target.matches('img')) return;
+	if (target.closest('.context')) return;
 	if (window.getSelection().toString()) return;
 
 	e.preventDefault();

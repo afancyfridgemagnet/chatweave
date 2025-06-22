@@ -433,7 +433,8 @@ a:active {
 }
 
 .emote-name {
-
+	-webkit-user-select: all;
+	user-select: all;
 }
 
 .emote-source {
